@@ -299,7 +299,8 @@ def render_trend_chart(portfolio: dict) -> None:
         hovermode="x unified",
         xaxis=dict(showgrid=False),
         yaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.05)", tickprefix="$"),
-        yaxis2=dict(showgrid=False, tickprefix="$", title="배당금"),
+        yaxis2=dict(showgrid=False, tickprefix="$", title="배당금",
+                    range=[0, max(dividends) * 8 if any(dividends) else 1000]),
     )
 
     st.plotly_chart(fig, use_container_width=True)

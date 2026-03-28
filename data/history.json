@@ -1,0 +1,400 @@
+{
+  "snapshots": [
+    {
+      "date": "2025-12-29",
+      "total_value_usd": 414841.15,
+      "total_cost_usd": 379295.0,
+      "dividend_usd": 515.58
+    },
+    {
+      "date": "2025-12-30",
+      "total_value_usd": 413315.04,
+      "total_cost_usd": 379295.8,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2025-12-31",
+      "total_value_usd": 416112.89,
+      "total_cost_usd": 379296.6,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-01-01",
+      "total_value_usd": 416188.55,
+      "total_cost_usd": 379297.4,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-01-02",
+      "total_value_usd": 417348.07,
+      "total_cost_usd": 379298.2,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-01-05",
+      "total_value_usd": 419103.34,
+      "total_cost_usd": 379299.0,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-01-06",
+      "total_value_usd": 420796.44,
+      "total_cost_usd": 379299.8,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-01-07",
+      "total_value_usd": 423698.25,
+      "total_cost_usd": 379300.6,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-01-08",
+      "total_value_usd": 424923.49,
+      "total_cost_usd": 379301.4,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-01-09",
+      "total_value_usd": 426203.08,
+      "total_cost_usd": 379302.2,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-01-12",
+      "total_value_usd": 427164.78,
+      "total_cost_usd": 379303.0,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "total_value_usd": 428899.53,
+      "total_cost_usd": 379303.8,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-01-14",
+      "total_value_usd": 432636.85,
+      "total_cost_usd": 379304.6,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-01-15",
+      "total_value_usd": 436113.87,
+      "total_cost_usd": 379305.4,
+      "dividend_usd": 791.0
+    },
+    {
+      "date": "2026-01-16",
+      "total_value_usd": 436494.69,
+      "total_cost_usd": 379306.2,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-01-19",
+      "total_value_usd": 438249.6,
+      "total_cost_usd": 379307.0,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-01-20",
+      "total_value_usd": 440922.8,
+      "total_cost_usd": 379307.8,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-01-21",
+      "total_value_usd": 439973.77,
+      "total_cost_usd": 379308.6,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-01-22",
+      "total_value_usd": 442982.14,
+      "total_cost_usd": 379309.4,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-01-23",
+      "total_value_usd": 445332.42,
+      "total_cost_usd": 379310.2,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-01-26",
+      "total_value_usd": 446878.17,
+      "total_cost_usd": 379311.0,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-01-27",
+      "total_value_usd": 446138.79,
+      "total_cost_usd": 379311.8,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-01-28",
+      "total_value_usd": 447402.86,
+      "total_cost_usd": 379312.6,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-01-29",
+      "total_value_usd": 447204.55,
+      "total_cost_usd": 379313.4,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-01-30",
+      "total_value_usd": 447406.57,
+      "total_cost_usd": 379314.2,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-02-02",
+      "total_value_usd": 444357.18,
+      "total_cost_usd": 379315.0,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-02-03",
+      "total_value_usd": 446092.52,
+      "total_cost_usd": 379315.8,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-02-04",
+      "total_value_usd": 442799.44,
+      "total_cost_usd": 379316.6,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-02-05",
+      "total_value_usd": 440815.51,
+      "total_cost_usd": 379317.4,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-02-06",
+      "total_value_usd": 442986.87,
+      "total_cost_usd": 379318.2,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-02-09",
+      "total_value_usd": 442064.16,
+      "total_cost_usd": 379319.0,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-02-10",
+      "total_value_usd": 443932.84,
+      "total_cost_usd": 379319.8,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-02-11",
+      "total_value_usd": 443137.74,
+      "total_cost_usd": 379320.6,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-02-12",
+      "total_value_usd": 440128.03,
+      "total_cost_usd": 379321.4,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-02-13",
+      "total_value_usd": 442352.42,
+      "total_cost_usd": 379322.2,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-02-16",
+      "total_value_usd": 439392.88,
+      "total_cost_usd": 379323.0,
+      "dividend_usd": 501.0
+    },
+    {
+      "date": "2026-02-17",
+      "total_value_usd": 440091.23,
+      "total_cost_usd": 379323.8,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-02-18",
+      "total_value_usd": 439304.63,
+      "total_cost_usd": 379324.6,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-02-19",
+      "total_value_usd": 439330.24,
+      "total_cost_usd": 379325.4,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-02-20",
+      "total_value_usd": 439743.99,
+      "total_cost_usd": 379326.2,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-02-23",
+      "total_value_usd": 438993.02,
+      "total_cost_usd": 379327.0,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-02-24",
+      "total_value_usd": 438100.4,
+      "total_cost_usd": 379327.8,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-02-25",
+      "total_value_usd": 437980.54,
+      "total_cost_usd": 379328.6,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-02-26",
+      "total_value_usd": 437973.95,
+      "total_cost_usd": 379329.4,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-02-27",
+      "total_value_usd": 436984.2,
+      "total_cost_usd": 379330.2,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-03-02",
+      "total_value_usd": 437326.03,
+      "total_cost_usd": 379331.0,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-03-03",
+      "total_value_usd": 438112.2,
+      "total_cost_usd": 379331.8,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-03-04",
+      "total_value_usd": 439850.21,
+      "total_cost_usd": 379332.6,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-03-05",
+      "total_value_usd": 439323.95,
+      "total_cost_usd": 379333.4,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-03-06",
+      "total_value_usd": 443199.39,
+      "total_cost_usd": 379334.2,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-03-09",
+      "total_value_usd": 439494.04,
+      "total_cost_usd": 379335.0,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-03-10",
+      "total_value_usd": 439584.52,
+      "total_cost_usd": 379335.8,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-03-11",
+      "total_value_usd": 442517.84,
+      "total_cost_usd": 379336.6,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-03-12",
+      "total_value_usd": 443846.75,
+      "total_cost_usd": 379337.4,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-03-13",
+      "total_value_usd": 443094.27,
+      "total_cost_usd": 379338.2,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-03-16",
+      "total_value_usd": 443995.13,
+      "total_cost_usd": 379339.0,
+      "dividend_usd": 498.93
+    },
+    {
+      "date": "2026-03-17",
+      "total_value_usd": 444706.98,
+      "total_cost_usd": 379339.8,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-03-18",
+      "total_value_usd": 441926.38,
+      "total_cost_usd": 379340.6,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-03-19",
+      "total_value_usd": 438956.85,
+      "total_cost_usd": 379341.4,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-03-20",
+      "total_value_usd": 438618.31,
+      "total_cost_usd": 379342.2,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-03-23",
+      "total_value_usd": 438889.0,
+      "total_cost_usd": 379343.0,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-03-24",
+      "total_value_usd": 434050.19,
+      "total_cost_usd": 379343.8,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-03-25",
+      "total_value_usd": 434408.62,
+      "total_cost_usd": 379344.6,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-03-26",
+      "total_value_usd": 433391.35,
+      "total_cost_usd": 379345.4,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-03-27",
+      "total_value_usd": 431765.73,
+      "total_cost_usd": 379346.2,
+      "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-03-28",
+      "total_value_usd": 431847.0,
+      "total_cost_usd": 379347.0,
+      "dividend_usd": 0.0
+    }
+  ]
+}
