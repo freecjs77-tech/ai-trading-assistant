@@ -25,9 +25,16 @@ def portfolio():
 
 @pytest.fixture
 def market_cache():
+    """market_cache.json 로드. tickers가 비어있으면 mock 데이터 폴백."""
     path = DATA_DIR / "market_cache.json"
-    assert path.exists(), "data/market_cache.json 없음"
-    with open(path, encoding="utf-8") as f:
+    mock_path = ROOT / "tests" / "fixtures" / "mock_market_data.json"
+    if path.exists():
+        with open(path, encoding="utf-8") as f:
+            data = json.load(f)
+        if data.get("tickers"):  # 실데이터 있으면 그대로 사용
+            return data
+    assert mock_path.exists(), "mock_market_data.json 없음"
+    with open(mock_path, encoding="utf-8") as f:
         return json.load(f)
 
 

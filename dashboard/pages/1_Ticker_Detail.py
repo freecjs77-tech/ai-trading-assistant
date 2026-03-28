@@ -4,6 +4,7 @@ dashboard/pages/1_Ticker_Detail.py — 종목 기술 차트 상세 페이지
 """
 
 import json
+import os
 import sys
 import time
 from pathlib import Path
@@ -21,11 +22,12 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 DATA_DIR     = ROOT_DIR / "data"
 FIXTURES_DIR = ROOT_DIR / "tests" / "fixtures"
 
-st.set_page_config(page_title="Ticker Detail", page_icon="📈", layout="wide",
-                   initial_sidebar_state="collapsed")
+USE_MOCK = os.getenv("USE_MOCK_DATA", "false").lower() == "true"
+
+st.set_page_config(page_title="Ticker Detail | AI Trading Assistant", page_icon="📈", layout="wide")
 
 from style import inject_css
-from components import strategy_progress, signal_card
+from components import strategy_progress, signal_card, metric_card
 
 inject_css()
 
@@ -42,14 +44,14 @@ def _load_json(path: Path) -> Optional[dict]:
 
 
 @st.cache_data(ttl=60)
-def load_portfolio(test_mode: bool = False) -> Optional[dict]:
-    fname = "test_portfolio.json" if test_mode else "portfolio.json"
+def load_portfolio() -> Optional[dict]:
+    fname = "test_portfolio.json" if USE_MOCK else "portfolio.json"
     return _load_json(DATA_DIR / fname)
 
 
 @st.cache_data(ttl=60)
-def load_market(test_mode: bool = False) -> Optional[dict]:
-    if test_mode:
+def load_market() -> Optional[dict]:
+    if USE_MOCK:
         return _load_json(FIXTURES_DIR / "mock_market_data.json")
     return _load_json(DATA_DIR / "market_cache.json")
 
@@ -189,7 +191,7 @@ def create_technical_chart(hist: pd.DataFrame, ticker: str) -> go.Figure:
     fig.update_layout(
         height=520, showlegend=False,
         margin=dict(l=0, r=50, t=10, b=20),
-        plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="#FFFFFF", paper_bgcolor="#FFFFFF", font_color="#1A1A1A",
         hovermode="x unified", bargap=0,
     )
     for row in range(1, 5):
@@ -229,15 +231,10 @@ def make_mock_ohlcv(ticker: str, market: dict, days: int = 180) -> pd.DataFrame:
 # 메인
 # ─────────────────────────────────────────────
 
-with st.sidebar:
-    st.markdown("### ⚙️ 설정")
-    test_mode = st.toggle("테스트 모드 (mock 데이터)", value=False)
-    period_map = {"1개월": "1mo", "3개월": "3mo", "6개월": "6mo", "1년": "1y"}
-    period_lbl = st.selectbox("차트 기간", list(period_map.keys()), index=2)
-    yf_period  = period_map[period_lbl]
+yf_period = "6mo"  # 기본 차트 기간
 
-portfolio = load_portfolio(test_mode)
-market    = load_market(test_mode)
+portfolio = load_portfolio()
+market    = load_market()
 signals   = load_signals()
 
 holdings    = sorted(portfolio.get("holdings", []) if portfolio else [],
@@ -249,7 +246,11 @@ st.markdown("← [Dashboard](/) &nbsp;/&nbsp; Ticker Detail", unsafe_allow_html=
 st.markdown("---")
 
 if not tickers:
-    st.warning("포트폴리오 데이터 없음")
+    st.markdown(
+        '<div style="background:#FFF3CD;border-radius:8px;padding:10px 14px;color:#856404;font-size:12px">'
+        '포트폴리오 데이터 없음</div>',
+        unsafe_allow_html=True,
+    )
     st.stop()
 
 selected = st.selectbox(
@@ -274,7 +275,7 @@ with col_l:
         f"border-radius:6px;color:#555'>{cls_lbl}</span>",
         unsafe_allow_html=True,
     )
-    st.caption(f"{h.get('name','')} / {h.get('shares',0):,.3f} shares")
+    st.markdown(f'<div style="font-size:11px;color:#888780">{h.get("name","")} / {h.get("shares",0):,.3f} shares</div>', unsafe_allow_html=True)
 with col_r:
     st.markdown(
         f"<div style='text-align:right'>"
@@ -286,35 +287,36 @@ with col_r:
     )
 
 curr_price = market["tickers"].get(selected, {}).get("price", 0) if market else 0
-m1, m2, m3, m4 = st.columns(4)
-m1.metric("평균단가", f"${avg:,.2f}")
-m2.metric("현재가",   f"${curr_price:,.2f}")
-m3.metric("비중",     f"{weight:.1f}%")
-
 stage_info: dict = {}
 if signals:
     for s in signals.get("signals", []):
         if s["ticker"] == selected:
             stage_info = s.get("strategy_stage", {})
             break
-m4.metric("현재 단계", f"{stage_info.get('current_tranche', 1)}차" if stage_info else "—")
+
+m1, m2, m3, m4 = st.columns(4)
+m1.markdown(metric_card("평균단가", f"${avg:,.2f}"), unsafe_allow_html=True)
+m2.markdown(metric_card("현재가",   f"${curr_price:,.2f}"), unsafe_allow_html=True)
+m3.markdown(metric_card("비중",     f"{weight:.1f}%"), unsafe_allow_html=True)
+m4.markdown(metric_card("현재 단계", f"{stage_info.get('current_tranche', 1)}차" if stage_info else "—"),
+            unsafe_allow_html=True)
 
 st.markdown("---")
 
 # 기술 차트
 st.markdown(f"#### 📊 {selected} 기술 차트")
 
-if test_mode:
+if USE_MOCK:
     if market:
         hist_df = make_mock_ohlcv(selected, market)
         fig = create_technical_chart(hist_df, selected)
         st.plotly_chart(fig, use_container_width=True)
     else:
-        st.warning("mock 데이터 없음")
+        st.markdown('<div style="background:#FFF3CD;border-radius:8px;padding:10px;color:#856404;font-size:12px">mock 데이터 없음</div>', unsafe_allow_html=True)
 else:
     hist_df, err_msg = fetch_ohlcv(selected, yf_period)
     if hist_df is None:
-        st.warning(f"{selected}: {err_msg}")
+        st.markdown(f'<div style="background:#FFF3CD;border-radius:8px;padding:10px;color:#856404;font-size:12px">{selected}: {err_msg}</div>', unsafe_allow_html=True)
     else:
         fig = create_technical_chart(hist_df, selected)
         st.plotly_chart(fig, use_container_width=True)
@@ -332,7 +334,12 @@ if h.get("classification"):
     if market:
         ms_status = market.get("master_switch", {}).get("status", "RED")
         if ms_status == "RED" and h.get("classification") != "bond_gold_v26":
-            st.warning("⚠️ Master switch RED: 주식 신규 매수 중단")
+            st.markdown(
+                '<div style="background:#FCEBEB;border-radius:8px;padding:8px 12px;'
+                'color:#791F1F;font-size:12px;margin-top:6px">'
+                '⚠ Master switch RED: 주식 신규 매수 중단</div>',
+                unsafe_allow_html=True,
+            )
 
 st.markdown("---")
 
@@ -354,4 +361,4 @@ if signals:
             )
             break
     else:
-        st.caption("시그널 데이터 없음 — Overview에서 Update 버튼을 누르세요.")
+        st.markdown('<div style="font-size:11px;color:#888780">시그널 데이터 없음 — Overview에서 Update 버튼을 누르세요.</div>', unsafe_allow_html=True)
