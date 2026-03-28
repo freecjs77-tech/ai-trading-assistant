@@ -70,17 +70,26 @@ def load_signals() -> Optional[dict]:
         return json.load(f)
 
 
-@st.cache_data(ttl=600)
-def fetch_ohlcv(ticker: str, period: str = "6mo") -> Optional[pd.DataFrame]:
-    """yfinance에서 OHLCV 데이터 로드"""
-    try:
-        tk = yf.Ticker(ticker)
-        hist = tk.history(period=period, auto_adjust=True)
-        if hist.empty:
-            return None
-        return hist
-    except Exception:
-        return None
+@st.cache_data(ttl=300)
+def fetch_ohlcv(ticker: str, period: str = "6mo") -> tuple[Optional[pd.DataFrame], str]:
+    """yfinance에서 OHLCV 데이터 로드. (DataFrame | None, 오류메시지) 반환"""
+    import time
+    for attempt in range(2):
+        try:
+            tk = yf.Ticker(ticker)
+            hist = tk.history(period=period, auto_adjust=True)
+            if hist.empty:
+                return None, "데이터 없음"
+            return hist, ""
+        except Exception as e:
+            err = str(e)
+            if "Rate limit" in err or "Too Many Requests" in err:
+                if attempt == 0:
+                    time.sleep(3)
+                    continue
+                return None, "Yahoo Finance API 일시 제한 — 1~2분 후 새로고침"
+            return None, f"로드 오류: {err[:60]}"
+    return None, "재시도 실패"
 
 
 def calc_indicators(hist: pd.DataFrame) -> pd.DataFrame:
@@ -362,10 +371,10 @@ def main() -> None:
     yf_period = period_map[period_sel]
 
     with st.spinner(f"{selected} 데이터 로드 중..."):
-        hist = fetch_ohlcv(selected, yf_period)
+        hist, err_msg = fetch_ohlcv(selected, yf_period)
 
-    if hist is None or hist.empty:
-        st.warning(f"{selected}: 차트 데이터 로드 실패")
+    if hist is None:
+        st.warning(f"{selected}: {err_msg}")
     else:
         render_technical_chart(selected, hist, holding)
 
