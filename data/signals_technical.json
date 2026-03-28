@@ -1,18 +1,18 @@
 {
   "date": "2026-03-28",
-  "master_switch": "RED",
-  "vix_tier": "high (30.9)",
-  "treasury_30y": 4.982,
-  "usdkrw": 1425.5,
-  "allocation_modifier": 0.5,
-  "allocation_note": "VIX 30.9 — 모든 진입 규모 x0.5 적용",
+  "master_switch": "GREEN",
+  "vix_tier": "normal (15.0)",
+  "treasury_30y": null,
+  "usdkrw": null,
+  "allocation_modifier": 1.0,
+  "allocation_note": "",
   "signals": [
     {
       "ticker": "JEPI",
       "classification": "etf_v24",
       "action": "L3_BREAKDOWN",
       "tranche": null,
-      "confidence": 70,
+      "confidence": 100,
       "rationale": "붕괴 시그널 발동. MA20 아래 2일 + 상승 저점 붕괴 + MACD 데스 크로스. 전량 매도 검토.",
       "conditions_met": [
         "price_below_ma20_2d",
@@ -31,7 +31,7 @@
       "classification": "growth_v22",
       "action": "L3_BREAKDOWN",
       "tranche": null,
-      "confidence": 70,
+      "confidence": 100,
       "rationale": "붕괴 시그널 발동. MA20 아래 2일 + 상승 저점 붕괴 + MACD 데스 크로스. 전량 매도 검토.",
       "conditions_met": [
         "price_below_ma20_2d",
@@ -50,7 +50,7 @@
       "classification": "bond_gold_v26_tlt",
       "action": "L3_BREAKDOWN",
       "tranche": null,
-      "confidence": 70,
+      "confidence": 100,
       "rationale": "붕괴 시그널 발동. MA20 아래 2일 + 상승 저점 붕괴 + MACD 데스 크로스. 전량 매도 검토.",
       "conditions_met": [
         "price_below_ma20_2d",
@@ -69,7 +69,7 @@
       "classification": "growth_v22",
       "action": "L3_BREAKDOWN",
       "tranche": null,
-      "confidence": 70,
+      "confidence": 100,
       "rationale": "붕괴 시그널 발동. MA20 아래 2일 + 상승 저점 붕괴 + MACD 데스 크로스. 전량 매도 검토.",
       "conditions_met": [
         "price_below_ma20_2d",
@@ -88,7 +88,7 @@
       "classification": "growth_v22",
       "action": "L3_BREAKDOWN",
       "tranche": null,
-      "confidence": 70,
+      "confidence": 100,
       "rationale": "붕괴 시그널 발동. MA20 아래 2일 + 상승 저점 붕괴 + MACD 데스 크로스. 전량 매도 검토.",
       "conditions_met": [
         "price_below_ma20_2d",
@@ -107,7 +107,7 @@
       "classification": "energy_v23",
       "action": "L3_BREAKDOWN",
       "tranche": null,
-      "confidence": 70,
+      "confidence": 100,
       "rationale": "붕괴 시그널 발동. MA20 아래 2일 + 상승 저점 붕괴 + MACD 데스 크로스. 전량 매도 검토.",
       "conditions_met": [
         "price_below_ma20_2d",
@@ -126,7 +126,7 @@
       "classification": "growth_v22",
       "action": "L3_BREAKDOWN",
       "tranche": null,
-      "confidence": 70,
+      "confidence": 100,
       "rationale": "붕괴 시그널 발동. MA20 아래 2일 + 상승 저점 붕괴 + MACD 데스 크로스 + 8% 하락. 전량 매도 검토.",
       "conditions_met": [
         "price_below_ma20_2d",
@@ -144,7 +144,7 @@
       "classification": "growth_v22",
       "action": "L3_BREAKDOWN",
       "tranche": null,
-      "confidence": 70,
+      "confidence": 100,
       "rationale": "붕괴 시그널 발동. MA20 아래 2일 + 상승 저점 붕괴 + MACD 데스 크로스. 전량 매도 검토.",
       "conditions_met": [
         "price_below_ma20_2d",
@@ -163,7 +163,7 @@
       "classification": "growth_v22",
       "action": "L3_BREAKDOWN",
       "tranche": null,
-      "confidence": 70,
+      "confidence": 100,
       "rationale": "붕괴 시그널 발동. MA20 아래 2일 + 상승 저점 붕괴 + MACD 데스 크로스. 전량 매도 검토.",
       "conditions_met": [
         "price_below_ma20_2d",
@@ -182,7 +182,7 @@
       "classification": "bond_gold_v26_slv",
       "action": "L3_BREAKDOWN",
       "tranche": null,
-      "confidence": 70,
+      "confidence": 100,
       "rationale": "붕괴 시그널 발동. MA20 아래 2일 + 상승 저점 붕괴 + MACD 데스 크로스. 전량 매도 검토.",
       "conditions_met": [
         "price_below_ma20_2d",
@@ -201,7 +201,7 @@
       "classification": "speculative",
       "action": "L3_BREAKDOWN",
       "tranche": null,
-      "confidence": 70,
+      "confidence": 100,
       "rationale": "붕괴 시그널 발동. MA20 아래 2일 + 상승 저점 붕괴 + MACD 데스 크로스 + 8% 하락. 전량 매도 검토.",
       "conditions_met": [
         "price_below_ma20_2d",
@@ -219,7 +219,7 @@
       "classification": "speculative",
       "action": "L3_BREAKDOWN",
       "tranche": null,
-      "confidence": 70,
+      "confidence": 100,
       "rationale": "붕괴 시그널 발동. MA20 아래 2일 + 상승 저점 붕괴 + MACD 데스 크로스 + 8% 하락. 전량 매도 검토.",
       "conditions_met": [
         "price_below_ma20_2d",
@@ -237,7 +237,7 @@
       "classification": "speculative",
       "action": "L3_BREAKDOWN",
       "tranche": null,
-      "confidence": 70,
+      "confidence": 100,
       "rationale": "붕괴 시그널 발동. MA20 아래 2일 + 상승 저점 붕괴 + MACD 데스 크로스 + 8% 하락. 전량 매도 검토.",
       "conditions_met": [
         "price_below_ma20_2d",
@@ -255,7 +255,7 @@
       "classification": "speculative",
       "action": "L3_BREAKDOWN",
       "tranche": null,
-      "confidence": 70,
+      "confidence": 100,
       "rationale": "붕괴 시그널 발동. MA20 아래 2일 + 상승 저점 붕괴 + MACD 데스 크로스 + 8% 하락. 전량 매도 검토.",
       "conditions_met": [
         "price_below_ma20_2d",
@@ -273,7 +273,7 @@
       "classification": "speculative",
       "action": "L3_BREAKDOWN",
       "tranche": null,
-      "confidence": 70,
+      "confidence": 100,
       "rationale": "붕괴 시그널 발동. MA20 아래 2일 + 상승 저점 붕괴 + MACD 데스 크로스 + 8% 하락. 전량 매도 검토.",
       "conditions_met": [
         "price_below_ma20_2d",
@@ -417,7 +417,7 @@
       "classification": "bond_gold_v26",
       "action": "HOLD",
       "tranche": null,
-      "confidence": 20,
+      "confidence": 80,
       "rationale": "특이 신호 없음. RSI 52.0. MACD 상승. 현재 포지션 유지.",
       "conditions_met": [],
       "conditions_not_met": [],
@@ -428,23 +428,7 @@
       "strategy_stage": {}
     }
   ],
-  "macro_alerts": [
-    {
-      "type": "master_switch",
-      "level": "warning",
-      "message": "마스터 스위치 RED — QQQ/SPY 모두 MA200 아래. 신규 주식 매수 없음."
-    },
-    {
-      "type": "vix",
-      "level": "warning",
-      "message": "VIX 극공포 30.9 — 배분 50% 축소."
-    },
-    {
-      "type": "treasury_yield",
-      "level": "info",
-      "message": "30Y 금리 4.982% — 5.0% 진입 트리거 임박."
-    }
-  ],
+  "macro_alerts": [],
   "summary": {
     "l3_breakdown": 15,
     "l2_weakening": 0,
@@ -454,80 +438,5 @@
     "watch": 0,
     "hold": 1
   },
-  "mode": "full",
-  "rebalance_alerts": [
-    {
-      "trigger": "single_position_overweight",
-      "ticker": "VOO",
-      "current_pct": 23.65,
-      "max_pct": 15.0,
-      "action": "다음 L1/L2 시그널 시 12.0%까지 트림",
-      "message": "VOO 비중 23.6% — 최대 15% 초과. L1/L2 시그널 발생 시 12%까지 트림 권장.",
-      "severity": "warning"
-    },
-    {
-      "trigger": "single_position_overweight",
-      "ticker": "BIL",
-      "current_pct": 21.22,
-      "max_pct": 15.0,
-      "action": "다음 L1/L2 시그널 시 12.0%까지 트림",
-      "message": "BIL 비중 21.2% — 최대 15% 초과. L1/L2 시그널 발생 시 12%까지 트림 권장.",
-      "severity": "warning"
-    },
-    {
-      "trigger": "single_position_overweight",
-      "ticker": "QQQ",
-      "current_pct": 17.67,
-      "max_pct": 15.0,
-      "action": "다음 L1/L2 시그널 시 12.0%까지 트림",
-      "message": "QQQ 비중 17.7% — 최대 15% 초과. L1/L2 시그널 발생 시 12%까지 트림 권장.",
-      "severity": "caution"
-    },
-    {
-      "trigger": "asset_class_drift",
-      "asset_class": "equity",
-      "current_pct": 76.62,
-      "threshold_pct": 75.0,
-      "action": "신규 자금을 채권/금으로 배분",
-      "message": "주식 비중 76.6% — 상한 75% 초과. 신규 자금을 채권/금으로 리다이렉트 권장.",
-      "severity": "caution"
-    },
-    {
-      "trigger": "tax_account_priority",
-      "action": "ISA/연금 계좌 신규 매수 우선 배분",
-      "message": "ISA/연금 계좌 연간 납입 한도 활용 여부 확인. 세제 혜택 활용 우선.",
-      "severity": "info"
-    }
-  ],
-  "portfolio_stats": {
-    "total_value_usd": 431847.0,
-    "asset_class_weights": {
-      "equity": 76.62,
-      "bond": 23.2,
-      "commodity": 0.18,
-      "other": 0.0
-    },
-    "top5_by_weight": [
-      [
-        "VOO",
-        23.65
-      ],
-      [
-        "BIL",
-        21.22
-      ],
-      [
-        "QQQ",
-        17.67
-      ],
-      [
-        "SCHD",
-        10.66
-      ],
-      [
-        "AAPL",
-        4.57
-      ]
-    ]
-  }
+  "mode": "technical_only"
 }

@@ -1,10 +1,11 @@
 """
-dashboard/pages/1_Ticker_Detail.py — 종목 상세 기술 차트
-4패널: 가격+BB+MA / RSI / MACD / 거래량
+dashboard/pages/1_Ticker_Detail.py — 종목 기술 차트 상세 페이지
+4-panel Plotly 차트 + 전략 단계 + 시그널
 """
 
 import json
 import sys
+import time
 from pathlib import Path
 from typing import Optional
 
@@ -14,66 +15,52 @@ from plotly.subplots import make_subplots
 import streamlit as st
 import yfinance as yf
 
-ROOT_DIR = Path(__file__).parent.parent.parent
+ROOT_DIR     = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(ROOT_DIR / "src"))
-DATA_DIR = ROOT_DIR / "data"
+sys.path.insert(0, str(Path(__file__).parent.parent))
+DATA_DIR     = ROOT_DIR / "data"
+FIXTURES_DIR = ROOT_DIR / "tests" / "fixtures"
 
-st.set_page_config(page_title="Ticker Detail", page_icon="📈", layout="wide")
+st.set_page_config(page_title="Ticker Detail", page_icon="📈", layout="wide",
+                   initial_sidebar_state="collapsed")
 
-TICKER_NAMES = {
-    "VOO": "Vanguard S&P 500", "BIL": "SPDR 단기채", "QQQ": "Invesco QQQ",
-    "SCHD": "Schwab 배당", "AAPL": "애플", "O": "리얼티 인컴",
-    "JEPI": "JPMorgan 프리미엄", "SOXX": "iShares 반도체", "TSLA": "테슬라",
-    "TLT": "iShares 20년+ 국채", "NVDA": "엔비디아", "PLTR": "팔란티어",
-    "SPY": "SPDR S&P 500", "UNH": "유나이티드헬스", "MSFT": "마이크로소프트",
-    "GOOGL": "알파벳", "AMZN": "아마존", "SLV": "iShares 은",
-    "TQQQ": "ProShares 2x QQQ", "SOXL": "Direxion 3x 반도체",
-    "ETHU": "이더리움 2X", "CRCL": "써클 인터넷", "BTDR": "비트마인",
-}
+from style import inject_css
+from components import strategy_progress, signal_card
 
-CLASS_LABELS = {
-    "growth_v22": "성장주 v2.2",
-    "etf_v24": "ETF v2.4",
-    "energy_v23": "에너지/가치 v2.3",
-    "bond_gold_v26": "채권/금 v2.6",
-    "speculative": "투기종목",
-}
-
-ACTION_COLORS = {
-    "L3_BREAKDOWN": "#dc2626", "L2_WEAKENING": "#ef4444", "L1_WARNING": "#f97316",
-    "TOP_SIGNAL": "#dc2626", "BUY_T3": "#16a34a", "BUY_T2": "#22c55e",
-    "BUY_T1": "#4ade80", "WATCH": "#f59e0b", "HOLD": "#6b7280",
-}
-
-ACTION_LABELS_KO = {
-    "L3_BREAKDOWN": "L3 붕괴", "L2_WEAKENING": "L2 약화", "L1_WARNING": "L1 경고",
-    "TOP_SIGNAL": "상단 시그널", "BUY_T3": "3차 매수", "BUY_T2": "2차 매수",
-    "BUY_T1": "1차 매수", "WATCH": "주시", "HOLD": "홀드",
-}
+inject_css()
 
 
-@st.cache_data(ttl=300)
-def load_portfolio() -> Optional[dict]:
-    path = DATA_DIR / "portfolio.json"
+# ─────────────────────────────────────────────
+# 데이터 로드
+# ─────────────────────────────────────────────
+
+def _load_json(path: Path) -> Optional[dict]:
     if not path.exists():
         return None
     with open(path, encoding="utf-8") as f:
         return json.load(f)
 
 
-@st.cache_data(ttl=300)
+@st.cache_data(ttl=60)
+def load_portfolio(test_mode: bool = False) -> Optional[dict]:
+    fname = "test_portfolio.json" if test_mode else "portfolio.json"
+    return _load_json(DATA_DIR / fname)
+
+
+@st.cache_data(ttl=60)
+def load_market(test_mode: bool = False) -> Optional[dict]:
+    if test_mode:
+        return _load_json(FIXTURES_DIR / "mock_market_data.json")
+    return _load_json(DATA_DIR / "market_cache.json")
+
+
+@st.cache_data(ttl=60)
 def load_signals() -> Optional[dict]:
-    path = DATA_DIR / "signals.json"
-    if not path.exists():
-        return None
-    with open(path, encoding="utf-8") as f:
-        return json.load(f)
+    return _load_json(DATA_DIR / "signals.json")
 
 
 @st.cache_data(ttl=300)
 def fetch_ohlcv(ticker: str, period: str = "6mo") -> tuple[Optional[pd.DataFrame], str]:
-    """yfinance에서 OHLCV 데이터 로드. (DataFrame | None, 오류메시지) 반환"""
-    import time
     for attempt in range(2):
         try:
             tk = yf.Ticker(ticker)
@@ -83,319 +70,288 @@ def fetch_ohlcv(ticker: str, period: str = "6mo") -> tuple[Optional[pd.DataFrame
             return hist, ""
         except Exception as e:
             err = str(e)
-            if "Rate limit" in err or "Too Many Requests" in err:
+            if "Rate limit" in err or "Too Many Requests" in err or "429" in err:
                 if attempt == 0:
                     time.sleep(3)
                     continue
                 return None, "Yahoo Finance API 일시 제한 — 1~2분 후 새로고침"
-            return None, f"로드 오류: {err[:60]}"
+            return None, f"로드 오류: {err[:80]}"
     return None, "재시도 실패"
 
 
-def calc_indicators(hist: pd.DataFrame) -> pd.DataFrame:
-    """기술 지표 계산"""
+# ─────────────────────────────────────────────
+# 기술 차트 생성
+# ─────────────────────────────────────────────
+
+_C = {
+    "price":   "#0F6E56",
+    "ma20":    "#85B7EB",
+    "ma50":    "#D3D1C7",
+    "bb_fill": "rgba(239,159,39,0.08)",
+    "bb_line": "rgba(239,159,39,0.35)",
+    "rsi":     "#534AB7",
+    "macd_pos":"#0F6E56",
+    "macd_neg":"#A32D2D",
+    "macd_l":  "#378ADD",
+    "sig_l":   "#D85A30",
+    "volume":  "rgba(100,116,139,0.45)",
+}
+
+
+def create_technical_chart(hist: pd.DataFrame, ticker: str) -> go.Figure:
     close = hist["Close"]
+    ma20  = close.rolling(20).mean()
+    ma50  = close.rolling(50).mean()
+    bb_std   = close.rolling(20).std()
+    bb_upper = ma20 + 2 * bb_std
+    bb_lower = ma20 - 2 * bb_std
 
-    # MA
-    hist["ma20"] = close.rolling(20).mean()
-    hist["ma50"] = close.rolling(50).mean()
-
-    # 볼린저 밴드
-    hist["bb_mid"] = close.rolling(20).mean()
-    bb_std = close.rolling(20).std()
-    hist["bb_upper"] = hist["bb_mid"] + 2 * bb_std
-    hist["bb_lower"] = hist["bb_mid"] - 2 * bb_std
-
-    # RSI
     delta = close.diff()
-    gain = delta.clip(lower=0).ewm(com=13, min_periods=14).mean()
-    loss = (-delta.clip(upper=0)).ewm(com=13, min_periods=14).mean()
-    rs = gain / loss.replace(0, float("nan"))
-    hist["rsi"] = 100 - (100 / (1 + rs))
+    gain  = delta.clip(lower=0).rolling(14).mean()
+    loss  = (-delta.clip(upper=0)).rolling(14).mean()
+    rs    = gain / loss.replace(0, float("nan"))
+    rsi   = 100 - 100 / (1 + rs)
 
-    # MACD
-    ema12 = close.ewm(span=12, adjust=False).mean()
-    ema26 = close.ewm(span=26, adjust=False).mean()
-    hist["macd"] = ema12 - ema26
-    hist["macd_signal"] = hist["macd"].ewm(span=9, adjust=False).mean()
-    hist["macd_hist"] = hist["macd"] - hist["macd_signal"]
-
-    return hist
-
-
-def render_technical_chart(ticker: str, hist: pd.DataFrame, holding: dict) -> None:
-    """4패널 기술 차트"""
-    hist = calc_indicators(hist)
-
-    dates = hist.index
-    close = hist["Close"]
+    ema12    = close.ewm(span=12, adjust=False).mean()
+    ema26    = close.ewm(span=26, adjust=False).mean()
+    macd     = ema12 - ema26
+    macd_sig = macd.ewm(span=9, adjust=False).mean()
+    macd_h   = macd - macd_sig
 
     fig = make_subplots(
-        rows=4, cols=1,
-        shared_xaxes=True,
-        row_heights=[0.60, 0.15, 0.15, 0.10],
+        rows=4, cols=1, shared_xaxes=True,
         vertical_spacing=0.02,
-        subplot_titles=("가격 + MA + Bollinger Band", "RSI (14)", "MACD", "거래량"),
+        row_heights=[0.55, 0.15, 0.15, 0.15],
     )
 
-    # ── Row 1: 가격 + MA + BB ──
-    # BB 음영
+    # Row 1: BB 영역
     fig.add_trace(go.Scatter(
-        x=list(dates) + list(dates[::-1]),
-        y=list(hist["bb_upper"]) + list(hist["bb_lower"][::-1]),
-        fill="toself",
-        fillcolor="rgba(100, 149, 237, 0.07)",
-        line=dict(color="rgba(255,255,255,0)"),
-        name="BB Band",
-        showlegend=False,
-        hoverinfo="skip",
+        x=list(hist.index) + list(hist.index)[::-1],
+        y=list(bb_upper) + list(bb_lower)[::-1],
+        fill="toself", fillcolor=_C["bb_fill"],
+        line=dict(color=_C["bb_line"], width=0.5),
+        name="BB", hoverinfo="skip",
+    ), row=1, col=1)
+    for y, lbl in [(bb_upper, "BB↑"), (bb_lower, "BB↓")]:
+        fig.add_trace(go.Scatter(
+            x=hist.index, y=y, mode="lines",
+            line=dict(color=_C["bb_line"], width=0.8, dash="dot"),
+            name=lbl, hoverinfo="skip",
+        ), row=1, col=1)
+    fig.add_trace(go.Scatter(
+        x=hist.index, y=ma50, mode="lines",
+        line=dict(color=_C["ma50"], width=1, dash="dash"), name="MA50",
+    ), row=1, col=1)
+    fig.add_trace(go.Scatter(
+        x=hist.index, y=ma20, mode="lines",
+        line=dict(color=_C["ma20"], width=1.2), name="MA20",
+    ), row=1, col=1)
+    fig.add_trace(go.Scatter(
+        x=hist.index, y=close, mode="lines",
+        line=dict(color=_C["price"], width=2), name=ticker,
+        hovertemplate="%{x|%Y-%m-%d}<br>$%{y:,.2f}<extra></extra>",
     ), row=1, col=1)
 
-    # BB 상단/하단 라인
+    # Row 2: RSI
+    fig.add_hline(y=70, line=dict(color="#A32D2D", width=0.8, dash="dash"), row=2, col=1)
+    fig.add_hline(y=30, line=dict(color="#0F6E56", width=0.8, dash="dash"), row=2, col=1)
     fig.add_trace(go.Scatter(
-        x=dates, y=hist["bb_upper"],
-        line=dict(color="rgba(100,149,237,0.5)", width=1, dash="dot"),
-        name="BB Upper", showlegend=False,
-    ), row=1, col=1)
-    fig.add_trace(go.Scatter(
-        x=dates, y=hist["bb_lower"],
-        line=dict(color="rgba(100,149,237,0.5)", width=1, dash="dot"),
-        name="BB Lower", showlegend=False,
-    ), row=1, col=1)
-
-    # MA20, MA50
-    fig.add_trace(go.Scatter(
-        x=dates, y=hist["ma20"],
-        line=dict(color="#fbbf24", width=1.5, dash="dot"),
-        name="MA20",
-    ), row=1, col=1)
-    fig.add_trace(go.Scatter(
-        x=dates, y=hist["ma50"],
-        line=dict(color="#f87171", width=1.5, dash="dot"),
-        name="MA50",
-    ), row=1, col=1)
-
-    # 가격 라인
-    fig.add_trace(go.Scatter(
-        x=dates, y=close,
-        line=dict(color="#0d9488", width=2),
-        name="Price",
-        hovertemplate="<b>%{x|%Y-%m-%d}</b><br>가격: $%{y:,.2f}<extra></extra>",
-    ), row=1, col=1)
-
-    # 매수 마커 (보유 평균가 표시)
-    avg_cost = None
-    pnl_usd = holding.get("pnl_usd")
-    value = holding.get("value_usd")
-    shares = holding.get("shares")
-    if value and pnl_usd is not None and shares and shares > 0:
-        avg_cost = (value - pnl_usd) / shares
-        if avg_cost > 0:
-            fig.add_hline(
-                y=avg_cost, line_dash="dash",
-                line_color="#f472b6", line_width=1.5,
-                annotation_text=f"매수단가 ${avg_cost:,.2f}",
-                annotation_position="top right",
-                row=1, col=1,
-            )
-
-    # ── Row 2: RSI ──
-    fig.add_trace(go.Scatter(
-        x=dates, y=hist["rsi"],
-        line=dict(color="#a78bfa", width=1.5),
-        name="RSI(14)",
+        x=hist.index, y=rsi, mode="lines",
+        line=dict(color=_C["rsi"], width=1.5), name="RSI",
         hovertemplate="RSI: %{y:.1f}<extra></extra>",
     ), row=2, col=1)
-    fig.add_hline(y=70, line_dash="dash", line_color="#ef4444", line_width=1, row=2, col=1)
-    fig.add_hline(y=30, line_dash="dash", line_color="#22c55e", line_width=1, row=2, col=1)
-    fig.add_hrect(y0=30, y1=70, fillcolor="rgba(167,139,250,0.05)",
-                  line_width=0, row=2, col=1)
 
-    # ── Row 3: MACD ──
-    colors = ["#22c55e" if v >= 0 else "#ef4444" for v in hist["macd_hist"].fillna(0)]
+    # Row 3: MACD
     fig.add_trace(go.Bar(
-        x=dates, y=hist["macd_hist"],
-        marker_color=colors,
-        name="MACD Hist",
-        opacity=0.7,
+        x=hist.index, y=macd_h.clip(lower=0),
+        marker_color=_C["macd_pos"], name="MACD+", hoverinfo="skip",
+    ), row=3, col=1)
+    fig.add_trace(go.Bar(
+        x=hist.index, y=macd_h.clip(upper=0),
+        marker_color=_C["macd_neg"], name="MACD-", hoverinfo="skip",
     ), row=3, col=1)
     fig.add_trace(go.Scatter(
-        x=dates, y=hist["macd"],
-        line=dict(color="#60a5fa", width=1.5),
-        name="MACD",
+        x=hist.index, y=macd, mode="lines",
+        line=dict(color=_C["macd_l"], width=1.2), name="MACD",
     ), row=3, col=1)
     fig.add_trace(go.Scatter(
-        x=dates, y=hist["macd_signal"],
-        line=dict(color="#f97316", width=1.5),
-        name="Signal",
+        x=hist.index, y=macd_sig, mode="lines",
+        line=dict(color=_C["sig_l"], width=1, dash="dash"), name="Signal",
     ), row=3, col=1)
-    fig.add_hline(y=0, line_color="rgba(255,255,255,0.2)", line_width=1, row=3, col=1)
 
-    # ── Row 4: 거래량 ──
-    vol_colors = ["#22c55e" if close.iloc[i] >= close.iloc[i-1] else "#ef4444"
-                  for i in range(len(close))]
+    # Row 4: Volume
     fig.add_trace(go.Bar(
-        x=dates, y=hist["Volume"],
-        marker_color=vol_colors,
-        name="거래량",
-        opacity=0.6,
+        x=hist.index, y=hist["Volume"],
+        marker_color=_C["volume"], name="Volume",
+        hovertemplate="Vol: %{y:,.0f}<extra></extra>",
     ), row=4, col=1)
 
     fig.update_layout(
-        height=700,
-        margin=dict(l=0, r=0, t=30, b=0),
-        plot_bgcolor="rgba(0,0,0,0)",
-        paper_bgcolor="rgba(0,0,0,0)",
-        legend=dict(orientation="h", y=1.02),
-        hovermode="x unified",
-        xaxis4=dict(showticklabels=True),
+        height=520, showlegend=False,
+        margin=dict(l=0, r=50, t=10, b=20),
+        plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)",
+        hovermode="x unified", bargap=0,
     )
-    for i in range(1, 5):
-        fig.update_xaxes(showgrid=False, row=i, col=1)
-        fig.update_yaxes(showgrid=True, gridcolor="rgba(255,255,255,0.05)", row=i, col=1)
-
-    st.plotly_chart(fig, use_container_width=True)
-
-
-def render_strategy_stage(signal: dict) -> None:
-    """전략 진행 단계 표시"""
-    action = signal.get("action", "HOLD")
-    classification = signal.get("classification", "")
-    stage = signal.get("strategy_stage", {})
-    current_stage = stage.get("current", 0)
-    next_conds = stage.get("next_conditions", "")
-
-    st.markdown("**전략 진행 단계**")
-
-    stages = ["1차 진입 (20%)", "2차 추가 (30%)", "풀포지션 (50%)"]
-    cols = st.columns(3)
-
-    for i, (col, label) in enumerate(zip(cols, stages)):
-        stage_num = i + 1
-        if action == f"BUY_T{stage_num}":
-            col.success(f"✅ {label}")
-        elif current_stage and stage_num < current_stage:
-            col.success(f"✅ {label}")
-        elif current_stage and stage_num == current_stage:
-            col.warning(f"🔄 {label}")
-        else:
-            col.info(f"🔒 {label}")
-
-    if next_conds:
-        st.caption(f"다음 단계 조건: {next_conds}")
-
-    # 충족/미충족 조건
-    met = signal.get("conditions_met", [])
-    not_met = signal.get("conditions_not_met", [])
-
-    if met or not_met:
-        col_m, col_nm = st.columns(2)
-        with col_m:
-            st.markdown("**✅ 충족 조건**")
-            for c in met:
-                st.markdown(f"<span style='color:#22c55e; font-size:12px;'>● {c}</span>",
-                            unsafe_allow_html=True)
-        with col_nm:
-            st.markdown("**⬜ 미충족 조건**")
-            for c in not_met[:6]:
-                st.markdown(f"<span style='color:#6b7280; font-size:12px;'>○ {c}</span>",
-                            unsafe_allow_html=True)
+    for row in range(1, 5):
+        fig.update_yaxes(side="right", showgrid=True,
+                         gridcolor="rgba(0,0,0,0.05)", row=row, col=1)
+    for row in range(1, 4):
+        fig.update_xaxes(showticklabels=False, row=row, col=1)
+    fig.update_xaxes(showticklabels=True, row=4, col=1)
+    fig.update_yaxes(range=[0, 100], row=2, col=1)
+    return fig
 
 
-def main() -> None:
-    st.title("📈 종목 상세 분석")
+def make_mock_ohlcv(ticker: str, market: dict, days: int = 180) -> pd.DataFrame:
+    """테스트 모드용 가상 OHLCV"""
+    import numpy as np
+    from datetime import date
+    ticker_d   = market.get("tickers", {}).get(ticker, {})
+    curr_price = ticker_d.get("price", 100)
+    dates      = pd.date_range(end=date.today(), periods=days, freq="B")
+    np.random.seed(abs(hash(ticker)) % 2**32)
+    pcts   = np.random.normal(0, 0.015, days)
+    prices = [curr_price * 1.15]
+    for p in pcts[1:]:
+        prices.append(prices[-1] * (1 + p))
+    prices[-1] = curr_price
+    vol_base = ticker_d.get("volume", 1_000_000)
+    return pd.DataFrame({
+        "Close":  prices,
+        "Open":   [p * 0.998 for p in prices],
+        "High":   [p * 1.008 for p in prices],
+        "Low":    [p * 0.992 for p in prices],
+        "Volume": [int(vol_base * np.random.uniform(0.7, 1.3)) for _ in prices],
+    }, index=dates)
 
-    portfolio = load_portfolio()
-    signals = load_signals()
 
-    if not portfolio:
-        st.error("portfolio.json 없음")
-        return
+# ─────────────────────────────────────────────
+# 메인
+# ─────────────────────────────────────────────
 
-    holdings = portfolio.get("holdings", [])
-    tickers = [h["ticker"] for h in holdings]
-    holding_map = {h["ticker"]: h for h in holdings}
+with st.sidebar:
+    st.markdown("### ⚙️ 설정")
+    test_mode = st.toggle("테스트 모드 (mock 데이터)", value=False)
+    period_map = {"1개월": "1mo", "3개월": "3mo", "6개월": "6mo", "1년": "1y"}
+    period_lbl = st.selectbox("차트 기간", list(period_map.keys()), index=2)
+    yf_period  = period_map[period_lbl]
 
-    signal_map = {}
-    if signals:
-        for s in signals.get("signals", []):
-            signal_map[s["ticker"]] = s
+portfolio = load_portfolio(test_mode)
+market    = load_market(test_mode)
+signals   = load_signals()
 
-    # 종목 선택
-    selected = st.selectbox(
-        "종목 선택",
-        tickers,
-        format_func=lambda t: f"{t} — {TICKER_NAMES.get(t, t)}",
+holdings    = sorted(portfolio.get("holdings", []) if portfolio else [],
+                     key=lambda h: h["value_usd"], reverse=True)
+tickers     = [h["ticker"] for h in holdings]
+holding_map = {h["ticker"]: h for h in holdings}
+
+st.markdown("← [Dashboard](/) &nbsp;/&nbsp; Ticker Detail", unsafe_allow_html=True)
+st.markdown("---")
+
+if not tickers:
+    st.warning("포트폴리오 데이터 없음")
+    st.stop()
+
+selected = st.selectbox(
+    "종목 선택", tickers,
+    format_func=lambda t: f"{t} — {holding_map[t].get('name', '')}"
+)
+h = holding_map[selected]
+
+# 헤더
+cost    = h["value_usd"] - h.get("pnl_usd", 0)
+avg     = cost / h.get("shares", 1) if h.get("shares") else 0
+weight  = h["value_usd"] / portfolio.get("total_value_usd", 1) * 100
+pnl_cls = "up" if h.get("pnl_usd", 0) >= 0 else "dn"
+sign    = "+" if h.get("pnl_usd", 0) >= 0 else ""
+cls_lbl = h.get("classification", "").replace("_", " ").title()
+
+col_l, col_r = st.columns([3, 1])
+with col_l:
+    st.markdown(
+        f"### {selected} &nbsp;"
+        f"<span style='font-size:13px;background:#f0f0f0;padding:3px 8px;"
+        f"border-radius:6px;color:#555'>{cls_lbl}</span>",
+        unsafe_allow_html=True,
+    )
+    st.caption(f"{h.get('name','')} / {h.get('shares',0):,.3f} shares")
+with col_r:
+    st.markdown(
+        f"<div style='text-align:right'>"
+        f"<div style='font-size:20px;font-weight:500'>${h['value_usd']:,.0f}</div>"
+        f"<div class='{pnl_cls}' style='font-size:13px'>"
+        f"{sign}${h.get('pnl_usd',0):,.0f} ({sign}{h.get('pnl_pct',0):.1f}%)</div>"
+        f"</div>",
+        unsafe_allow_html=True,
     )
 
-    if not selected:
-        return
+curr_price = market["tickers"].get(selected, {}).get("price", 0) if market else 0
+m1, m2, m3, m4 = st.columns(4)
+m1.metric("평균단가", f"${avg:,.2f}")
+m2.metric("현재가",   f"${curr_price:,.2f}")
+m3.metric("비중",     f"{weight:.1f}%")
 
-    holding = holding_map.get(selected, {})
-    signal = signal_map.get(selected, {})
+stage_info: dict = {}
+if signals:
+    for s in signals.get("signals", []):
+        if s["ticker"] == selected:
+            stage_info = s.get("strategy_stage", {})
+            break
+m4.metric("현재 단계", f"{stage_info.get('current_tranche', 1)}차" if stage_info else "—")
 
-    # 헤더
-    col1, col2, col3, col4 = st.columns([2, 3, 2, 2])
-    with col1:
-        st.markdown(f"### {selected}")
-        cls = signal.get("classification", "")
-        cls_label = CLASS_LABELS.get(cls, cls)
-        st.caption(cls_label)
-    with col2:
-        st.markdown(f"**{TICKER_NAMES.get(selected, '')}**")
-        value = holding.get("value_usd", 0)
-        st.write(f"평가금액: ${value:,.0f}")
-    with col3:
-        pnl_pct = holding.get("pnl_pct")
-        if pnl_pct is not None:
-            color = "green" if pnl_pct >= 0 else "red"
-            st.markdown(f"<h3 style='color:{color}'>{pnl_pct:+.1f}%</h3>",
-                        unsafe_allow_html=True)
-    with col4:
-        action = signal.get("action", "N/A")
-        badge_color = ACTION_COLORS.get(action, "#6b7280")
-        label = ACTION_LABELS_KO.get(action, action)
-        confidence = signal.get("confidence", 0)
-        st.markdown(
-            f'<span style="background:{badge_color}30; color:{badge_color}; '
-            f'padding:6px 14px; border-radius:16px; font-size:14px; font-weight:600;">'
-            f'{label} ({confidence}%)</span>',
-            unsafe_allow_html=True,
-        )
+st.markdown("---")
 
-    st.divider()
+# 기술 차트
+st.markdown(f"#### 📊 {selected} 기술 차트")
 
-    # 기술 차트
-    period_map = {"1M": "1mo", "3M": "3mo", "6M": "6mo", "1Y": "1y"}
-    period_sel = st.radio("기간", list(period_map.keys()), horizontal=True, index=2)
-    yf_period = period_map[period_sel]
-
-    with st.spinner(f"{selected} 데이터 로드 중..."):
-        hist, err_msg = fetch_ohlcv(selected, yf_period)
-
-    if hist is None:
+if test_mode:
+    if market:
+        hist_df = make_mock_ohlcv(selected, market)
+        fig = create_technical_chart(hist_df, selected)
+        st.plotly_chart(fig, use_container_width=True)
+    else:
+        st.warning("mock 데이터 없음")
+else:
+    hist_df, err_msg = fetch_ohlcv(selected, yf_period)
+    if hist_df is None:
         st.warning(f"{selected}: {err_msg}")
     else:
-        render_technical_chart(selected, hist, holding)
+        fig = create_technical_chart(hist_df, selected)
+        st.plotly_chart(fig, use_container_width=True)
 
-    st.divider()
+st.markdown("---")
 
-    # 전략 단계 + 시그널 근거
-    col_stage, col_rationale = st.columns([3, 2])
+# 전략 단계
+if h.get("classification"):
+    st.markdown("#### 📈 전략 단계")
+    stage_html = strategy_progress(
+        stage_info if stage_info else {"current_tranche": 1},
+        h.get("classification", "")
+    )
+    st.markdown(stage_html, unsafe_allow_html=True)
+    if market:
+        ms_status = market.get("master_switch", {}).get("status", "RED")
+        if ms_status == "RED" and h.get("classification") != "bond_gold_v26":
+            st.warning("⚠️ Master switch RED: 주식 신규 매수 중단")
 
-    with col_stage:
-        render_strategy_stage(signal)
+st.markdown("---")
 
-    with col_rationale:
-        st.markdown("**오늘의 시그널 근거**")
-        rationale = signal.get("rationale", "데이터 없음")
-        notes = signal.get("notes", [])
-        st.info(rationale)
-        for note in notes:
-            st.caption(f"• {note}")
-
-
-if __name__ == "__main__":
-    main()
-else:
-    main()
+# 현재 시그널
+if signals:
+    st.markdown("#### 📡 현재 시그널")
+    for s in signals.get("signals", []):
+        if s["ticker"] == selected:
+            st.markdown(
+                signal_card(
+                    ticker=s["ticker"],
+                    action=s["action"],
+                    confidence=s.get("confidence", 0),
+                    rationale=s.get("rationale", ""),
+                    conditions_met=s.get("conditions_met", []),
+                    conditions_not_met=s.get("conditions_not_met", []),
+                ),
+                unsafe_allow_html=True,
+            )
+            break
+    else:
+        st.caption("시그널 데이터 없음 — Overview에서 Update 버튼을 누르세요.")

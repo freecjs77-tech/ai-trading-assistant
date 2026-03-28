@@ -1,0 +1,37 @@
+{
+  "updated_at": "2026-03-28T07:00:00+09:00",
+  "master_switch": {
+    "qqq_price": 587.82, "qqq_ma200": 592.43, "qqq_above_ma200": false,
+    "spy_price": 645.09, "spy_ma200": 657.19, "spy_above_ma200": false,
+    "status": "RED"
+  },
+  "macro": {
+    "vix": 30.91, "vix_tier": "high", "vix_multiplier": 0.5,
+    "treasury_30y": 4.982, "usdkrw": 1425.50
+  },
+  "tickers": {
+    "VOO":  {"price":582.50,"ma20":595.00,"ma50":605.00,"ma200":570.00,"rsi":36.5,"macd":-5.20,"macd_signal":-4.10,"macd_histogram":-1.10,"macd_hist_trend":"declining_2d","bb_upper":625.00,"bb_lower":560.00,"adx":32,"volume":8500000,"volume_avg20":9200000,"volume_ratio":0.92},
+    "BIL":  {"price":91.63,"ma20":91.50,"ma50":91.30,"ma200":90.80,"rsi":52.0,"macd":0.05,"macd_signal":0.03,"macd_histogram":0.02,"macd_hist_trend":"flat","bb_upper":92.10,"bb_lower":90.90,"adx":12,"volume":3000000,"volume_avg20":2800000,"volume_ratio":1.07},
+    "QQQ":  {"price":587.82,"ma20":599.66,"ma50":608.66,"ma200":592.43,"rsi":34.75,"macd":-7.12,"macd_signal":-5.80,"macd_histogram":-1.32,"macd_hist_trend":"declining_3d","bb_upper":635.00,"bb_lower":565.00,"adx":30,"volume":52000000,"volume_avg20":48000000,"volume_ratio":1.08},
+    "SCHD": {"price":30.44,"ma20":31.20,"ma50":31.80,"ma200":29.50,"rsi":38.0,"macd":-0.35,"macd_signal":-0.28,"macd_histogram":-0.07,"macd_hist_trend":"flat","bb_upper":33.00,"bb_lower":29.50,"adx":22,"volume":4500000,"volume_avg20":4200000,"volume_ratio":1.07},
+    "AAPL": {"price":248.80,"ma20":255.00,"ma50":260.00,"ma200":230.00,"rsi":40.2,"macd":-2.80,"macd_signal":-2.20,"macd_histogram":-0.60,"macd_hist_trend":"declining_1d","bb_upper":270.00,"bb_lower":240.00,"adx":25,"volume":35000000,"volume_avg20":38000000,"volume_ratio":0.92},
+    "O":    {"price":60.68,"ma20":61.50,"ma50":62.00,"ma200":58.00,"rsi":42.5,"macd":-0.40,"macd_signal":-0.30,"macd_histogram":-0.10,"macd_hist_trend":"flat","bb_upper":64.00,"bb_lower":59.00,"adx":18,"volume":5000000,"volume_avg20":4800000,"volume_ratio":1.04},
+    "JEPI": {"price":55.56,"ma20":56.20,"ma50":56.80,"ma200":54.50,"rsi":44.0,"macd":-0.25,"macd_signal":-0.18,"macd_histogram":-0.07,"macd_hist_trend":"flat","bb_upper":58.00,"bb_lower":54.50,"adx":15,"volume":3200000,"volume_avg20":3000000,"volume_ratio":1.07},
+    "SOXX": {"price":323.50,"ma20":340.00,"ma50":355.00,"ma200":290.00,"rsi":32.0,"macd":-8.50,"macd_signal":-6.80,"macd_histogram":-1.70,"macd_hist_trend":"declining_3d","bb_upper":380.00,"bb_lower":300.00,"adx":35,"volume":2800000,"volume_avg20":2500000,"volume_ratio":1.12},
+    "TSLA": {"price":361.88,"ma20":378.50,"ma50":395.20,"ma200":310.00,"rsi":38.2,"macd":-3.44,"macd_signal":-1.82,"macd_histogram":-1.62,"macd_hist_trend":"declining_2d","bb_upper":410.50,"bb_lower":346.50,"adx":28,"volume":45000000,"volume_avg20":52000000,"volume_ratio":0.87},
+    "TLT":  {"price":85.64,"ma20":87.20,"ma50":88.50,"ma200":90.10,"rsi":34.0,"macd":-0.80,"macd_signal":-0.60,"macd_histogram":-0.20,"macd_hist_trend":"declining_1d","bb_upper":92.00,"bb_lower":83.00,"adx":20,"volume":22000000,"volume_avg20":20000000,"volume_ratio":1.10},
+    "NVDA": {"price":167.55,"ma20":172.30,"ma50":180.10,"ma200":135.00,"rsi":35.8,"macd":-2.10,"macd_signal":-1.50,"macd_histogram":-0.60,"macd_hist_trend":"rising_1d","bb_upper":195.00,"bb_lower":155.00,"adx":26,"volume":42000000,"volume_avg20":45000000,"volume_ratio":0.93},
+    "PLTR": {"price":143.05,"ma20":148.00,"ma50":152.00,"ma200":120.00,"rsi":41.0,"macd":-1.80,"macd_signal":-1.40,"macd_histogram":-0.40,"macd_hist_trend":"flat","bb_upper":160.00,"bb_lower":135.00,"adx":22,"volume":18000000,"volume_avg20":20000000,"volume_ratio":0.90},
+    "SPY":  {"price":645.09,"ma20":668.59,"ma50":680.65,"ma200":657.19,"rsi":35.99,"macd":-7.92,"macd_signal":-6.20,"macd_histogram":-1.72,"macd_hist_trend":"declining_2d","bb_upper":700.00,"bb_lower":630.00,"adx":34,"volume":85000000,"volume_avg20":78000000,"volume_ratio":1.09},
+    "UNH":  {"price":259.02,"ma20":270.00,"ma50":280.00,"ma200":250.00,"rsi":33.5,"macd":-4.50,"macd_signal":-3.20,"macd_histogram":-1.30,"macd_hist_trend":"declining_3d","bb_upper":295.00,"bb_lower":245.00,"adx":30,"volume":4200000,"volume_avg20":3800000,"volume_ratio":1.11},
+    "MSFT": {"price":356.80,"ma20":368.00,"ma50":378.00,"ma200":340.00,"rsi":37.0,"macd":-3.20,"macd_signal":-2.50,"macd_histogram":-0.70,"macd_hist_trend":"declining_1d","bb_upper":390.00,"bb_lower":345.00,"adx":24,"volume":22000000,"volume_avg20":24000000,"volume_ratio":0.92},
+    "GOOGL":{"price":274.30,"ma20":282.00,"ma50":290.00,"ma200":260.00,"rsi":36.5,"macd":-2.80,"macd_signal":-2.10,"macd_histogram":-0.70,"macd_hist_trend":"declining_2d","bb_upper":300.00,"bb_lower":265.00,"adx":26,"volume":16000000,"volume_avg20":18000000,"volume_ratio":0.89},
+    "AMZN": {"price":199.30,"ma20":205.00,"ma50":212.00,"ma200":188.00,"rsi":38.5,"macd":-2.20,"macd_signal":-1.70,"macd_histogram":-0.50,"macd_hist_trend":"flat","bb_upper":220.00,"bb_lower":190.00,"adx":22,"volume":28000000,"volume_avg20":30000000,"volume_ratio":0.93},
+    "SLV":  {"price":63.44,"ma20":67.50,"ma50":72.00,"ma200":52.00,"rsi":36.1,"macd":-1.80,"macd_signal":-1.30,"macd_histogram":-0.50,"macd_hist_trend":"declining_1d","bb_upper":78.00,"bb_lower":60.00,"adx":28,"volume":18000000,"volume_avg20":16000000,"volume_ratio":1.13},
+    "TQQQ": {"price":58.05,"ma20":62.00,"ma50":66.00,"ma200":50.00,"rsi":30.5,"macd":-1.50,"macd_signal":-1.10,"macd_histogram":-0.40,"macd_hist_trend":"declining_2d","bb_upper":72.00,"bb_lower":52.00,"adx":32,"volume":25000000,"volume_avg20":22000000,"volume_ratio":1.14},
+    "SOXL": {"price":46.61,"ma20":52.00,"ma50":58.00,"ma200":38.00,"rsi":28.0,"macd":-2.80,"macd_signal":-2.10,"macd_histogram":-0.70,"macd_hist_trend":"declining_3d","bb_upper":65.00,"bb_lower":40.00,"adx":36,"volume":15000000,"volume_avg20":13000000,"volume_ratio":1.15},
+    "ETHU": {"price":20.16,"ma20":23.00,"ma50":26.00,"ma200":18.00,"rsi":28.5,"macd":-1.20,"macd_signal":-0.90,"macd_histogram":-0.30,"macd_hist_trend":"declining_3d","bb_upper":28.00,"bb_lower":18.00,"adx":34,"volume":800000,"volume_avg20":700000,"volume_ratio":1.14},
+    "CRCL": {"price":93.66,"ma20":100.00,"ma50":108.00,"ma200":80.00,"rsi":32.0,"macd":-3.00,"macd_signal":-2.20,"macd_histogram":-0.80,"macd_hist_trend":"declining_2d","bb_upper":115.00,"bb_lower":85.00,"adx":30,"volume":500000,"volume_avg20":450000,"volume_ratio":1.11},
+    "BTDR": {"price":18.39,"ma20":22.00,"ma50":25.00,"ma200":15.00,"rsi":25.0,"macd":-1.50,"macd_signal":-1.10,"macd_histogram":-0.40,"macd_hist_trend":"declining_3d","bb_upper":28.00,"bb_lower":16.00,"adx":38,"volume":300000,"volume_avg20":250000,"volume_ratio":1.20}
+  }
+}

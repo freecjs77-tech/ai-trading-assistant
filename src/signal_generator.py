@@ -305,16 +305,47 @@ def sort_signals(signals: list[dict]) -> list[dict]:
 # 메인 생성 함수
 # ─────────────────────────────────────────────
 
-def generate_signals() -> dict:
-    """전체 시그널 생성 → signals.json 저장"""
-    cache = load_market_data()
-    portfolio = load_portfolio()
+def _make_technical_context(ctx: MarketContext) -> MarketContext:
+    """technical_only 모드: 마스터 스위치/VIX/매크로 무시한 중립 컨텍스트"""
+    from dataclasses import replace
+    return replace(
+        ctx,
+        master_switch="GREEN",
+        qqq_above_ma200=True,
+        spy_above_ma200=True,
+        vix=15.0,
+        vix_tier="normal",
+        treasury_30y=None,
+        usdkrw=None,
+    )
+
+
+def generate_signals(
+    mode: str = "full",
+    portfolio_data: Optional[dict] = None,
+    market_data: Optional[dict] = None,
+) -> dict:
+    """전체 시그널 생성 → signals.json 저장
+
+    Parameters
+    ----------
+    mode : "full" | "technical_only"
+        full: 마스터 스위치 + 매크로 + 기술지표 모두 반영
+        technical_only: 기술지표만 반영, 마스터 스위치/매크로 무시
+    portfolio_data : 직접 전달할 포트폴리오 데이터 (None이면 파일 로드)
+    market_data : 직접 전달할 시장 데이터 (None이면 파일 로드)
+    """
+    cache = market_data if market_data is not None else load_market_data()
+    portfolio = portfolio_data if portfolio_data is not None else load_portfolio()
 
     if not cache or not portfolio:
         logger.error("데이터 없음")
         return {}
 
     ctx = build_context(cache)
+    if mode == "technical_only":
+        ctx = _make_technical_context(ctx)
+
     today = datetime.now(KST).strftime("%Y-%m-%d")
 
     signals_list = []
@@ -371,13 +402,17 @@ def generate_signals() -> dict:
         }
     }
 
-    # 저장
+    # 모드 기록
+    result_doc["mode"] = mode
+
+    # 저장 (technical_only는 별도 파일)
     DATA_DIR.mkdir(exist_ok=True)
-    signals_path = DATA_DIR / "signals.json"
+    filename = "signals_technical.json" if mode == "technical_only" else "signals.json"
+    signals_path = DATA_DIR / filename
     with open(signals_path, "w", encoding="utf-8") as f:
         json.dump(result_doc, f, ensure_ascii=False, indent=2)
 
-    logger.info(f"✅ 시그널 생성 완료: {signals_path}")
+    logger.info(f"✅ 시그널 생성 완료 [{mode}]: {signals_path}")
     s = result_doc["summary"]
     logger.info(
         f"   L3:{s['l3_breakdown']} L2:{s['l2_weakening']} L1:{s['l1_warning']} "
@@ -395,10 +430,26 @@ def load_signals() -> Optional[dict]:
         return json.load(f)
 
 
+def load_signals_technical() -> Optional[dict]:
+    """signals_technical.json 로드"""
+    path = DATA_DIR / "signals_technical.json"
+    if not path.exists():
+        return None
+    with open(path, encoding="utf-8") as f:
+        return json.load(f)
+
+
 if __name__ == "__main__":
+    import argparse
     logging.basicConfig(level=logging.INFO)
-    result = generate_signals()
-    if result:
-        print(f"\n마스터 스위치: {result['master_switch']}")
-        for sig in result["signals"][:5]:
-            print(f"  {sig['ticker']:6s} → {sig['action']:15s} ({sig['confidence']}%) {sig['rationale'][:60]}")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--mode", choices=["full", "technical_only", "both"], default="full")
+    args = parser.parse_args()
+
+    modes = ["full", "technical_only"] if args.mode == "both" else [args.mode]
+    for m in modes:
+        result = generate_signals(mode=m)
+        if result:
+            print(f"\n[{m}] 마스터 스위치: {result['master_switch']}")
+            for sig in result["signals"][:5]:
+                print(f"  {sig['ticker']:6s} → {sig['action']:15s} ({sig['confidence']}%) {sig['rationale'][:60]}")
