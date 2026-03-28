@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+
+# 가상환경
+.venv/
+venv/
+env/
+.env
+
+# 환경 변수 (절대 커밋 금지)
+.env.local
+secrets.yaml
+
+# Streamlit
+.streamlit/secrets.toml
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 테스트 캐시
+.pytest_cache/
+.coverage
+htmlcov/
+
+# 임시 파일
+*.tmp
+*.log
+/tmp/
+
+# yfinance 캐시
+*.pkl

@@ -1,0 +1,231 @@
+# config/strategy_v3.yaml — 전략 규칙 v3.0 전체 정의
+# 마스터 스위치 + 4개 진입 전략 + Exit v2.5
+
+# ─────────────────────────────────────────────
+# 마스터 스위치 (The Master Filter)
+# ─────────────────────────────────────────────
+master_switch:
+  green:
+    condition: "qqq_above_ma200 AND spy_above_ma200"
+    action: "all strategies active"
+    allocation_multiplier: 1.0
+  yellow:
+    condition: "qqq_above_ma200 XOR spy_above_ma200"
+    action: "1st tranche only (20%)"
+    allocation_multiplier: 0.5
+  red:
+    condition: "NOT qqq_above_ma200 AND NOT spy_above_ma200"
+    action: "no new equity buys"
+    allocation_multiplier: 0.0
+
+vix_override:
+  - threshold: 25
+    multiplier: 0.7
+  - threshold: 30
+    multiplier: 0.5
+  - threshold: 35
+    action: "trigger exit L1 on all positions"
+
+# ─────────────────────────────────────────────
+# 진입 전략 (Entry Rules)
+# ─────────────────────────────────────────────
+
+# Growth v2.2 — 성장주 (NVDA, TSLA, PLTR, MSFT, GOOGL, AMZN, AAPL)
+growth_v22:
+  tranche_1:
+    size: 0.20
+    required:
+      - "macd_histogram_rising_2d"
+    pick_3_of:
+      - "rsi <= 38"
+      - "adx <= 25"
+      - "price_near_bb_lower"
+      - "price_below_ma20"
+      - "3day_low_hold"
+      - "bounce_2pct"
+    veto: "rsi > 50"
+  tranche_2:
+    size: 0.30
+    all_required:
+      - "double_bottom"
+      - "rsi > 35 AND rsi_rising_3d"
+      - "macd_golden_cross OR macd_hist_rising_3d"
+      - "volume_ratio >= 1.2"
+  tranche_3:
+    size: 0.50
+    all_required:
+      - "price_above_ma20_2d"
+      - "ma20_slope_rising"
+      - "macd_above_zero"
+      - "volume_ratio >= 1.3"
+    veto: "rsi > 75"
+
+# ETF v2.4 — ETF (QQQ, VOO, SPY, SCHD, SOXX, JEPI)
+etf_v24:
+  tranche_1:
+    size: 0.20
+    pick_3_of:
+      - "rsi <= 40"
+      - "price_below_ma20"
+      - "price_near_bb_lower"
+      - "momentum_declining_slowing"
+      - "pullback_5pct"
+    veto: "rsi > 70"
+  tranche_2:
+    size: 0.30
+    pick_3_of:
+      - "rsi > 42"
+      - "macd > macd_signal"
+      - "price_above_ma20"
+      - "higher_low"
+    veto: "rsi > 70"
+  tranche_3:
+    size: 0.50
+    pick_3_of:
+      - "price_above_ma20_2d"
+      - "ma20_slope_rising"
+      - "rsi > 48"
+      - "macd_above_zero"
+    veto: "rsi > 70"
+
+# Energy/Value v2.3 — 에너지/가치주 (UNH, O)
+energy_v23:
+  tranche_1:
+    size: 0.20
+    required:
+      - "macd_histogram_rising_2d"
+    pick_3_of:
+      - "rsi <= 38"
+      - "adx <= 25"
+      - "price_near_bb_lower"
+      - "price_below_ma20"
+      - "3day_low_hold"
+      - "bounce_2pct"
+    veto: "rsi > 50"
+  tranche_2:
+    size: 0.30
+    pick_3_of:
+      - "double_bottom_3pct"
+      - "rsi > 40"
+      - "macd > macd_signal"
+      - "price_above_ma20"
+    veto: "rsi > 70"
+  tranche_3:
+    size: 0.50
+    pick_3_of:
+      - "price_above_ma20_2d"
+      - "ma20_slope_rising"
+      - "macd > macd_signal"
+      - "rsi > 45"
+    veto: "rsi > 70"
+
+# Bond v2.6 — 채권 (TLT) — 마스터 스위치 무시
+bond_v26:
+  master_switch_exempt: true
+  tranche_1:
+    size: 0.20
+    all_required:
+      - "treasury_30y >= 5.0"
+      - "tlt_rsi <= 35"
+  tranche_2:
+    size: 0.30
+    any_of:
+      - "treasury_30y >= 5.2"
+      - "tlt_macd_golden_cross"
+  tranche_3:
+    size: 0.50
+    all_required:
+      - "tlt_above_ma20_2d"
+      - "treasury_30y_declining_from_peak"
+
+# Gold/Silver v2.6 — 금/은 (SLV) — 마스터 스위치 무시
+gold_v26:
+  master_switch_exempt: true
+  max_portfolio_pct: 0.10
+  tranche_1:
+    size: 0.20
+    pick_2_of:
+      - "slv_rsi <= 40"
+      - "slv_below_ma20"
+      - "vix > 25"
+  tranche_2:
+    size: 0.30
+    pick_2_of:
+      - "slv_macd > slv_signal"
+      - "slv_rsi > 42"
+      - "slv_higher_low"
+  tranche_3:
+    size: 0.50
+    pick_2_of:
+      - "slv_above_ma20_2d"
+      - "slv_ma20_rising"
+      - "slv_macd_above_zero"
+
+# BIL — 단기채 (별도 관리, 현금성 자산)
+bil_special:
+  master_switch_exempt: true
+  description: "단기채 MMF 대체. 마스터 스위치 RED 시 현금 피난처."
+  action: "hold — 시장 상황에 관계없이 유지"
+
+# ─────────────────────────────────────────────
+# 퇴출 시스템 v2.5 (Exit Rules)
+# ─────────────────────────────────────────────
+exit_system:
+  level_1_early_warning:
+    trigger_count: 2
+    conditions:
+      - "macd_histogram_declining_1_2d"
+      - "rsi_65plus_turning_down"
+      - "price_inside_bb_from_upper"
+      - "volume_divergence_negative"
+    action: "신규 매수 금지, 익절 준비"
+    signal_code: "L1_WARNING"
+
+  level_2_weakening:
+    trigger_count: 2
+    conditions:
+      - "macd_histogram_declining_3d"
+      - "rsi_lower_high_divergence"
+      - "price_below_ma20_1d"
+      - "double_top_or_head_shoulder"
+    action: "보유 30% 익절"
+    signal_code: "L2_WEAKENING"
+
+  level_3_breakdown:
+    trigger_count: 1
+    conditions:
+      - "price_below_ma20_2d_no_recovery"
+      - "higher_low_broken"
+      - "macd_death_cross_approaching_zero"
+      - "drawdown_8pct_from_peak"
+    action: "전량 매도 / 전체 청산"
+    signal_code: "L3_BREAKDOWN"
+
+  top_signal:
+    trigger_count: 1
+    conditions:
+      - "rsi >= 75"
+      - "price_above_bb_upper_2d"
+      - "gain_10pct_in_3d"
+    action: "강제 일부 익절"
+    signal_code: "TOP_SIGNAL"
+
+# ─────────────────────────────────────────────
+# 포지션 사이징
+# ─────────────────────────────────────────────
+position_sizing:
+  base_tranches: [0.20, 0.30, 0.50]
+  total_adjustment:
+    green: 1.0
+    yellow: 0.5
+    red: 0.0
+  max_single_position: 0.15
+
+# ─────────────────────────────────────────────
+# 투기 종목 (Speculative) — TQQQ, SOXL, ETHU, CRCL, BTDR
+# ─────────────────────────────────────────────
+speculative:
+  description: "레버리지/소형주. 별도 관리. 총 포트폴리오 5% 이하 유지."
+  max_portfolio_pct: 0.05
+  action: "hold — 신규 매수 없음. 손절 기준: -20%"
+  exit_trigger: "drawdown_20pct_from_entry"

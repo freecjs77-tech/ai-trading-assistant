@@ -1,0 +1,108 @@
+name: Daily Report
+
+on:
+  schedule:
+    - cron: '0 22 * * *'   # UTC 22:00 = KST 07:00 매일
+  workflow_dispatch:         # 수동 실행 가능
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write        # data/ 커밋을 위해 필요
+
+    steps:
+      - name: 레포지토리 체크아웃
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Python 3.11 설정
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: 의존성 설치
+        run: pip install -r requirements.txt
+
+      - name: 시장 데이터 수집
+        run: python src/market_data.py
+
+      - name: 규칙 엔진 실행
+        run: python src/rule_engine.py
+
+      - name: 시그널 생성
+        run: python src/signal_generator.py
+
+      - name: 리밸런싱 체크
+        run: python src/rebalance_checker.py
+
+      - name: 히스토리 스냅샷 저장
+        run: |
+          python -c "
+          import json
+          from pathlib import Path
+          from datetime import datetime, timezone, timedelta
+
+          KST = timezone(timedelta(hours=9))
+          today = datetime.now(KST).strftime('%Y-%m-%d')
+          data_dir = Path('data')
+
+          # portfolio.json 읽기
+          portfolio_path = data_dir / 'portfolio.json'
+          if not portfolio_path.exists():
+              print('portfolio.json 없음 — 스냅샷 생략')
+              exit(0)
+
+          with open(portfolio_path) as f:
+              portfolio = json.load(f)
+
+          total_value = portfolio.get('total_value_usd', 0)
+          total_pnl = sum(h.get('pnl_usd', 0) or 0 for h in portfolio.get('holdings', []))
+          total_cost = total_value - total_pnl
+
+          snapshot = {
+              'date': today,
+              'total_value_usd': total_value,
+              'total_cost_usd': total_cost,
+              'total_pnl_usd': total_pnl,
+              'holdings_count': len(portfolio.get('holdings', [])),
+          }
+
+          # history.json에 append
+          history_path = data_dir / 'history.json'
+          if history_path.exists():
+              with open(history_path) as f:
+                  history = json.load(f)
+          else:
+              history = {'snapshots': []}
+
+          # 중복 날짜 업데이트
+          existing_dates = {s['date'] for s in history['snapshots']}
+          if today in existing_dates:
+              history['snapshots'] = [s for s in history['snapshots'] if s['date'] != today]
+
+          history['snapshots'].append(snapshot)
+          # 최근 365일만 유지
+          history['snapshots'] = sorted(history['snapshots'], key=lambda x: x['date'])[-365:]
+
+          with open(history_path, 'w') as f:
+              json.dump(history, f, ensure_ascii=False, indent=2)
+          print(f'스냅샷 저장: {today} (총 {len(history[\"snapshots\"])}일)')
+          "
+
+      - name: data/ 커밋 및 푸시
+        run: |
+          git config user.name "trading-bot"
+          git config user.email "bot@trading.local"
+          git add data/
+          git diff --staged --quiet || git commit -m "daily: $(date +%Y-%m-%d)"
+          git push
+
+      - name: 텔레그램 알림 발송
+        run: python src/telegram_bot.py notify
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          DASHBOARD_URL: ${{ secrets.DASHBOARD_URL }}

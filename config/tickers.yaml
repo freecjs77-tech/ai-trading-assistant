@@ -1,0 +1,117 @@
+# config/tickers.yaml — 종목 목록, 한글↔티커 매핑, 분류
+# Tesseract OCR 보정 로직 포함
+
+# ─────────────────────────────────────────────
+# 한글 / OCR 텍스트 → 티커 매핑
+# ─────────────────────────────────────────────
+ticker_map:
+  # 개별 성장주
+  마이크로소프트: MSFT
+  알파벳: GOOGL
+  아마존닷컴: AMZN
+  아마존: AMZN
+  엔비디아: NVDA
+  팔란티어: PLTR
+  테슬라: TSLA
+  애플: AAPL
+  유나이티드헬스: UNH
+  리얼티 인컴: O
+  "리얼티인컴": O
+  써클 인터넷: CRCL
+  "써클인터넷": CRCL
+  비트마인: BTDR
+
+  # ETF (영문 부분 매핑)
+  "iShares 2 ETF": SLV      # OCR 보정: 한글 "은" → "2"
+  "iShares 2": SLV
+  "iShares 은 ETF": SLV
+  "iShares 은": SLV
+  "iShares Silver": SLV
+  "iShares 20": TLT         # 20+ Year Treasury
+  "iShares 20+": TLT
+  "SPDR 1-3": BIL
+  "SPDR 1": BIL
+  "SPDR S&P": SPY
+  "Invesco QQQ": QQQ
+  "Invesco": QQQ
+  "Vanguard S&P": VOO
+  "Vanguard": VOO
+  SCHD: SCHD
+  JEPI: JEPI
+  SOXX: SOXX
+  "iShares SOXX": SOXX
+  "ProShares QQQ": TQQQ
+  "ProShares": TQQQ
+  Direxion: SOXL
+  "이더리움 2X": ETHU
+  "이더리움": ETHU
+
+  # 티커 직접 매핑 (스크린샷에 영문 티커가 직접 보이는 경우)
+  VOO: VOO
+  BIL: BIL
+  QQQ: QQQ
+  SPY: SPY
+  TLT: TLT
+  SLV: SLV
+  TQQQ: TQQQ
+  SOXL: SOXL
+  ETHU: ETHU
+  CRCL: CRCL
+  BTDR: BTDR
+
+# ─────────────────────────────────────────────
+# 종목 분류 (전략별 그룹)
+# ─────────────────────────────────────────────
+classifications:
+  growth_v22:
+    description: "성장주 — 확인 후 진입 (v2.2)"
+    tickers: [NVDA, TSLA, PLTR, MSFT, GOOGL, AMZN, AAPL]
+    criteria: "beta > 1.3 OR sector=tech"
+
+  etf_v24:
+    description: "ETF — 균형 진입 (v2.4)"
+    tickers: [QQQ, VOO, SPY, SCHD, SOXX, JEPI]
+    criteria: "asset_type=ETF"
+
+  energy_v23:
+    description: "에너지/가치 — 선제 진입 (v2.3)"
+    tickers: [UNH, O]
+    criteria: "sector=healthcare/REIT OR dividend > 2%"
+
+  bond_gold_v26:
+    description: "채권/금 — 금리 기반 (v2.6, 마스터 스위치 무시)"
+    tickers: [TLT, BIL, SLV]
+    criteria: "asset_type=fixed_income/commodity"
+
+  speculative:
+    description: "투기/레버리지 — 별도 관리"
+    tickers: [TQQQ, SOXL, ETHU, CRCL, BTDR]
+    criteria: "leveraged OR micro_cap"
+
+# ─────────────────────────────────────────────
+# 종목 메타데이터 (한글명, 섹터 등)
+# ─────────────────────────────────────────────
+metadata:
+  VOO:  {name_ko: "Vanguard S&P 500 ETF",    sector: "ETF",         currency: "USD"}
+  BIL:  {name_ko: "SPDR 단기채 ETF",          sector: "Bond",        currency: "USD"}
+  QQQ:  {name_ko: "Invesco QQQ ETF",          sector: "ETF",         currency: "USD"}
+  SCHD: {name_ko: "Schwab 배당 ETF",          sector: "ETF",         currency: "USD"}
+  AAPL: {name_ko: "애플",                      sector: "Technology",  currency: "USD"}
+  O:    {name_ko: "리얼티 인컴",               sector: "REIT",        currency: "USD"}
+  JEPI: {name_ko: "JPMorgan 프리미엄 ETF",    sector: "ETF",         currency: "USD"}
+  SOXX: {name_ko: "iShares 반도체 ETF",       sector: "ETF",         currency: "USD"}
+  TSLA: {name_ko: "테슬라",                    sector: "Technology",  currency: "USD"}
+  TLT:  {name_ko: "iShares 20년+ 국채 ETF",  sector: "Bond",        currency: "USD"}
+  NVDA: {name_ko: "엔비디아",                  sector: "Technology",  currency: "USD"}
+  PLTR: {name_ko: "팔란티어",                  sector: "Technology",  currency: "USD"}
+  SPY:  {name_ko: "SPDR S&P 500 ETF",        sector: "ETF",         currency: "USD"}
+  UNH:  {name_ko: "유나이티드헬스",            sector: "Healthcare",  currency: "USD"}
+  MSFT: {name_ko: "마이크로소프트",            sector: "Technology",  currency: "USD"}
+  GOOGL:{name_ko: "알파벳",                    sector: "Technology",  currency: "USD"}
+  AMZN: {name_ko: "아마존",                    sector: "Technology",  currency: "USD"}
+  SLV:  {name_ko: "iShares 은 ETF",           sector: "Commodity",   currency: "USD"}
+  TQQQ: {name_ko: "ProShares 2x QQQ",         sector: "Leveraged",   currency: "USD"}
+  SOXL: {name_ko: "Direxion 3x 반도체",       sector: "Leveraged",   currency: "USD"}
+  ETHU: {name_ko: "이더리움 2X ETF",          sector: "Crypto",      currency: "USD"}
+  CRCL: {name_ko: "써클 인터넷",               sector: "Fintech",     currency: "USD"}
+  BTDR: {name_ko: "비트마인",                  sector: "Crypto",      currency: "USD"}

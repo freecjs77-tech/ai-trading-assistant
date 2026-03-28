@@ -1,0 +1,117 @@
+# config/thresholds.yaml — 매크로 임계값 및 규칙
+# VIX / 금리 / 환율 기반 오버레이
+
+# ─────────────────────────────────────────────
+# VIX 구간별 allocation 조정
+# ─────────────────────────────────────────────
+vix_tiers:
+  - range: [0, 20]
+    label: "normal"
+    allocation_modifier: 1.0
+    description: "정상 시장. 전략 그대로 실행."
+  - range: [20, 25]
+    label: "elevated"
+    allocation_modifier: 1.0
+    description: "약간 불안. 전략 그대로 실행."
+  - range: [25, 30]
+    label: "high"
+    allocation_modifier: 0.7
+    description: "고변동성. 진입 규모 30% 축소."
+  - range: [30, 35]
+    label: "extreme"
+    allocation_modifier: 0.5
+    description: "극도 공포. 진입 규모 50% 축소."
+  - range: [35, 100]
+    label: "panic"
+    allocation_modifier: 0.0
+    action: "trigger exit L1 on all positions"
+    description: "패닉. 전 포지션 L1 경고 발동."
+
+# ─────────────────────────────────────────────
+# 30년 국채 금리 규칙
+# ─────────────────────────────────────────────
+treasury_yield:
+  - condition_gte: 5.0
+    effect: "activate bond_v26 strategy"
+    description: "TLT 1차 진입 트리거 활성화"
+  - condition_gte: 5.2
+    effect: "downgrade equity entry urgency by 1 tier"
+    description: "주식 진입 urgency 1단계 하향"
+  - condition_gte: 5.5
+    effect: "pause all equity new buys"
+    description: "주식 신규 매수 중단"
+
+# ─────────────────────────────────────────────
+# 원달러 환율 규칙
+# ─────────────────────────────────────────────
+exchange_rate:
+  - condition_gt: 1450
+    effect: "delay US equity new buys"
+    description: "환율 고점 — 미국 주식 신규 매수 지연"
+  - condition_lt: 1300
+    effect: "accelerate US equity buys"
+    description: "환율 저점 — 미국 주식 매수 가속화"
+  - normal_range: [1300, 1450]
+    description: "정상 범위. 환율 오버레이 없음."
+
+# ─────────────────────────────────────────────
+# 어닝 블랙아웃 (어닝 발표 3일 전 신규 진입 금지)
+# ─────────────────────────────────────────────
+earnings_blackout:
+  description: "어닝 발표 3일 전 해당 종목 신규 진입 금지"
+  days_before: 3
+  # 실제 어닝 날짜는 config/earnings_calendar.yaml에 관리
+
+# ─────────────────────────────────────────────
+# 마스터 스위치 임계값
+# ─────────────────────────────────────────────
+master_switch:
+  qqq_ma_period: 200
+  spy_ma_period: 200
+  green_requires_both: true  # QQQ AND SPY 모두 MA200 위여야 GREEN
+
+# ─────────────────────────────────────────────
+# 기술 지표 공통 파라미터
+# ─────────────────────────────────────────────
+indicators:
+  rsi_period: 14
+  macd_fast: 12
+  macd_slow: 26
+  macd_signal: 9
+  bb_period: 20
+  bb_std: 2
+  adx_period: 14
+  ma_short: 20
+  ma_medium: 50
+  ma_long: 200
+  volume_avg_period: 20
+
+# ─────────────────────────────────────────────
+# 리밸런싱 임계값
+# ─────────────────────────────────────────────
+rebalancing:
+  single_position_max_pct: 0.15       # 단일 종목 15% 초과 시 트림
+  single_position_trim_target: 0.12   # 12%까지 트림
+  equity_max_pct: 0.75                # 주식 비중 75% 초과 시 조정
+  bond_min_pct: 0.15                  # 채권 비중 15% 미만 시 조정
+  dividend_annual_limit_krw: 18000000 # 연간 배당 18M KRW 한도
+  dividend_safety_buffer_krw: 2000000 # 안전 버퍼 2M KRW
+  check_day: "Monday"                 # 주 1회 월요일 체크
+
+# ─────────────────────────────────────────────
+# 기술 조건 수치 기준
+# ─────────────────────────────────────────────
+conditions:
+  rsi_oversold: 38          # growth_v22 과매도 기준
+  rsi_oversold_etf: 40      # etf_v24 과매도 기준
+  rsi_overbought: 70        # 오버바이 veto 기준
+  rsi_top_signal: 75        # 상단 시그널 (강제 익절)
+  adx_weak_trend: 25        # ADX 약세 트렌드 기준
+  bb_lower_proximity: 0.02  # BB 하단 근접 기준 (2%)
+  pullback_pct: 0.05        # 5% 풀백 기준
+  bounce_pct: 0.02          # 2% 반등 기준
+  volume_ratio_t2: 1.2      # 2차 진입 거래량 비율
+  volume_ratio_t3: 1.3      # 3차 진입 거래량 비율
+  drawdown_exit: 0.08       # 8% 하락 시 L3 트리거
+  drawdown_speculative: 0.20 # 투기 종목 20% 손절
+  gain_rapid: 0.10          # 3일 10% 급등 시 TOP 시그널

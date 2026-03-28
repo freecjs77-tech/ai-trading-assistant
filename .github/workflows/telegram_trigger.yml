@@ -1,0 +1,68 @@
+name: Telegram Trigger
+
+on:
+  repository_dispatch:
+    types: [portfolio_update]
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: 레포지토리 체크아웃
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Python 3.11 설정
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Tesseract OCR 설치 (한국어 포함)
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y tesseract-ocr tesseract-ocr-kor
+
+      - name: 의존성 설치
+        run: pip install -r requirements.txt
+
+      - name: 이미지 다운로드 및 OCR 파싱
+        run: |
+          IMAGE_URL="${{ github.event.client_payload.image_url }}"
+          if [ -n "$IMAGE_URL" ]; then
+            wget -q -O /tmp/portfolio_screenshot.jpg "$IMAGE_URL"
+            python src/ocr_parser.py /tmp/portfolio_screenshot.jpg
+          else
+            echo "image_url 없음 — OCR 파싱 건너뜀"
+          fi
+
+      - name: 시장 데이터 수집
+        run: python src/market_data.py
+
+      - name: 규칙 엔진 실행
+        run: python src/rule_engine.py
+
+      - name: 시그널 생성
+        run: python src/signal_generator.py
+
+      - name: 리밸런싱 체크
+        run: python src/rebalance_checker.py
+
+      - name: data/ 커밋 및 푸시
+        run: |
+          git config user.name "trading-bot"
+          git config user.email "bot@trading.local"
+          git add data/
+          git diff --staged --quiet || git commit -m "update: telegram $(date +%Y-%m-%d-%H%M)"
+          git push
+
+      - name: 텔레그램 결과 알림
+        run: python src/telegram_bot.py notify
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          DASHBOARD_URL: ${{ secrets.DASHBOARD_URL }}

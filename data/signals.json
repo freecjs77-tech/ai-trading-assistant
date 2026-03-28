@@ -1,0 +1,116 @@
+{
+  "date": "2026-03-28",
+  "master_switch": "RED",
+  "vix_tier": "extreme (30.9)",
+  "treasury_30y": 4.982,
+  "usdkrw": 1425.5,
+  "allocation_modifier": 0.5,
+  "allocation_note": "VIX 30.9 — 모든 진입 규모 x0.5 적용",
+  "signals": [
+    {
+      "ticker": "TQQQ",
+      "classification": "speculative",
+      "action": "L3_BREAKDOWN",
+      "tranche": null,
+      "confidence": 82,
+      "rationale": "붕괴 시그널 발동. 20% 손절 기준 도달 (-59.2%). 전량 매도 검토.",
+      "conditions_met": ["drawdown_20pct_from_entry"],
+      "conditions_not_met": [],
+      "exit_level": 3,
+      "notes": ["투기 종목 — 신규 매수 없음. 손절 기준: -20%", "손절 기준 도달: -59.2%"],
+      "strategy_stage": {}
+    },
+    {
+      "ticker": "SOXL",
+      "classification": "speculative",
+      "action": "L3_BREAKDOWN",
+      "tranche": null,
+      "confidence": 82,
+      "rationale": "붕괴 시그널 발동. 20% 손절 기준 도달 (-62.0%). 전량 매도 검토.",
+      "conditions_met": ["drawdown_20pct_from_entry"],
+      "conditions_not_met": [],
+      "exit_level": 3,
+      "notes": ["투기 종목 — 신규 매수 없음. 손절 기준: -20%", "손절 기준 도달: -62.0%"],
+      "strategy_stage": {}
+    },
+    {
+      "ticker": "ETHU",
+      "classification": "speculative",
+      "action": "L3_BREAKDOWN",
+      "tranche": null,
+      "confidence": 82,
+      "rationale": "붕괴 시그널 발동. 20% 손절 기준 도달 (-58.1%). 전량 매도 검토.",
+      "conditions_met": ["drawdown_20pct_from_entry"],
+      "conditions_not_met": [],
+      "exit_level": 3,
+      "notes": [],
+      "strategy_stage": {}
+    },
+    {
+      "ticker": "TLT",
+      "classification": "bond_gold_v26",
+      "action": "WATCH",
+      "tranche": null,
+      "confidence": 55,
+      "rationale": "진입 조건 접근 중. 30Y 금리 4.982% — 5.0% 트리거 임박.",
+      "conditions_met": [],
+      "conditions_not_met": ["treasury_30y >= 5.0", "tlt_rsi <= 35"],
+      "exit_level": null,
+      "notes": ["30Y 금리 4.982% — 5.0% 진입 트리거 임박"],
+      "strategy_stage": {}
+    },
+    {
+      "ticker": "VOO",
+      "classification": "etf_v24",
+      "action": "HOLD",
+      "tranche": null,
+      "confidence": 30,
+      "rationale": "특이 신호 없음. 마스터 스위치 RED — 신규 진입 없음. 현재 포지션 유지.",
+      "conditions_met": [],
+      "conditions_not_met": [],
+      "exit_level": null,
+      "notes": ["마스터 스위치 RED — 신규 진입 없음"],
+      "strategy_stage": {}
+    },
+    {
+      "ticker": "BIL",
+      "classification": "bond_gold_v26",
+      "action": "HOLD",
+      "tranche": null,
+      "confidence": 50,
+      "rationale": "단기채 현금성 자산 — 현재 포지션 유지.",
+      "conditions_met": [],
+      "conditions_not_met": [],
+      "exit_level": null,
+      "notes": ["단기채 현금성 자산 — 현재 포지션 유지"],
+      "strategy_stage": {}
+    }
+  ],
+  "macro_alerts": [
+    {
+      "type": "master_switch",
+      "level": "warning",
+      "message": "마스터 스위치 RED — QQQ/SPY 모두 MA200 아래. 신규 주식 매수 없음."
+    },
+    {
+      "type": "vix",
+      "level": "warning",
+      "message": "VIX 극공포 30.9 — 배분 50% 축소."
+    },
+    {
+      "type": "treasury_yield",
+      "level": "info",
+      "message": "30Y 금리 4.982% — 5.0% 진입 트리거 임박."
+    }
+  ],
+  "rebalance_alerts": [],
+  "summary": {
+    "l3_breakdown": 3,
+    "l2_weakening": 0,
+    "l1_warning": 0,
+    "top_signal": 0,
+    "buy": 0,
+    "watch": 1,
+    "hold": 19
+  }
+}
