@@ -395,6 +395,13 @@
       "total_value_usd": 431847.0,
       "total_cost_usd": 379347.0,
       "dividend_usd": 0.0
+    },
+    {
+      "date": "2026-03-29",
+      "total_value_usd": 431847.0,
+      "total_cost_usd": 412754.44,
+      "total_pnl_usd": 19092.559999999998,
+      "holdings_count": 23
     }
   ]
 }
