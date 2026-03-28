@@ -62,10 +62,11 @@ class TestCalcConfidence:
         assert conf_green > conf_red
 
     def test_high_vix_penalty(self):
-        """VIX 30+ → -10 패널티"""
+        """VIX 30+ → -10 패널티 (조건 일부만 충족하여 캡 회피)"""
         ctx_low = make_ctx(vix=18.0, master_switch="GREEN")
         ctx_high = make_ctx(vix=32.0, master_switch="GREEN")
-        r = make_result("BUY_T1", conditions_met=["a", "b", "c"], conditions_not_met=[])
+        # 2/6 충족 → base=33, GREEN+20=53, vix<20+10=63 vs vix>30 그대로=53
+        r = make_result("BUY_T1", conditions_met=["a", "b"], conditions_not_met=["c", "d", "e", "f"])
         assert calc_confidence(r, ctx_low) > calc_confidence(r, ctx_high)
 
     def test_exit_signal_minimum(self):

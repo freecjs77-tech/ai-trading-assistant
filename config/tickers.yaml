@@ -107,7 +107,7 @@ metadata:
   SPY:  {name_ko: "SPDR S&P 500 ETF",        sector: "ETF",         currency: "USD"}
   UNH:  {name_ko: "유나이티드헬스",            sector: "Healthcare",  currency: "USD"}
   MSFT: {name_ko: "마이크로소프트",            sector: "Technology",  currency: "USD"}
-  GOOGL:{name_ko: "알파벳",                    sector: "Technology",  currency: "USD"}
+  GOOGL: {name_ko: "알파벳",                   sector: "Technology",  currency: "USD"}
   AMZN: {name_ko: "아마존",                    sector: "Technology",  currency: "USD"}
   SLV:  {name_ko: "iShares 은 ETF",           sector: "Commodity",   currency: "USD"}
   TQQQ: {name_ko: "ProShares 2x QQQ",         sector: "Leveraged",   currency: "USD"}

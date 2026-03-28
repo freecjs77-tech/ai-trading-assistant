@@ -272,8 +272,10 @@ class TestBondV26:
         assert result.action == "BUY_T1"
 
     def test_bond_watch_below_trigger(self):
-        """30Y 4.8~4.99% → WATCH"""
-        ind = make_ind(ticker="TLT", rsi=40.0)
+        """30Y 4.8~4.99% → WATCH (MACD death cross 상태)"""
+        # macd < signal + price < ma20 → T2/T3 모두 미발동
+        ind = make_ind(ticker="TLT", rsi=40.0, macd=-0.5, macd_signal=0.3,
+                       price=88.0, ma20=95.0)
         ctx = make_ctx(master_switch="RED", treasury_30y=4.85)
         result = evaluate_bond_v26(ind, ctx)
         assert result.action in ("WATCH", "HOLD")

@@ -128,8 +128,14 @@ def check_macd_hist_rising(ind: TickerIndicators, days: int = 2) -> bool:
 
 
 def check_macd_hist_declining(ind: TickerIndicators, days: int = 2) -> bool:
-    """MACD 히스토그램 N일 연속 하락"""
-    return f"declining_{days}d" in ind.macd_hist_trend or f"declining" in ind.macd_hist_trend
+    """MACD 히스토그램 N일 연속 하락 (최소 days일 이상 하락 시 True)"""
+    trend = ind.macd_hist_trend
+    if days >= 3:
+        return "declining_3d" in trend
+    elif days == 2:
+        return "declining_2d" in trend or "declining_3d" in trend
+    else:  # days == 1
+        return "declining" in trend
 
 
 def check_macd_above_zero(ind: TickerIndicators) -> bool:

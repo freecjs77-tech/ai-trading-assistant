@@ -293,7 +293,7 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     result = run_rebalance_check()
     if result:
-        print(f"\n✅ 리밸런싱 체크 완료")
+        print(f"\n[완료] 리밸런싱 체크 완료")
         print(f"   경고/주의: {result['alert_count']}건")
         for a in result["rebalance_alerts"]:
             print(f"   [{a.get('severity','info').upper()}] {a['message'][:80]}")
