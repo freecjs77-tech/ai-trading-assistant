@@ -31,6 +31,12 @@ st.set_page_config(
 )
 st.markdown(inject_css(), unsafe_allow_html=True)
 
+# FIX: 사이드바 "app" → "Overview" 레이블 변경
+st.markdown('''<style>
+[data-testid="stSidebarNavItems"] li:first-child span {font-size:0}
+[data-testid="stSidebarNavItems"] li:first-child span::after {content:"Overview";font-size:14px}
+</style>''', unsafe_allow_html=True)
+
 KST = timezone(timedelta(hours=9))
 DATA_DIR = ROOT_DIR / "data"
 USE_MOCK = os.getenv("USE_MOCK_DATA", "false").lower() == "true"
@@ -191,23 +197,35 @@ pnl_usd = total_value - total_cost
 pnl_pct = (pnl_usd / total_cost * 100) if total_cost > 0 else 0
 pnl_cls = "up" if pnl_usd >= 0 else "dn"
 pnl_sign = "+" if pnl_usd >= 0 else ""
-ytd_div = sum(h.get("ytd_dividend_usd", 0) for h in holdings) or 1791.0
+# 1년 예상 배당금 = 각 종목 배당수익률(dividend_yield) x 보유가치
+est_annual_div = 0
+_div_yields = {
+    "VOO": 1.25, "QQQ": 0.55, "SPY": 1.20, "SCHD": 3.40, "AAPL": 0.44,
+    "O": 5.60, "JEPI": 7.30, "SOXX": 0.65, "TSLA": 0.0, "TLT": 3.50,
+    "NVDA": 0.03, "PLTR": 0.0, "UNH": 1.50, "MSFT": 0.72, "GOOGL": 0.45,
+    "AMZN": 0.0, "SLV": 0.0, "BIL": 4.80, "TQQQ": 0.0, "SOXL": 0.0,
+    "ETHU": 0.0, "CRCL": 0.0, "BTDR": 0.0,
+}
+for _h in holdings:
+    _dy = _div_yields.get(_h["ticker"], 0) / 100
+    est_annual_div += _h.get("value_usd", 0) * _dy
+est_annual_div = round(est_annual_div)
 
 curr = st.session_state.get("currency", "USD")
 if curr == "KRW":
     val_str = format_krw(total_value, usdkrw)
     pnl_str = ("+" if pnl_usd >= 0 else "") + format_krw(abs(pnl_usd), usdkrw)
-    div_str = format_krw(ytd_div, usdkrw)
+    div_str = format_krw(est_annual_div, usdkrw)
 else:
     val_str = f"${total_value:,.0f}"
     pnl_str = f"{pnl_sign}${abs(pnl_usd):,.0f}"
-    div_str = f"${ytd_div:,.0f}"
+    div_str = f"${est_annual_div:,.0f}"
 
 st.markdown(metrics_row([
     metric_card("Total value", val_str, f"{pnl_sign}{pnl_pct:.1f}%", pnl_cls),
     metric_card("Holdings", f"{len(holdings)} 종목"),
     metric_card("Total return", f"{pnl_sign}{pnl_pct:.1f}%", pnl_str, pnl_cls),
-    metric_card("YTD dividend", div_str),
+    metric_card("Est. annual div", div_str),
 ]), unsafe_allow_html=True)
 
 # ── 매크로 카드 ───────────────────────────────────────────
