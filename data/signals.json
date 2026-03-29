@@ -18,7 +18,10 @@
         "macd_hist_declining_3d",
         "drawdown_15_30pct"
       ],
-      "conditions_not_met": [],
+      "conditions_not_met": [
+        "rsi_lower_high_divergence",
+        "ma20_fresh_breakdown"
+      ],
       "exit_level": 2,
       "notes": [],
       "strategy_stage": {}

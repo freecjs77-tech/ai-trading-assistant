@@ -240,6 +240,9 @@ HOLD_ACTIONS = {"HOLD", "CASH"}
 def count_summary(d: dict) -> dict:
     c = {"warn": 0, "watch": 0, "buy": 0, "hold": 0}
     for a in d.values():
+        if not isinstance(a, str):
+            c["hold"] += 1
+            continue
         if a in ("L1_WARNING", "L2_WEAKENING", "L3_BREAKDOWN", "TOP_SIGNAL"):
             c["warn"] += 1
         elif a in ("WATCH", "BOND_WATCH"):
