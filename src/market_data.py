@@ -415,9 +415,10 @@ def collect_all(use_cache_on_fail: bool = True) -> dict:
     # 매크로 데이터
     logger.info("\n[매크로 데이터]")
     master_switch = fetch_master_switch_data()
-    if not master_switch.get("status") and old_master:
+    # FIX: 가격 데이터가 null이면 기존 캐시로 폴백 (status만 체크하면 안 됨)
+    if master_switch.get("qqq_price") is None and old_master and old_master.get("qqq_price") is not None:
         master_switch = old_master
-        logger.warning("  마스터 스위치 수집 실패 → 기존 캐시 사용")
+        logger.warning("  마스터 스위치 가격 데이터 없음 → 기존 캐시 사용")
 
     macro = fetch_macro_data()
     if not macro and old_macro:
@@ -440,6 +441,11 @@ def collect_all(use_cache_on_fail: bool = True) -> dict:
         else:
             logger.warning(f"  {ticker}: 수집 실패 (캐시 없음)")
 
+    # FIX: 모든 종목 수집 실패 시 기존 캐시 전체 사용
+    if not ticker_data and old_tickers:
+        ticker_data = old_tickers
+        logger.warning(f"  전체 종목 수집 실패 → 기존 캐시 전체 사용 ({len(old_tickers)}개)")
+
     now_kst = datetime.now(KST).isoformat()
     result = {
         "updated_at": now_kst,
@@ -447,6 +453,11 @@ def collect_all(use_cache_on_fail: bool = True) -> dict:
         "macro": macro,
         "tickers": ticker_data,
     }
+
+    # FIX: 빈 데이터로 유효한 캐시를 덮어쓰지 않음
+    if old_cache and not ticker_data and not macro:
+        logger.warning("❌ 수집 데이터 없음 — 기존 캐시 유지, 덮어쓰기 안 함")
+        return old_cache
 
     # 저장
     DATA_DIR.mkdir(exist_ok=True)
