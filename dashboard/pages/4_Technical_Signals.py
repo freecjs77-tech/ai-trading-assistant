@@ -12,6 +12,7 @@ import streamlit as st
 
 ROOT_DIR = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(ROOT_DIR / "src"))
+sys.path.insert(0, str(ROOT_DIR))
 DATA_DIR = ROOT_DIR / "data"
 
 USE_MOCK = os.getenv("USE_MOCK_DATA", "false").lower() == "true"

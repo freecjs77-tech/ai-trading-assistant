@@ -12,6 +12,7 @@ import streamlit as st
 
 ROOT_DIR = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT_DIR / "src"))
+sys.path.insert(0, str(ROOT_DIR))  # dashboard.style / dashboard.components 임포트용
 
 from dashboard.style import inject_css
 from dashboard.components import (

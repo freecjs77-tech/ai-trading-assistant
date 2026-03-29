@@ -18,6 +18,7 @@ import yfinance as yf
 
 ROOT_DIR     = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(ROOT_DIR / "src"))
+sys.path.insert(0, str(ROOT_DIR))
 DATA_DIR     = ROOT_DIR / "data"
 FIXTURES_DIR = ROOT_DIR / "tests" / "fixtures"
 
