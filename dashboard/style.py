@@ -124,7 +124,6 @@ footer { display: none; }
 
 /* ── 확신도 바 ── */
 .rate-label { font-size: 10px; color: #888; display: flex; align-items: center; gap: 5px; margin: 3px 0; }
-
 /* sidebar "app" -> "Overview" */
 [data-testid="stSidebarNavItems"] li:first-child span {font-size:0}
 [data-testid="stSidebarNavItems"] li:first-child span::after {content:"Overview";font-size:14px}
