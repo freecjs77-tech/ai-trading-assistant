@@ -187,6 +187,57 @@ def fetch_ticker_data(ticker: str, period: str = "1y") -> Optional[dict]:
         # MACD 히스토그램 추세
         macd_hist_trend = get_macd_hist_trend(macd_hist, 3)
 
+        # ── 히스토리 기반 지표 ──────────────────────────────────
+        # MA20 기울기: 최근 5거래일 변화율 (양수=상승)
+        ma20_slope: Optional[float] = None
+        ma20_clean = ma20.dropna()
+        if len(ma20_clean) >= 6:
+            ma20_slope = safe_float(
+                (ma20_clean.iloc[-1] - ma20_clean.iloc[-6]) / ma20_clean.iloc[-6]
+            )
+
+        # MA20 위 연속일수
+        consecutive_above_ma20 = 0
+        n = min(len(close), len(ma20_clean))
+        for i in range(1, n + 1):
+            if close.iloc[-i] > ma20_clean.iloc[-i]:
+                consecutive_above_ma20 += 1
+            else:
+                break
+
+        # BB상단 위 연속일수
+        consecutive_above_bb_upper = 0
+        bb_upper_clean = bb_upper.dropna()
+        nb = min(len(close), len(bb_upper_clean))
+        for i in range(1, nb + 1):
+            if close.iloc[-i] > bb_upper_clean.iloc[-i]:
+                consecutive_above_bb_upper += 1
+            else:
+                break
+
+        # 당일 등락률 (%)
+        day_change_pct: Optional[float] = None
+        if len(close) >= 2:
+            day_change_pct = safe_float((close.iloc[-1] / close.iloc[-2] - 1) * 100)
+
+        # 최근 3거래일 누적 등락률 (%)
+        gain_3day_pct: Optional[float] = None
+        if len(close) >= 4:
+            gain_3day_pct = safe_float((close.iloc[-1] / close.iloc[-4] - 1) * 100)
+
+        # 이번 캔들 MA20 아래로 이탈 (L2 ③)
+        price_crossed_below_ma20 = False
+        if len(close) >= 2 and len(ma20_clean) >= 2:
+            price_crossed_below_ma20 = bool(
+                close.iloc[-2] >= ma20_clean.iloc[-2]
+                and close.iloc[-1] < ma20_clean.iloc[-1]
+            )
+
+        # 직전 캔들 BB상단 위에 있었음 (L1 ③)
+        price_was_above_bb_upper = False
+        if len(close) >= 2 and len(bb_upper_clean) >= 2:
+            price_was_above_bb_upper = bool(close.iloc[-2] > bb_upper_clean.iloc[-2])
+
         return {
             "price": cur_price,
             "ma20": cur_ma20,
@@ -204,6 +255,14 @@ def fetch_ticker_data(ticker: str, period: str = "1y") -> Optional[dict]:
             "volume": int(cur_vol) if cur_vol else None,
             "volume_avg20": int(cur_vol_avg) if cur_vol_avg else None,
             "volume_ratio": vol_ratio,
+            # 히스토리 기반 지표
+            "ma20_slope": ma20_slope,
+            "consecutive_above_ma20": consecutive_above_ma20,
+            "consecutive_above_bb_upper": consecutive_above_bb_upper,
+            "day_change_pct": day_change_pct,
+            "gain_3day_pct": gain_3day_pct,
+            "price_crossed_below_ma20": price_crossed_below_ma20,
+            "price_was_above_bb_upper": price_was_above_bb_upper,
         }
 
     except Exception as e:
@@ -247,15 +306,14 @@ def fetch_macro_data() -> dict:
         logger.warning(f"  VIX 수집 실패: {e}")
 
     # 30Y 국채 금리
+    # ^TYX: yfinance가 % 단위 그대로 반환 (예: 4.982)
     try:
         tyx_data = yf.Ticker("^TYX").history(period="5d")
         if not tyx_data.empty:
             tyx = float(tyx_data["Close"].iloc[-1])
-            macro["treasury_30y"] = round(tyx / 10, 3)  # ^TYX는 10배 스케일
-            # 실제로 ^TYX는 이미 % 단위로 표시됨
-            # 재확인: 4.982% 형태로 저장
-            if macro["treasury_30y"] < 1:  # 만약 0.4982 같이 나오면 10배
-                macro["treasury_30y"] = round(tyx, 3)
+            # ^TYX는 % 단위 직접 반환. 단 간혹 10배 스케일(49.82)로 오는 경우 보정
+            treasury = tyx if tyx < 20 else tyx / 10
+            macro["treasury_30y"] = round(treasury, 3)
             logger.info(f"  30Y 국채: {macro['treasury_30y']:.3f}%")
     except Exception as e:
         logger.warning(f"  30Y 국채 수집 실패: {e}")
@@ -348,10 +406,23 @@ def collect_all(use_cache_on_fail: bool = True) -> dict:
 
     logger.info(f"대상 종목: {tickers}")
 
+    # 기존 캐시 로드 (수집 실패 시 fallback)
+    old_cache = load_cache() if use_cache_on_fail else None
+    old_tickers = (old_cache or {}).get("tickers", {})
+    old_macro = (old_cache or {}).get("macro", {})
+    old_master = (old_cache or {}).get("master_switch", {})
+
     # 매크로 데이터
     logger.info("\n[매크로 데이터]")
     master_switch = fetch_master_switch_data()
+    if not master_switch.get("status") and old_master:
+        master_switch = old_master
+        logger.warning("  마스터 스위치 수집 실패 → 기존 캐시 사용")
+
     macro = fetch_macro_data()
+    if not macro and old_macro:
+        macro = old_macro
+        logger.warning("  매크로 데이터 수집 실패 → 기존 캐시 사용")
 
     logger.info(f"  마스터 스위치: {master_switch['status']}")
 
@@ -363,8 +434,11 @@ def collect_all(use_cache_on_fail: bool = True) -> dict:
         data = fetch_ticker_data(ticker)
         if data:
             ticker_data[ticker] = data
+        elif use_cache_on_fail and ticker in old_tickers:
+            ticker_data[ticker] = old_tickers[ticker]
+            logger.warning(f"  {ticker}: 수집 실패 → 기존 캐시 사용")
         else:
-            logger.warning(f"  {ticker}: 수집 실패")
+            logger.warning(f"  {ticker}: 수집 실패 (캐시 없음)")
 
     now_kst = datetime.now(KST).isoformat()
     result = {
