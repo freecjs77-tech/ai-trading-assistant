@@ -1,11 +1,11 @@
 {
-  "date": "2026-03-29",
+  "date": "2026-03-30",
   "master_switch": "RED",
-  "vix_tier": "high (30.9)",
+  "vix_tier": "extreme (31.1)",
   "treasury_30y": 4.982,
-  "usdkrw": 1425.5,
+  "usdkrw": 1507.95,
   "allocation_modifier": 0.5,
-  "allocation_note": "VIX 30.9 — 모든 진입 규모 x0.5 적용",
+  "allocation_note": "VIX 31.1 — 모든 진입 규모 x0.5 적용",
   "signals": [
     {
       "ticker": "ETHU",
@@ -27,17 +27,73 @@
       "strategy_stage": {}
     },
     {
+      "ticker": "CRCL",
+      "classification": "speculative",
+      "action": "L2_WEAKENING",
+      "tranche": null,
+      "confidence": 70,
+      "rationale": "추세 약화 신호 2개 발동. MACD 히스토그램 3일 하락 + drawdown_15_30pct. 보유 30% 익절 권장.",
+      "conditions_met": [
+        "macd_hist_declining_3d",
+        "drawdown_15_30pct"
+      ],
+      "conditions_not_met": [
+        "rsi_lower_high_divergence",
+        "ma20_fresh_breakdown"
+      ],
+      "exit_level": 2,
+      "notes": [],
+      "strategy_stage": {}
+    },
+    {
+      "ticker": "PLTR",
+      "classification": "growth_v22",
+      "action": "L1_WARNING",
+      "tranche": null,
+      "confidence": 20,
+      "rationale": "MACD 히스토그램 하락 전환 감지. MACD 히스토그램 하락 전환 + 거래량 감소 다이버전스. 신규 매수 중단, L2 발동 시 30% 트림 준비.",
+      "conditions_met": [
+        "macd_hist_declining_1_2d",
+        "volume_divergence_negative"
+      ],
+      "conditions_not_met": [
+        "rsi_65_turning_down",
+        "bb_upper_pullback"
+      ],
+      "exit_level": 1,
+      "notes": [],
+      "strategy_stage": {}
+    },
+    {
+      "ticker": "BTDR",
+      "classification": "speculative",
+      "action": "L1_WARNING",
+      "tranche": null,
+      "confidence": 20,
+      "rationale": "MACD 히스토그램 하락 전환 감지. MACD 히스토그램 하락 전환 + 거래량 감소 다이버전스. 신규 매수 중단, L2 발동 시 30% 트림 준비.",
+      "conditions_met": [
+        "macd_hist_declining_1_2d",
+        "volume_divergence_negative"
+      ],
+      "conditions_not_met": [
+        "rsi_65_turning_down",
+        "bb_upper_pullback"
+      ],
+      "exit_level": 1,
+      "notes": [],
+      "strategy_stage": {}
+    },
+    {
       "ticker": "TLT",
       "classification": "bond_gold_v26",
       "action": "BOND_WATCH",
       "tranche": null,
-      "confidence": 20,
-      "rationale": "30Y 금리 TLT RSI 과매도. TLT RSI 34.0. 5.0% 트리거 임박.",
-      "conditions_met": [
-        "tlt_rsi <= 35"
-      ],
+      "confidence": 0,
+      "rationale": "30Y 금리 조건 미충족. TLT RSI 38.3. 5.0% 트리거 임박.",
+      "conditions_met": [],
       "conditions_not_met": [
-        "treasury_30y >= 5.0"
+        "treasury_30y >= 5.0",
+        "tlt_rsi <= 35"
       ],
       "exit_level": null,
       "notes": [
@@ -51,7 +107,7 @@
       "action": "CASH",
       "tranche": null,
       "confidence": 20,
-      "rationale": "단기채 현금성 자산. RSI 52.0. 현재 포지션 유지.",
+      "rationale": "단기채 현금성 자산. RSI 95.7. 현재 포지션 유지.",
       "conditions_met": [],
       "conditions_not_met": [],
       "exit_level": null,
@@ -66,7 +122,7 @@
       "action": "HOLD",
       "tranche": null,
       "confidence": 20,
-      "rationale": "특이 신호 없음. RSI 36.5. MACD 하락. 현재 포지션 유지.",
+      "rationale": "특이 신호 없음. RSI 27.9. MACD 하락. 현재 포지션 유지.",
       "conditions_met": [],
       "conditions_not_met": [],
       "exit_level": null,
@@ -81,7 +137,7 @@
       "action": "HOLD",
       "tranche": null,
       "confidence": 20,
-      "rationale": "특이 신호 없음. RSI 34.8. MACD 하락. 현재 포지션 유지.",
+      "rationale": "특이 신호 없음. RSI 29.9. MACD 하락. 현재 포지션 유지.",
       "conditions_met": [],
       "conditions_not_met": [],
       "exit_level": null,
@@ -96,7 +152,7 @@
       "action": "HOLD",
       "tranche": null,
       "confidence": 20,
-      "rationale": "특이 신호 없음. RSI 38.0. MACD 하락. 현재 포지션 유지.",
+      "rationale": "특이 신호 없음. RSI 41.1. MACD 하락. 현재 포지션 유지.",
       "conditions_met": [],
       "conditions_not_met": [],
       "exit_level": null,
@@ -111,7 +167,7 @@
       "action": "HOLD",
       "tranche": null,
       "confidence": 20,
-      "rationale": "특이 신호 없음. RSI 40.2. MACD 하락. 현재 포지션 유지.",
+      "rationale": "특이 신호 없음. RSI 38.0. MACD 하락. 현재 포지션 유지.",
       "conditions_met": [],
       "conditions_not_met": [],
       "exit_level": null,
@@ -126,7 +182,7 @@
       "action": "HOLD",
       "tranche": null,
       "confidence": 20,
-      "rationale": "특이 신호 없음. RSI 42.5. MACD 하락. 현재 포지션 유지.",
+      "rationale": "특이 신호 없음. RSI 34.1. MACD 하락. 현재 포지션 유지.",
       "conditions_met": [],
       "conditions_not_met": [],
       "exit_level": null,
@@ -141,7 +197,7 @@
       "action": "HOLD",
       "tranche": null,
       "confidence": 20,
-      "rationale": "특이 신호 없음. RSI 44.0. MACD 하락. 현재 포지션 유지.",
+      "rationale": "특이 신호 없음. RSI 29.7. MACD 하락. 현재 포지션 유지.",
       "conditions_met": [],
       "conditions_not_met": [],
       "exit_level": null,
@@ -156,7 +212,7 @@
       "action": "HOLD",
       "tranche": null,
       "confidence": 20,
-      "rationale": "특이 신호 없음. RSI 32.0. MACD 하락. 현재 포지션 유지.",
+      "rationale": "특이 신호 없음. RSI 40.4. MACD 하락. 현재 포지션 유지.",
       "conditions_met": [],
       "conditions_not_met": [],
       "exit_level": null,
@@ -171,7 +227,7 @@
       "action": "HOLD",
       "tranche": null,
       "confidence": 20,
-      "rationale": "특이 신호 없음. RSI 38.2. MACD 하락. 현재 포지션 유지.",
+      "rationale": "특이 신호 없음. RSI 33.9. MACD 하락. 현재 포지션 유지.",
       "conditions_met": [],
       "conditions_not_met": [],
       "exit_level": null,
@@ -196,27 +252,12 @@
       "strategy_stage": {}
     },
     {
-      "ticker": "PLTR",
-      "classification": "growth_v22",
-      "action": "HOLD",
-      "tranche": null,
-      "confidence": 20,
-      "rationale": "특이 신호 없음. RSI 37.0. MACD 하락. 현재 포지션 유지.",
-      "conditions_met": [],
-      "conditions_not_met": [],
-      "exit_level": null,
-      "notes": [
-        "마스터 스위치 RED — 신규 진입 없음"
-      ],
-      "strategy_stage": {}
-    },
-    {
       "ticker": "SPY",
       "classification": "etf_v24",
       "action": "HOLD",
       "tranche": null,
       "confidence": 20,
-      "rationale": "특이 신호 없음. RSI 36.0. MACD 하락. 현재 포지션 유지.",
+      "rationale": "특이 신호 없음. RSI 28.5. MACD 하락. 현재 포지션 유지.",
       "conditions_met": [],
       "conditions_not_met": [],
       "exit_level": null,
@@ -231,7 +272,7 @@
       "action": "HOLD",
       "tranche": null,
       "confidence": 20,
-      "rationale": "특이 신호 없음. RSI 33.5. MACD 하락. 현재 포지션 유지.",
+      "rationale": "특이 신호 없음. RSI 31.3. MACD 하락. 현재 포지션 유지.",
       "conditions_met": [],
       "conditions_not_met": [],
       "exit_level": null,
@@ -246,7 +287,7 @@
       "action": "HOLD",
       "tranche": null,
       "confidence": 20,
-      "rationale": "특이 신호 없음. RSI 37.0. MACD 하락. 현재 포지션 유지.",
+      "rationale": "특이 신호 없음. RSI 22.3. MACD 하락. 현재 포지션 유지.",
       "conditions_met": [],
       "conditions_not_met": [],
       "exit_level": null,
@@ -261,7 +302,7 @@
       "action": "HOLD",
       "tranche": null,
       "confidence": 20,
-      "rationale": "특이 신호 없음. RSI 36.5. MACD 하락. 현재 포지션 유지.",
+      "rationale": "특이 신호 없음. RSI 25.2. MACD 하락. 현재 포지션 유지.",
       "conditions_met": [],
       "conditions_not_met": [],
       "exit_level": null,
@@ -276,7 +317,7 @@
       "action": "HOLD",
       "tranche": null,
       "confidence": 20,
-      "rationale": "특이 신호 없음. RSI 38.5. MACD 하락. 현재 포지션 유지.",
+      "rationale": "특이 신호 없음. RSI 37.8. MACD 하락. 현재 포지션 유지.",
       "conditions_met": [],
       "conditions_not_met": [],
       "exit_level": null,
@@ -291,7 +332,7 @@
       "action": "HOLD",
       "tranche": null,
       "confidence": 20,
-      "rationale": "특이 신호 없음. RSI 36.1. MACD 하락. 현재 포지션 유지.",
+      "rationale": "특이 신호 없음. RSI 39.9. MACD 하락. 현재 포지션 유지.",
       "conditions_met": [],
       "conditions_not_met": [],
       "exit_level": null,
@@ -306,7 +347,7 @@
       "action": "HOLD",
       "tranche": null,
       "confidence": 20,
-      "rationale": "특이 신호 없음. RSI 30.5. MACD 하락. 현재 포지션 유지.",
+      "rationale": "특이 신호 없음. RSI 29.7. MACD 하락. 현재 포지션 유지.",
       "conditions_met": [],
       "conditions_not_met": [],
       "exit_level": null,
@@ -321,37 +362,7 @@
       "action": "HOLD",
       "tranche": null,
       "confidence": 20,
-      "rationale": "특이 신호 없음. RSI 28.0. MACD 하락. 현재 포지션 유지.",
-      "conditions_met": [],
-      "conditions_not_met": [],
-      "exit_level": null,
-      "notes": [
-        "투기 종목 — 신규 매수 없음."
-      ],
-      "strategy_stage": {}
-    },
-    {
-      "ticker": "CRCL",
-      "classification": "speculative",
-      "action": "HOLD",
-      "tranche": null,
-      "confidence": 20,
-      "rationale": "특이 신호 없음. RSI 32.0. MACD 하락. 현재 포지션 유지.",
-      "conditions_met": [],
-      "conditions_not_met": [],
-      "exit_level": null,
-      "notes": [
-        "투기 종목 — 신규 매수 없음."
-      ],
-      "strategy_stage": {}
-    },
-    {
-      "ticker": "BTDR",
-      "classification": "speculative",
-      "action": "HOLD",
-      "tranche": null,
-      "confidence": 20,
-      "rationale": "특이 신호 없음. RSI 25.0. MACD 하락. 현재 포지션 유지.",
+      "rationale": "특이 신호 없음. RSI 39.0. MACD 하락. 현재 포지션 유지.",
       "conditions_met": [],
       "conditions_not_met": [],
       "exit_level": null,
@@ -370,22 +381,27 @@
     {
       "type": "vix",
       "level": "warning",
-      "message": "VIX 극공포 30.9 — 배분 50% 축소."
+      "message": "VIX 극공포 31.1 — 배분 50% 축소."
     },
     {
       "type": "treasury_yield",
       "level": "info",
       "message": "30Y 금리 4.982% — 5.0% 진입 트리거 임박."
+    },
+    {
+      "type": "exchange_rate",
+      "level": "caution",
+      "message": "원달러 1508원 — 환율 고점. 미국 주식 신규 매수 지연 권장."
     }
   ],
   "summary": {
     "l3_breakdown": 0,
-    "l2_weakening": 1,
-    "l1_warning": 0,
+    "l2_weakening": 2,
+    "l1_warning": 2,
     "top_signal": 0,
     "buy": 0,
     "watch": 0,
-    "hold": 20
+    "hold": 17
   },
   "mode": "full",
   "rebalance_alerts": [
