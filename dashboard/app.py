@@ -31,12 +31,6 @@ st.set_page_config(
 )
 st.markdown(inject_css(), unsafe_allow_html=True)
 
-# FIX: 사이드바 "app" → "Overview" 레이블 변경
-st.markdown('''<style>
-[data-testid="stSidebarNavItems"] li:first-child span {font-size:0}
-[data-testid="stSidebarNavItems"] li:first-child span::after {content:"Overview";font-size:14px}
-</style>''', unsafe_allow_html=True)
-
 KST = timezone(timedelta(hours=9))
 DATA_DIR = ROOT_DIR / "data"
 USE_MOCK = os.getenv("USE_MOCK_DATA", "false").lower() == "true"
