@@ -111,11 +111,13 @@ sig_t = signals_dict(sig_tech_doc)
 # FIX: 시장 데이터가 비어있으면 signals.json의 매크로 데이터로 폴백
 _tickers_empty = not market.get("tickers", {})
 if _tickers_empty and sig_full_doc:
-    import re as _re
     if not macro.get("vix") and sig_full_doc.get("vix_tier"):
-        _m = _re.search(r"[\\d.]+", str(sig_full_doc.get("vix_tier", "")))
-        if _m:
-            macro["vix"] = float(_m.group())
+        try:
+            _vt = str(sig_full_doc.get("vix_tier", ""))
+            if "(" in _vt:
+                macro["vix"] = float(_vt.split("(")[1].rstrip(")").strip())
+        except (ValueError, IndexError):
+            pass
     if not macro.get("treasury_30y") and sig_full_doc.get("treasury_30y"):
         macro["treasury_30y"] = sig_full_doc["treasury_30y"]
     if sig_full_doc.get("usdkrw"):
