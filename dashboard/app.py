@@ -228,6 +228,7 @@ st.markdown(
         currency=curr,
         usdkrw=usdkrw,
         max_value=max_value,
+        total_value=total_value,
     ),
     unsafe_allow_html=True,
 )

@@ -111,15 +111,18 @@ def holdings_table_html(
     currency: str = "USD",
     usdkrw: float = 1400.0,
     max_value: float = 1.0,
+    total_value: float = 0.0,
 ) -> str:
     """보유 테이블 HTML (Market + Technical 듀얼 시그널 컬럼)"""
+    _total = total_value if total_value > 0 else max_value
     rows = []
     for h in holdings:
         ticker = h["ticker"]
         name = h.get("name", "")
         value_usd = h.get("value_usd", 0)
         pnl_pct = h.get("pnl_pct", 0)
-        weight = value_usd / max_value * 100 if max_value > 0 else 0
+        # 포트폴리오 비중 (총액 대비 %)
+        weight = value_usd / _total * 100 if _total > 0 else 0
 
         if currency == "KRW":
             val_str = format_krw(value_usd, usdkrw)
@@ -130,7 +133,7 @@ def holdings_table_html(
         pnl_str = f"+{pnl_pct:.1f}%" if pnl_pct >= 0 else f"{pnl_pct:.1f}%"
 
         bar_color = "#0F6E56" if pnl_pct >= 0 else "#A32D2D"
-        bar_w = min(100, weight / 25 * 100)
+        bar_w = min(100, weight * 4)  # 25% = 100%로 스케일 (최대 보유 기준)
 
         m_action = signals_market.get(ticker, "HOLD")
         t_action = signals_tech.get(ticker, "HOLD")
