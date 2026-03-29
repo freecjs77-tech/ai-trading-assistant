@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#fff;color:#1A1A1A;padding:20px;max-width:900px;margin:0 auto}
+.hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.hdr h1{font-size:22px;font-weight:500}
+.meta{font-size:11px;color:#888780}
+.ctrls{display:flex;align-items:center;gap:8px}
+.sw{display:inline-block;font-size:11px;padding:3px 10px;border-radius:8px}
+.sw-r{background:#FCEBEB;color:#791F1F}
+.btn{padding:6px 14px;font-size:11px;border:0.5px solid #ccc;border-radius:8px;background:none;cursor:pointer;font-weight:500}
+.tg{display:inline-flex;background:#F8F9FA;border-radius:8px;padding:2px;font-size:11px}
+.tg span{padding:4px 12px;border-radius:6px;cursor:pointer;color:#888}
+.tg .on{background:#fff;color:#1A1A1A;font-weight:500}
+.rate{font-size:10px;color:#888;text-align:right;margin-bottom:10px}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.mc{background:#F8F9FA;border-radius:8px;padding:10px 12px}
+.mc .lb{font-size:10px;color:#888}
+.mc .vl{font-size:18px;font-weight:500;margin-top:1px}
+.mc .ch{font-size:10px;margin-top:1px}
+.up{color:#0F6E56}.dn{color:#A32D2D}
+.macro{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.ma{background:#F8F9FA;border-radius:8px;padding:8px;text-align:center}
+.ma .lb{font-size:10px;color:#888}
+.ma .vl{font-size:13px;font-weight:500;margin:1px 0}
+.ma .st{font-size:10px}
+.ms-banner{background:#fff;border:0.5px solid #E0E0E0;border-left:3px solid #A32D2D;padding:10px 12px;margin-bottom:16px}
+.ms-banner .title{font-weight:500;font-size:14px;margin-bottom:4px}
+.ms-banner .detail{font-size:12px;color:#666}
+.sh{font-size:16px;font-weight:500;margin-bottom:10px}
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{text-align:left;padding:7px 5px;color:#888;font-weight:400;border-bottom:0.5px solid #E0E0E0;font-size:10px}
+.tbl td{padding:7px 5px;border-bottom:0.5px solid #E0E0E0}
+.tk{font-weight:500;font-size:12px}.nm{color:#888;font-size:10px}
+.pill{display:inline-block;font-size:9px;padding:2px 6px;border-radius:6px;font-weight:500}
+.pill-sell{background:#FCEBEB;color:#791F1F}
+.pill-buy{background:#EAF3DE;color:#27500A}
+.pill-hold{background:#F1EFE8;color:#5F5E5A}
+.pill-wait{background:#FAEEDA;color:#633806}
+.pill-bond{background:#E1F5EE;color:#085041}
+.pill-block{background:#EEEDFE;color:#3C3489}
+.bar-bg{height:5px;border-radius:3px;background:#E0E0E0;width:60px;display:inline-block;vertical-align:middle}
+.bar-f{height:5px;border-radius:3px;display:block}
+.sep{border:none;border-top:0.5px solid #E0E0E0;margin:14px 0}
+.sig-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.sig-col h3{font-size:13px;font-weight:500;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.sig-sm{display:flex;gap:6px;margin-bottom:6px}
+.cnt{background:#F8F9FA;border-radius:6px;padding:2px 8px;font-size:10px;color:#888}
+.sig-card{background:#fff;border:0.5px solid #E0E0E0;border-radius:10px;padding:10px;margin-bottom:6px}
+.sig-card-warn{border-left:3px solid #A32D2D;border-radius:0}
+.sig-card-watch{border-left:3px solid #BA7517;border-radius:0}
+.sig-card-buy{border-left:3px solid #0F6E56;border-radius:0}
+.sig-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.sig-tk{font-weight:500;font-size:13px}
+.conf{font-size:10px;color:#888}
+.conf-bar{height:4px;border-radius:2px;background:#E0E0E0;display:inline-block;width:50px;vertical-align:middle;margin-right:4px}
+.conf-fill{height:4px;border-radius:2px;display:block}
+.sig-body{font-size:11px;color:#666;line-height:1.5}
+.idx{padding-top:14px;border-top:0.5px solid #E0E0E0;margin-top:14px}
+.idx-hdr{font-size:14px;font-weight:500;margin-bottom:10px}
+.idx-sub{font-size:12px;font-weight:500;color:#888;margin:10px 0 6px}
+.idx-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.idx-item{display:flex;gap:8px;padding:8px 10px;border-radius:8px;background:#F8F9FA;align-items:flex-start}
+.idx-name{font-size:11px;font-weight:500}
+.idx-desc{font-size:10px;color:#888;line-height:1.4;margin-top:1px}
+.sw-row{display:flex;gap:6px;margin-bottom:8px}
+.sw-card{flex:1;padding:6px 8px;border-radius:8px;text-align:center}
+.sw-g{background:#EAF3DE}.sw-y{background:#FAEEDA}.sw-rr{background:#FCEBEB}
+.sw-card .sl{font-size:10px;font-weight:500}
+.sw-g .sl{color:#27500A}.sw-y .sl{color:#633806}.sw-rr .sl{color:#791F1F}
+.sw-card .sd{font-size:9px}
+.sw-g .sd{color:#3B6D11}.sw-y .sd{color:#854F0B}.sw-rr .sd{color:#A32D2D}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+<div><h1>Portfolio dashboard</h1><span class="meta">2026-03-28 07:00 KST</span></div>
+<div class="ctrls">
+<span class="sw sw-r">Master: RED</span>
+<div class="tg"><span>USD $</span><span class="on">KRW &#8361;</span></div>
+<button class="btn">&#x1F504; Update</button>
+</div>
+</div>
+<div class="rate">1 USD = &#8361;1,425.50 (2026-03-28 via yfinance)</div>
+
+<div class="metrics">
+<div class="mc"><div class="lb">Total value</div><div class="vl">&#8361;6.16&#xC5B5;</div><div class="ch dn">-0.97%</div></div>
+<div class="mc"><div class="lb">Daily P&L</div><div class="vl dn">-&#8361;603&#xB9CC;</div><div class="ch dn">vs prev</div></div>
+<div class="mc"><div class="lb">Total return</div><div class="vl up">+&#8361;7,390&#xB9CC;</div><div class="ch up">+13.63%</div></div>
+<div class="mc"><div class="lb">YTD dividend</div><div class="vl">&#8361;263&#xB9CC;</div><div class="ch" style="color:#888">/2,000&#xB9CC;</div></div>
+</div>
+
+<div class="macro">
+<div class="ma"><div class="lb">QQQ vs MA200</div><div class="vl dn">$587 &lt; $592</div><div class="st dn">Below</div></div>
+<div class="ma"><div class="lb">30Y yield</div><div class="vl" style="color:#BA7517">4.98%</div><div class="st" style="color:#BA7517">Near 5.0% trigger</div></div>
+<div class="ma"><div class="lb">VIX</div><div class="vl dn">30.9</div><div class="st dn">Fear (alloc x0.5)</div></div>
+</div>
+
+<div class="sh">Holdings (23)</div>
+<table class="tbl">
+<thead><tr><th>Ticker</th><th style="text-align:right">Value</th><th style="text-align:right">Weight</th><th style="text-align:right">Return</th><th style="text-align:center">Market</th><th style="text-align:center">Technical</th></tr></thead>
+<tbody>
+<tr><td><span class="tk">VOO</span><br><span class="nm">Vanguard S&P 500</span></td><td style="text-align:right">&#8361;1.46&#xC5B5;</td><td style="text-align:right">23.6%<br><span class="bar-bg"><span class="bar-f" style="width:100%;background:#0F6E56"></span></span></td><td style="text-align:right" class="up">+13.4%</td><td style="text-align:center"><span class="pill pill-hold">HOLD</span></td><td style="text-align:center"><span class="pill pill-wait">WATCH</span></td></tr>
+<tr><td><span class="tk">BIL</span><br><span class="nm">SPDR 1-3 Month</span></td><td style="text-align:right">&#8361;1.31&#xC5B5;</td><td style="text-align:right">21.2%<br><span class="bar-bg"><span class="bar-f" style="width:90%;background:#0F6E56"></span></span></td><td style="text-align:right" class="up">+10.5%</td><td style="text-align:center"><span class="pill pill-hold">CASH</span></td><td style="text-align:center"><span class="pill pill-hold">HOLD</span></td></tr>
+<tr><td><span class="tk">QQQ</span><br><span class="nm">Invesco QQQ</span></td><td style="text-align:right">&#8361;1.09&#xC5B5;</td><td style="text-align:right">17.7%<br><span class="bar-bg"><span class="bar-f" style="width:75%;background:#0F6E56"></span></span></td><td style="text-align:right" class="up">+12.9%</td><td style="text-align:center"><span class="pill pill-hold">HOLD</span></td><td style="text-align:center"><span class="pill pill-block">BLOCKED</span></td></tr>
+<tr><td><span class="tk">SCHD</span><br><span class="nm">Schwab Dividend</span></td><td style="text-align:right">&#8361;6,563&#xB9CC;</td><td style="text-align:right">10.7%<br><span class="bar-bg"><span class="bar-f" style="width:45%;background:#0F6E56"></span></span></td><td style="text-align:right" class="up">+24.2%</td><td style="text-align:center"><span class="pill pill-hold">HOLD</span></td><td style="text-align:center"><span class="pill pill-hold">HOLD</span></td></tr>
+<tr><td><span class="tk">TSLA</span><br><span class="nm">Tesla</span></td><td style="text-align:right">&#8361;1,390&#xB9CC;</td><td style="text-align:right">2.3%<br><span class="bar-bg"><span class="bar-f" style="width:10%;background:#A32D2D"></span></span></td><td style="text-align:right" class="dn">-7.2%</td><td style="text-align:center"><span class="pill pill-sell">L1 WARN</span></td><td style="text-align:center"><span class="pill pill-sell">L1 WARN</span></td></tr>
+<tr><td><span class="tk">TLT</span><br><span class="nm">iShares 20+ Year</span></td><td style="text-align:right">&#8361;1,221&#xB9CC;</td><td style="text-align:right">2.0%<br><span class="bar-bg"><span class="bar-f" style="width:8%;background:#0F6E56"></span></span></td><td style="text-align:right" class="up">+1.9%</td><td style="text-align:center"><span class="pill pill-bond">BOND WATCH</span></td><td style="text-align:center"><span class="pill pill-buy">1st BUY</span></td></tr>
+<tr><td><span class="tk">NVDA</span><br><span class="nm">NVIDIA</span></td><td style="text-align:right">&#8361;1,163&#xB9CC;</td><td style="text-align:right">1.9%<br><span class="bar-bg"><span class="bar-f" style="width:8%;background:#0F6E56"></span></span></td><td style="text-align:right" class="up">+1.6%</td><td style="text-align:center"><span class="pill pill-hold">HOLD</span></td><td style="text-align:center"><span class="pill pill-wait">WATCH</span></td></tr>
+</tbody>
+</table>
+<div style="text-align:center;padding:6px;font-size:11px;color:#888">+ 16 more tickers (sorted by value)</div>
+
+<div class="sep"></div>
+
+<div class="sig-row">
+<div class="sig-col">
+<h3><span class="sw sw-r" style="font-size:10px;padding:2px 8px">M</span> Market signals</h3>
+<div class="sig-sm"><span class="cnt">2 warnings</span><span class="cnt">1 watch</span><span class="cnt">0 buy</span><span class="cnt">20 hold</span></div>
+<div class="sig-card sig-card-warn"><div class="sig-h"><span class="sig-tk">TSLA <span class="pill pill-sell">L1 WARN</span></span><span class="conf"><span class="conf-bar"><span class="conf-fill" style="width:72%;background:#A32D2D"></span></span>72%</span></div><div class="sig-body">MACD hist 2d &#xAC10;&#xC18C; + RSI 65 &#xD558;&#xB77D;. &#xC2E0;&#xADDC; &#xB9E4;&#xC218; &#xC911;&#xB2E8;.</div></div>
+<div class="sig-card sig-card-warn"><div class="sig-h"><span class="sig-tk">ETHU <span class="pill pill-sell">L2 WEAK</span></span><span class="conf"><span class="conf-bar"><span class="conf-fill" style="width:81%;background:#A32D2D"></span></span>81%</span></div><div class="sig-body">MACD 3d &#xD558;&#xB77D; + RSI &#xD558;&#xC704; &#xB2E4;&#xC774;&#xBC84;&#xC804;&#xC2A4; + MA20 &#xC774;&#xD0C8;.</div></div>
+<div class="sig-card sig-card-watch"><div class="sig-h"><span class="sig-tk">TLT <span class="pill pill-bond">BOND WATCH</span></span><span class="conf"><span class="conf-bar"><span class="conf-fill" style="width:65%;background:#BA7517"></span></span>65%</span></div><div class="sig-body">30Y &#xAE08;&#xB9AC; 4.98%. 5.0% &#xD2B8;&#xB9AC;&#xAC70; &#xC784;&#xBC15;. TLT RSI 34.</div></div>
+<div style="font-size:10px;color:#888;padding:4px 0">20 tickers in HOLD (master RED: all equity buys suspended)</div>
+</div>
+
+<div class="sig-col">
+<h3><span style="display:inline-block;font-size:10px;padding:2px 8px;border-radius:6px;background:#E6F1FB;color:#0C447C">T</span> Technical signals</h3>
+<div class="sig-sm"><span class="cnt">2 warnings</span><span class="cnt">3 watch</span><span class="cnt">2 buy</span><span class="cnt">16 hold</span></div>
+<div class="sig-card sig-card-buy"><div class="sig-h"><span class="sig-tk">TLT <span class="pill pill-buy">1st BUY</span></span><span class="conf"><span class="conf-bar"><span class="conf-fill" style="width:78%;background:#0F6E56"></span></span>78%</span></div><div class="sig-body">RSI 34 &#xACFC;&#xB9E4;&#xB3C4; + BB &#xD558;&#xB2E8; &#xADFC;&#xC811;. &#xAE30;&#xC220;&#xC801; &#xB9E4;&#xC218; &#xC870;&#xAC74; &#xCDA9;&#xC871;.</div></div>
+<div class="sig-card sig-card-buy"><div class="sig-h"><span class="sig-tk">SLV <span class="pill pill-buy">1st BUY</span></span><span class="conf"><span class="conf-bar"><span class="conf-fill" style="width:70%;background:#0F6E56"></span></span>70%</span></div><div class="sig-body">RSI 36 + BB &#xD558;&#xB2E8; + MA20 &#xC544;&#xB798;. 3/5 &#xC870;&#xAC74; &#xCDA9;&#xC871;.</div></div>
+<div class="sig-card sig-card-warn"><div class="sig-h"><span class="sig-tk">TSLA <span class="pill pill-sell">L1 WARN</span></span><span class="conf"><span class="conf-bar"><span class="conf-fill" style="width:72%;background:#A32D2D"></span></span>72%</span></div><div class="sig-body">MACD hist 2d &#xAC10;&#xC18C; + RSI 65 &#xD558;&#xB77D; &#xC804;&#xD658;.</div></div>
+<div class="sig-card sig-card-watch"><div class="sig-h"><span class="sig-tk">NVDA <span class="pill pill-wait">WATCH</span></span><span class="conf"><span class="conf-bar"><span class="conf-fill" style="width:55%;background:#BA7517"></span></span>55%</span></div><div class="sig-body">RSI 35.8 &#xD68C;&#xBCF5; &#xC911;. MACD hist &#xC0C1;&#xC2B9; &#xC804;&#xD658;. 2/6 &#xC870;&#xAC74;.</div></div>
+<div style="font-size:10px;color:#888;padding:4px 0">16 tickers in HOLD (pure technical &mdash; master switch ignored)</div>
+</div>
+</div>
+
+<div class="idx">
+<div class="idx-hdr">Signal reference</div>
+<div class="idx-sub">Entry signals</div>
+<div class="idx-grid">
+<div class="idx-item"><div><span class="pill pill-buy">1st BUY</span></div><div><div class="idx-name">1st tranche (20%)</div><div class="idx-desc">MACD hist &#xC0C1;&#xC2B9; + RSI/BB/MA &#xC870;&#xAC74;. &#xC815;&#xCC30; &#xB9E4;&#xC218;.</div></div></div>
+<div class="idx-item"><div><span class="pill pill-buy">2nd BUY</span></div><div><div class="idx-name">2nd tranche (30%)</div><div class="idx-desc">&#xC774;&#xC911;&#xBC14;&#xB2E5; + MACD &#xACE8;&#xB4E0;&#xD06C;&#xB85C;&#xC2A4;.</div></div></div>
+<div class="idx-item"><div><span class="pill pill-buy">3rd BUY</span></div><div><div class="idx-name">3rd tranche (50%)</div><div class="idx-desc">MA20 &#xB3CC;&#xD30C; + MACD 0&#xC120;.</div></div></div>
+<div class="idx-item"><div><span class="pill pill-bond">BOND</span></div><div><div class="idx-name">Bond/gold entry</div><div class="idx-desc">30Y &#xAE08;&#xB9AC; 5.0% &#xB610;&#xB294; GLD &#xC870;&#xAC74;.</div></div></div>
+</div>
+<div class="idx-sub">Hold / watch</div>
+<div class="idx-grid">
+<div class="idx-item"><div><span class="pill pill-hold">HOLD</span></div><div><div class="idx-name">Position maintained</div><div class="idx-desc">&#xD2B9;&#xC774; &#xC2E0;&#xD638; &#xC5C6;&#xC74C;.</div></div></div>
+<div class="idx-item"><div><span class="pill pill-wait">WATCH</span></div><div><div class="idx-name">Entry approaching</div><div class="idx-desc">&#xC9C4;&#xC785; &#xC870;&#xAC74; &#xADFC;&#xC811;.</div></div></div>
+<div class="idx-item"><div><span class="pill pill-block">BLOCKED</span></div><div><div class="idx-name">Master switch block</div><div class="idx-desc">&#xAE30;&#xC220;&#xC801; &#xCDA9;&#xC871;&#xC774;&#xB098; RED&#xB85C; &#xCC28;&#xB2E8;.</div></div></div>
+<div class="idx-item"><div><span class="pill pill-hold">CASH</span></div><div><div class="idx-name">Cash equivalent</div><div class="idx-desc">BIL &#xB4F1; &#xD604;&#xAE08;&#xC131;.</div></div></div>
+</div>
+<div class="idx-sub">Exit signals</div>
+<div class="idx-grid">
+<div class="idx-item"><div><span class="pill pill-sell">L1 WARN</span></div><div><div class="idx-name">Early warning</div><div class="idx-desc">MACD &#xB458;&#xD654; + RSI &#xAEBE;&#xC784;.</div></div></div>
+<div class="idx-item"><div><span class="pill pill-sell">L2 WEAK</span></div><div><div class="idx-name">Trend weakening</div><div class="idx-desc">MACD 3d &#xD558;&#xB77D; + MA20 &#xC774;&#xD0C8;.</div></div></div>
+<div class="idx-item"><div><span class="pill pill-sell">L3 EXIT</span></div><div><div class="idx-name">Trend breakdown</div><div class="idx-desc">MA20 2d &#xC774;&#xD0C8; &#xB610;&#xB294; -8%.</div></div></div>
+<div class="idx-item"><div><span class="pill pill-sell" style="border:0.5px solid #F09595">TOP</span></div><div><div class="idx-name">Overheated</div><div class="idx-desc">RSI 75+ &#xB610;&#xB294; 3d +10%.</div></div></div>
+</div>
+<div class="idx-sub">Master switch / confidence</div>
+<div class="sw-row">
+<div class="sw-card sw-g"><div class="sl">GREEN</div><div class="sd">&#xC804; &#xC804;&#xB7B5; &#xAC00;&#xB3D9;</div></div>
+<div class="sw-card sw-y"><div class="sl">YELLOW</div><div class="sd">1&#xCC28;&#xB9CC; &#xD5C8;&#xC6A9;</div></div>
+<div class="sw-card sw-rr"><div class="sl">RED</div><div class="sd">&#xB9E4;&#xC218; &#xC804;&#xBA74; &#xAE08;&#xC9C0;</div></div>
+</div>
+<div style="font-size:10px;color:#888;margin:3px 0;display:flex;align-items:center;gap:5px"><span class="conf-bar" style="width:60px"><span class="conf-fill" style="width:85%;background:#0F6E56"></span></span> 80-100%: &#xB192;&#xC740; &#xD655;&#xC2E0;</div>
+<div style="font-size:10px;color:#888;margin:3px 0;display:flex;align-items:center;gap:5px"><span class="conf-bar" style="width:60px"><span class="conf-fill" style="width:55%;background:#BA7517"></span></span> 50-79%: &#xC911;&#xAC04; &#xD655;&#xC2E0;</div>
+<div style="font-size:10px;color:#888;margin:3px 0;display:flex;align-items:center;gap:5px"><span class="conf-bar" style="width:60px"><span class="conf-fill" style="width:25%;background:#A32D2D"></span></span> 0-49%: &#xC8FC;&#xC758; &#xD544;&#xC694;</div>
+</div>
+
+</body>
+</html>
