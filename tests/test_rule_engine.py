@@ -179,15 +179,14 @@ class TestExitSystem:
         assert level == 99
         assert "rsi >= 75" in met
 
-    def test_l3_drawdown(self):
-        """8% 하락 → L3"""
+    def test_l2_drawdown_band(self):
+        """pnl -15%~-30% + macd_hist_declining_3d → L2 (L3 제거됨: 단일 스냅샷으로 확인 불가)"""
         ind = make_ind(rsi=30.0, pnl_pct=-15.0,
                        macd=0.5, macd_signal=1.0,
                        macd_hist_trend="declining_3d")
         ctx = make_ctx(vix=20.0)
         level, met, _ = evaluate_exit(ind, ctx)
-        assert level == 3
-        assert "drawdown_8pct" in met
+        assert level == 2
 
     def test_l1_two_conditions(self):
         """L1 — 2개 조건 충족"""
@@ -272,10 +271,10 @@ class TestBondV26:
         assert result.action == "BUY_T1"
 
     def test_bond_watch_below_trigger(self):
-        """30Y 4.8~4.99% → WATCH (MACD death cross 상태)"""
-        # macd < signal + price < ma20 → T2/T3 모두 미발동
+        """30Y 4.8~4.99% → BOND_WATCH (매수 조건 미충족이나 임박 상태)"""
+        # macd < signal + price < ma20 → T1 미발동, BOND_WATCH 반환
         ind = make_ind(ticker="TLT", rsi=40.0, macd=-0.5, macd_signal=0.3,
                        price=88.0, ma20=95.0)
         ctx = make_ctx(master_switch="RED", treasury_30y=4.85)
         result = evaluate_bond_v26(ind, ctx)
-        assert result.action in ("WATCH", "HOLD")
+        assert result.action in ("BOND_WATCH", "WATCH", "HOLD")

@@ -1,5 +1,5 @@
 """
-dashboard/pages/1_Ticker_Detail.py — 종목 기술 차트 상세 페이지
+dashboard/pages/2_Ticker_Detail.py — 종목 기술 차트 상세 페이지
 4-panel Plotly 차트 + 전략 단계 + 시그널
 """
 
@@ -18,23 +18,23 @@ import yfinance as yf
 
 ROOT_DIR     = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(ROOT_DIR / "src"))
-sys.path.insert(0, str(Path(__file__).parent.parent))
 DATA_DIR     = ROOT_DIR / "data"
 FIXTURES_DIR = ROOT_DIR / "tests" / "fixtures"
 
 USE_MOCK = os.getenv("USE_MOCK_DATA", "false").lower() == "true"
 
-st.set_page_config(page_title="Ticker Detail | AI Trading Assistant", page_icon="📈", layout="wide")
+st.set_page_config(
+    page_title="Ticker Detail | AI Trading Assistant",
+    layout="wide",
+)
 
-from style import inject_css
-from components import strategy_progress, signal_card, metric_card
+from dashboard.style import inject_css
+from dashboard.components import strategy_progress, signal_card, metric_card, metrics_row
 
-inject_css()
+st.markdown(inject_css(), unsafe_allow_html=True)
 
 
-# ─────────────────────────────────────────────
-# 데이터 로드
-# ─────────────────────────────────────────────
+# ── 데이터 로드 ───────────────────────────────────────────
 
 def _load_json(path: Path) -> Optional[dict]:
     if not path.exists():
@@ -43,22 +43,20 @@ def _load_json(path: Path) -> Optional[dict]:
         return json.load(f)
 
 
-@st.cache_data(ttl=60)
 def load_portfolio() -> Optional[dict]:
     fname = "test_portfolio.json" if USE_MOCK else "portfolio.json"
     return _load_json(DATA_DIR / fname)
 
 
-@st.cache_data(ttl=60)
 def load_market() -> Optional[dict]:
     if USE_MOCK:
         return _load_json(FIXTURES_DIR / "mock_market_data.json")
     return _load_json(DATA_DIR / "market_cache.json")
 
 
-@st.cache_data(ttl=60)
-def load_signals() -> Optional[dict]:
-    return _load_json(DATA_DIR / "signals.json")
+def load_signals(mode: str = "full") -> Optional[dict]:
+    fname = "signals_technical.json" if mode == "technical_only" else "signals.json"
+    return _load_json(DATA_DIR / fname)
 
 
 @st.cache_data(ttl=300)
@@ -81,22 +79,20 @@ def fetch_ohlcv(ticker: str, period: str = "6mo") -> tuple[Optional[pd.DataFrame
     return None, "재시도 실패"
 
 
-# ─────────────────────────────────────────────
-# 기술 차트 생성
-# ─────────────────────────────────────────────
+# ── 기술 차트 생성 ────────────────────────────────────────
 
 _C = {
-    "price":   "#0F6E56",
-    "ma20":    "#85B7EB",
-    "ma50":    "#D3D1C7",
-    "bb_fill": "rgba(239,159,39,0.08)",
-    "bb_line": "rgba(239,159,39,0.35)",
-    "rsi":     "#534AB7",
-    "macd_pos":"#0F6E56",
-    "macd_neg":"#A32D2D",
-    "macd_l":  "#378ADD",
-    "sig_l":   "#D85A30",
-    "volume":  "rgba(100,116,139,0.45)",
+    "price":    "#0F6E56",
+    "ma20":     "#85B7EB",
+    "ma50":     "#D3D1C7",
+    "bb_fill":  "rgba(239,159,39,0.08)",
+    "bb_line":  "rgba(239,159,39,0.35)",
+    "rsi":      "#534AB7",
+    "macd_pos": "#0F6E56",
+    "macd_neg": "#A32D2D",
+    "macd_l":   "#378ADD",
+    "sig_l":    "#D85A30",
+    "volume":   "rgba(100,116,139,0.45)",
 }
 
 
@@ -126,7 +122,7 @@ def create_technical_chart(hist: pd.DataFrame, ticker: str) -> go.Figure:
         row_heights=[0.55, 0.15, 0.15, 0.15],
     )
 
-    # Row 1: BB 영역
+    # Row 1: BB 영역 + MA + 가격
     fig.add_trace(go.Scatter(
         x=list(hist.index) + list(hist.index)[::-1],
         y=list(bb_upper) + list(bb_lower)[::-1],
@@ -134,9 +130,9 @@ def create_technical_chart(hist: pd.DataFrame, ticker: str) -> go.Figure:
         line=dict(color=_C["bb_line"], width=0.5),
         name="BB", hoverinfo="skip",
     ), row=1, col=1)
-    for y, lbl in [(bb_upper, "BB↑"), (bb_lower, "BB↓")]:
+    for y_series, lbl in [(bb_upper, "BB↑"), (bb_lower, "BB↓")]:
         fig.add_trace(go.Scatter(
-            x=hist.index, y=y, mode="lines",
+            x=hist.index, y=y_series, mode="lines",
             line=dict(color=_C["bb_line"], width=0.8, dash="dot"),
             name=lbl, hoverinfo="skip",
         ), row=1, col=1)
@@ -227,84 +223,82 @@ def make_mock_ohlcv(ticker: str, market: dict, days: int = 180) -> pd.DataFrame:
     }, index=dates)
 
 
-# ─────────────────────────────────────────────
-# 메인
-# ─────────────────────────────────────────────
-
-yf_period = "6mo"  # 기본 차트 기간
+# ── 메인 ─────────────────────────────────────────────────
 
 portfolio = load_portfolio()
 market    = load_market()
-signals   = load_signals()
+signals   = load_signals("full")
 
 holdings    = sorted(portfolio.get("holdings", []) if portfolio else [],
-                     key=lambda h: h["value_usd"], reverse=True)
+                     key=lambda h: h.get("value_usd", 0), reverse=True)
 tickers     = [h["ticker"] for h in holdings]
 holding_map = {h["ticker"]: h for h in holdings}
 
-st.markdown("← [Dashboard](/) &nbsp;/&nbsp; Ticker Detail", unsafe_allow_html=True)
-st.markdown("---")
+st.markdown('<h1 style="font-size:22px;font-weight:500;margin-bottom:8px">Ticker Detail</h1>',
+            unsafe_allow_html=True)
 
 if not tickers:
     st.markdown(
-        '<div style="background:#FFF3CD;border-radius:8px;padding:10px 14px;color:#856404;font-size:12px">'
-        '포트폴리오 데이터 없음</div>',
+        '<div style="background:#FFF3CD;border-radius:8px;padding:10px 14px;'
+        'color:#856404;font-size:12px">포트폴리오 데이터 없음</div>',
         unsafe_allow_html=True,
     )
     st.stop()
 
 selected = st.selectbox(
     "종목 선택", tickers,
-    format_func=lambda t: f"{t} — {holding_map[t].get('name', '')}"
+    format_func=lambda t: f"{t} — {holding_map[t].get('name', '')}",
+    label_visibility="collapsed",
 )
 h = holding_map[selected]
 
 # 헤더
-cost    = h["value_usd"] - h.get("pnl_usd", 0)
-avg     = cost / h.get("shares", 1) if h.get("shares") else 0
-weight  = h["value_usd"] / portfolio.get("total_value_usd", 1) * 100
-pnl_cls = "up" if h.get("pnl_usd", 0) >= 0 else "dn"
-sign    = "+" if h.get("pnl_usd", 0) >= 0 else ""
-cls_lbl = h.get("classification", "").replace("_", " ").title()
+shares   = h.get("shares", 0)
+avg_cost = h.get("avg_cost", 0)
+value    = h.get("value_usd", 0)
+pnl_pct  = h.get("pnl_pct", 0)
+pnl_usd  = value - shares * avg_cost
+total_v  = portfolio.get("total_value_usd", 1) if portfolio else 1
+weight   = value / total_v * 100 if total_v > 0 else 0
+pnl_cls  = "up" if pnl_pct >= 0 else "dn"
+pnl_sign = "+" if pnl_pct >= 0 else ""
+cls_lbl  = h.get("classification", "").replace("_v2", "").replace("2", "").replace("bond_gold6", "bond")
 
 col_l, col_r = st.columns([3, 1])
 with col_l:
     st.markdown(
-        f"### {selected} &nbsp;"
-        f"<span style='font-size:13px;background:#f0f0f0;padding:3px 8px;"
-        f"border-radius:6px;color:#555'>{cls_lbl}</span>",
+        f'<div style="margin-bottom:4px">'
+        f'<span style="font-size:20px;font-weight:500;color:#1A1A1A">{selected}</span>'
+        f'&nbsp;<span style="font-size:11px;background:#F1EFE8;padding:2px 8px;'
+        f'border-radius:6px;color:#5F5E5A">{cls_lbl}</span></div>'
+        f'<div style="font-size:11px;color:#888">{h.get("name","")} · {shares:,.3f} shares · avg ${avg_cost:.2f}</div>',
         unsafe_allow_html=True,
     )
-    st.markdown(f'<div style="font-size:11px;color:#888780">{h.get("name","")} / {h.get("shares",0):,.3f} shares</div>', unsafe_allow_html=True)
 with col_r:
     st.markdown(
-        f"<div style='text-align:right'>"
-        f"<div style='font-size:20px;font-weight:500'>${h['value_usd']:,.0f}</div>"
-        f"<div class='{pnl_cls}' style='font-size:13px'>"
-        f"{sign}${h.get('pnl_usd',0):,.0f} ({sign}{h.get('pnl_pct',0):.1f}%)</div>"
-        f"</div>",
+        f'<div style="text-align:right">'
+        f'<div style="font-size:20px;font-weight:500">${value:,.0f}</div>'
+        f'<div class="{pnl_cls}" style="font-size:13px">'
+        f'{pnl_sign}${abs(pnl_usd):,.0f} ({pnl_sign}{pnl_pct:.1f}%)</div>'
+        f'</div>',
         unsafe_allow_html=True,
     )
 
-curr_price = market["tickers"].get(selected, {}).get("price", 0) if market else 0
-stage_info: dict = {}
-if signals:
-    for s in signals.get("signals", []):
-        if s["ticker"] == selected:
-            stage_info = s.get("strategy_stage", {})
-            break
+curr_price = (market.get("tickers", {}).get(selected, {}).get("price", 0)
+              if market else 0)
 
-m1, m2, m3, m4 = st.columns(4)
-m1.markdown(metric_card("평균단가", f"${avg:,.2f}"), unsafe_allow_html=True)
-m2.markdown(metric_card("현재가",   f"${curr_price:,.2f}"), unsafe_allow_html=True)
-m3.markdown(metric_card("비중",     f"{weight:.1f}%"), unsafe_allow_html=True)
-m4.markdown(metric_card("현재 단계", f"{stage_info.get('current_tranche', 1)}차" if stage_info else "—"),
-            unsafe_allow_html=True)
+# 메트릭 카드 행
+st.markdown(metrics_row([
+    metric_card("평균단가", f"${avg_cost:,.2f}"),
+    metric_card("현재가",   f"${curr_price:,.2f}"),
+    metric_card("비중",     f"{weight:.1f}%"),
+    metric_card("보유 수량", f"{shares:,.3f}"),
+]), unsafe_allow_html=True)
 
-st.markdown("---")
+st.markdown('<hr class="sep">', unsafe_allow_html=True)
 
 # 기술 차트
-st.markdown(f"#### 📊 {selected} 기술 차트")
+st.markdown(f'<div class="sh">{selected} 기술 차트</div>', unsafe_allow_html=True)
 
 if USE_MOCK:
     if market:
@@ -312,53 +306,73 @@ if USE_MOCK:
         fig = create_technical_chart(hist_df, selected)
         st.plotly_chart(fig, use_container_width=True)
     else:
-        st.markdown('<div style="background:#FFF3CD;border-radius:8px;padding:10px;color:#856404;font-size:12px">mock 데이터 없음</div>', unsafe_allow_html=True)
+        st.markdown(
+            '<div style="background:#FFF3CD;border-radius:8px;padding:10px;'
+            'color:#856404;font-size:12px">mock 데이터 없음</div>',
+            unsafe_allow_html=True,
+        )
 else:
-    hist_df, err_msg = fetch_ohlcv(selected, yf_period)
+    hist_df, err_msg = fetch_ohlcv(selected, "6mo")
     if hist_df is None:
-        st.markdown(f'<div style="background:#FFF3CD;border-radius:8px;padding:10px;color:#856404;font-size:12px">{selected}: {err_msg}</div>', unsafe_allow_html=True)
+        st.markdown(
+            f'<div style="background:#FFF3CD;border-radius:8px;padding:10px;'
+            f'color:#856404;font-size:12px">{selected}: {err_msg}</div>',
+            unsafe_allow_html=True,
+        )
     else:
         fig = create_technical_chart(hist_df, selected)
         st.plotly_chart(fig, use_container_width=True)
 
-st.markdown("---")
+st.markdown('<hr class="sep">', unsafe_allow_html=True)
 
 # 전략 단계
 if h.get("classification"):
-    st.markdown("#### 📈 전략 단계")
-    stage_html = strategy_progress(
-        stage_info if stage_info else {"current_tranche": 1},
-        h.get("classification", "")
+    st.markdown('<div class="sh">전략 단계</div>', unsafe_allow_html=True)
+    # signals에서 현재 tranche 찾기
+    current_tranche = 1
+    if signals:
+        for s in signals.get("signals", []):
+            if s["ticker"] == selected:
+                current_tranche = s.get("strategy_stage", {}).get("current_tranche", 1)
+                break
+    st.markdown(
+        strategy_progress(current_tranche, h.get("classification", "")),
+        unsafe_allow_html=True,
     )
-    st.markdown(stage_html, unsafe_allow_html=True)
     if market:
         ms_status = market.get("master_switch", {}).get("status", "RED")
         if ms_status == "RED" and h.get("classification") != "bond_gold_v26":
             st.markdown(
                 '<div style="background:#FCEBEB;border-radius:8px;padding:8px 12px;'
                 'color:#791F1F;font-size:12px;margin-top:6px">'
-                '⚠ Master switch RED: 주식 신규 매수 중단</div>',
+                'Master switch RED: 주식 신규 매수 중단</div>',
                 unsafe_allow_html=True,
             )
 
-st.markdown("---")
+st.markdown('<hr class="sep">', unsafe_allow_html=True)
 
 # 현재 시그널
+st.markdown('<div class="sh">현재 시그널</div>', unsafe_allow_html=True)
 if signals:
-    st.markdown("#### 📡 현재 시그널")
     for s in signals.get("signals", []):
         if s["ticker"] == selected:
             st.markdown(
                 signal_card(
                     ticker=s["ticker"],
                     action=s["action"],
-                    confidence=s.get("confidence", 0),
+                    confidence=s.get("confidence", 50),
                     rationale=s.get("rationale", ""),
-                    conditions_met=s.get("conditions_met", []),
-                    conditions_not_met=s.get("conditions_not_met", []),
                 ),
                 unsafe_allow_html=True,
             )
             break
     else:
-        st.markdown('<div style="font-size:11px;color:#888780">시그널 데이터 없음 — Overview에서 Update 버튼을 누르세요.</div>', unsafe_allow_html=True)
+        st.markdown(
+            '<div style="font-size:11px;color:#888">시그널 데이터 없음 — Overview에서 Update 버튼을 누르세요.</div>',
+            unsafe_allow_html=True,
+        )
+else:
+    st.markdown(
+        '<div style="font-size:11px;color:#888">signals.json 없음</div>',
+        unsafe_allow_html=True,
+    )

@@ -107,6 +107,12 @@ TEMPLATES = {
         "특이 신호 없음. RSI {rsi_text}. "
         "MACD {macd_text}. 현재 포지션 유지."
     ),
+    "BOND_WATCH": (
+        "30Y 금리 {conditions_text}. TLT RSI {rsi_text}. 5.0% 트리거 임박."
+    ),
+    "CASH": (
+        "단기채 현금성 자산. RSI {rsi_text}. 현재 포지션 유지."
+    ),
 }
 
 STRATEGY_DESC = {
@@ -292,8 +298,10 @@ ACTION_PRIORITY = {
     "BUY_T3": 4,
     "BUY_T2": 5,
     "BUY_T1": 6,
-    "WATCH": 7,
-    "HOLD": 8,
+    "BOND_WATCH": 7,
+    "WATCH": 8,
+    "CASH": 9,
+    "HOLD": 10,
 }
 
 
@@ -352,6 +360,10 @@ def generate_signals(
     for holding in portfolio.get("holdings", []):
         ticker = holding["ticker"]
         ind = build_indicators(ticker, cache, portfolio)
+        # technical_only 모드: 포트폴리오 손익 (pnl_pct)은 기술지표가 아니므로 무시
+        if mode == "technical_only":
+            from dataclasses import replace as dc_replace
+            ind = dc_replace(ind, pnl_pct=None)
         result = evaluate_ticker(ind, ctx)
         confidence = calc_confidence(result, ctx)
         ind_data = cache.get("tickers", {}).get(ticker, {})

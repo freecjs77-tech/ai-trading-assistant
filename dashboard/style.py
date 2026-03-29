@@ -1,47 +1,82 @@
 """
-dashboard/style.py — 공통 CSS (라이트 모드 전용)
-모든 페이지 상단에서 inject_css() 호출
+dashboard/style.py — 공통 CSS (overview_target.html 기준)
 """
-import streamlit as st
 
 CUSTOM_CSS = """
 <style>
-/* ── Layout ── */
+/* ── Streamlit 기본 오버라이드 ── */
 .main .block-container { max-width: 900px; padding: 1rem 1rem 2rem 1rem; }
 header[data-testid="stHeader"] { display: none; }
 footer { display: none; }
+[data-testid="stSidebar"] > div:first-child { padding-top: 1rem; }
+* { box-sizing: border-box; }
 
-/* ── Metric cards ── */
-.metric-card {
-    background: #F8F9FA; border-radius: 8px; padding: 10px 12px;
-}
-.metric-card .label { font-size: 10px; color: #888780; }
-.metric-card .value { font-size: 18px; font-weight: 500; color: #1A1A1A; margin-top: 1px; }
-.metric-card .change { font-size: 10px; margin-top: 1px; }
+/* ── 헤더 ── */
+.hdr { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.hdr h1 { font-size: 22px; font-weight: 500; color: #1A1A1A; }
+.meta { font-size: 11px; color: #888780; }
+.ctrls { display: flex; align-items: center; gap: 8px; }
 
-/* ── Macro indicator cards ── */
-.macro-card {
-    background: #F8F9FA; border-radius: 8px; padding: 8px; text-align: center;
-}
-.macro-card .label { font-size: 10px; color: #888780; }
-.macro-card .value { font-size: 13px; font-weight: 500; margin: 1px 0; }
-.macro-card .status { font-size: 10px; }
+/* ── 마스터 스위치 배지 ── */
+.sw { display: inline-block; font-size: 11px; padding: 3px 10px; border-radius: 8px; font-weight: 500; }
+.sw-r { background: #FCEBEB; color: #791F1F; }
+.sw-y { background: #FAEEDA; color: #633806; }
+.sw-g { background: #EAF3DE; color: #27500A; }
 
-/* ── Signal cards ── */
-.signal-card {
-    background: #FFFFFF; border: 0.5px solid #E0E0E0;
-    border-radius: 10px; padding: 10px; margin-bottom: 6px;
-}
-.signal-card-warn  { border-left: 3px solid #A32D2D; border-radius: 0; }
-.signal-card-watch { border-left: 3px solid #BA7517; border-radius: 0; }
-.signal-card-buy   { border-left: 3px solid #0F6E56; border-radius: 0; }
-.signal-card-hold  { border-left: 3px solid #888780; border-radius: 0; }
+/* ── USD/KRW 토글 ── */
+.tg { display: inline-flex; background: #F8F9FA; border-radius: 8px; padding: 2px; font-size: 11px; }
+.tg span { padding: 4px 12px; border-radius: 6px; cursor: pointer; color: #888; }
+.tg .on { background: #fff; color: #1A1A1A; font-weight: 500; }
 
-/* ── Badges / Pills ── */
-.pill {
-    display: inline-block; font-size: 9px; padding: 2px 6px;
-    border-radius: 6px; font-weight: 500; margin-left: 4px;
-}
+/* ── 환율 표시 ── */
+.rate { font-size: 10px; color: #888; text-align: right; margin-bottom: 10px; }
+
+/* ── 메트릭 카드 ── */
+.metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; }
+.mc { background: #F8F9FA; border-radius: 8px; padding: 10px 12px; }
+.mc .lb { font-size: 10px; color: #888; }
+.mc .vl { font-size: 18px; font-weight: 500; margin-top: 1px; color: #1A1A1A; }
+.mc .ch { font-size: 10px; margin-top: 1px; }
+
+/* ── 색상 ── */
+.up { color: #0F6E56; }
+.dn { color: #A32D2D; }
+.warn { color: #BA7517; }
+
+/* ── 매크로 카드 ── */
+.macro { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px; }
+.ma { background: #F8F9FA; border-radius: 8px; padding: 8px; text-align: center; }
+.ma .lb { font-size: 10px; color: #888; }
+.ma .vl { font-size: 13px; font-weight: 500; margin: 1px 0; }
+.ma .st { font-size: 10px; }
+
+/* ── 마스터 스위치 배너 ── */
+.ms-banner { background: #fff; border: 0.5px solid #E0E0E0; border-left: 3px solid #A32D2D; padding: 10px 12px; margin-bottom: 16px; }
+.ms-banner-y { border-left-color: #BA7517; }
+.ms-banner-g { border-left-color: #0F6E56; }
+.ms-banner .title { font-weight: 500; font-size: 14px; margin-bottom: 4px; }
+.ms-banner .detail { font-size: 12px; color: #666; }
+
+/* ── 섹션 헤더 ── */
+.sh { font-size: 16px; font-weight: 500; margin-bottom: 10px; color: #1A1A1A; }
+.section-hdr { font-size: 16px; font-weight: 500; margin-bottom: 10px; color: #1A1A1A; }
+
+/* ── 보유 테이블 ── */
+.tbl { width: 100%; border-collapse: collapse; font-size: 12px; }
+.tbl th { text-align: left; padding: 7px 5px; color: #888; font-weight: 400; border-bottom: 0.5px solid #E0E0E0; font-size: 10px; }
+.tbl td { padding: 7px 5px; border-bottom: 0.5px solid #E0E0E0; color: #1A1A1A; }
+.tk { font-weight: 500; font-size: 12px; color: #1A1A1A; }
+.nm { color: #888; font-size: 10px; }
+
+/* ── 웨이트 바 ── */
+.bar-bg { height: 5px; border-radius: 3px; background: #E0E0E0; width: 60px; display: inline-block; vertical-align: middle; }
+.bar-f { height: 5px; border-radius: 3px; display: block; }
+
+/* ── 구분선 ── */
+.sep { border: none; border-top: 0.5px solid #E0E0E0; margin: 14px 0; }
+
+/* ── 시그널 배지 (pill) ── */
+.pill { display: inline-block; font-size: 9px; padding: 2px 6px; border-radius: 6px; font-weight: 500; white-space: nowrap; }
 .pill-sell  { background: #FCEBEB; color: #791F1F; }
 .pill-buy   { background: #EAF3DE; color: #27500A; }
 .pill-hold  { background: #F1EFE8; color: #5F5E5A; }
@@ -49,79 +84,49 @@ footer { display: none; }
 .pill-bond  { background: #E1F5EE; color: #085041; }
 .pill-block { background: #EEEDFE; color: #3C3489; }
 .pill-top   { background: #FCEBEB; color: #791F1F; border: 0.5px solid #F09595; }
+.pill-tech  { display: inline-block; font-size: 10px; padding: 2px 8px; border-radius: 6px; background: #E6F1FB; color: #0C447C; }
 
-/* ── Master switch badges ── */
-.switch-badge {
-    display: inline-block; font-size: 11px; padding: 3px 10px; border-radius: 8px;
-}
-.switch-red    { background: #FCEBEB; color: #791F1F; }
-.switch-green  { background: #EAF3DE; color: #27500A; }
-.switch-yellow { background: #FAEEDA; color: #633806; }
+/* ── 시그널 섹션 ── */
+.sig-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+.sig-col h3 { font-size: 13px; font-weight: 500; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; color: #1A1A1A; }
+.sig-sm { display: flex; gap: 6px; margin-bottom: 6px; flex-wrap: wrap; }
+.cnt { background: #F8F9FA; border-radius: 6px; padding: 2px 8px; font-size: 10px; color: #888; }
 
-/* ── Condition tags ── */
-.cond-tag {
-    display: inline-block; font-size: 9px; padding: 2px 6px;
-    border-radius: 4px; margin: 2px;
-}
-.cond-met { background: #EAF3DE; color: #27500A; }
-.cond-not { background: #F0F0F0; color: #999; }
-
-/* ── Confidence bar ── */
-.conf-bar {
-    height: 4px; border-radius: 2px; background: #E0E0E0;
-    display: inline-block; width: 60px; vertical-align: middle; margin-right: 4px;
-}
+/* ── 시그널 카드 ── */
+.sig-card { background: #fff; border: 0.5px solid #E0E0E0; border-radius: 10px; padding: 10px; margin-bottom: 6px; }
+.sig-card-warn  { border-left: 3px solid #A32D2D; border-radius: 0; }
+.sig-card-watch { border-left: 3px solid #BA7517; border-radius: 0; }
+.sig-card-buy   { border-left: 3px solid #0F6E56; border-radius: 0; }
+.sig-h { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.sig-tk { font-weight: 500; font-size: 13px; color: #1A1A1A; }
+.conf { font-size: 10px; color: #888; display: flex; align-items: center; gap: 4px; }
+.conf-bar { height: 4px; border-radius: 2px; background: #E0E0E0; display: inline-block; width: 50px; vertical-align: middle; }
 .conf-fill { height: 4px; border-radius: 2px; display: block; }
+.sig-body { font-size: 11px; color: #666; line-height: 1.5; }
 
-/* ── Holdings table ── */
-.holdings-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-.holdings-table th {
-    text-align: left; padding: 7px 5px; color: #888780;
-    font-weight: 400; border-bottom: 0.5px solid #E0E0E0; font-size: 10px;
-}
-.holdings-table td { padding: 7px 5px; border-bottom: 0.5px solid #E0E0E0; }
-.tk { font-weight: 500; font-size: 12px; }
-.nm { color: #888780; font-size: 10px; }
-
-/* ── Weight bar ── */
-.bar-bg {
-    height: 5px; border-radius: 3px; background: #E0E0E0;
-    width: 60px; display: inline-block; vertical-align: middle;
-}
-.bar-fill { height: 5px; border-radius: 3px; display: block; }
-
-/* ── Strategy progress ── */
-.step-done { background: #EAF3DE; color: #27500A; border-radius: 4px; padding: 3px 8px; font-size: 12px; display: inline-block; margin: 2px; }
-.step-cur  { background: #FAEEDA; color: #633806; border-radius: 4px; padding: 3px 8px; font-size: 12px; display: inline-block; margin: 2px; }
-.step-lock { background: #F0F0F0; color: #999;    border-radius: 4px; padding: 3px 8px; font-size: 12px; display: inline-block; margin: 2px; }
-
-/* ── Colors ── */
-.up { color: #0F6E56; }
-.dn { color: #A32D2D; }
-
-/* ── Rate label ── */
-.rate-label { font-size: 10px; color: #888780; text-align: right; margin-bottom: 10px; }
-
-/* ── Section header ── */
-.section-hdr { font-size: 16px; font-weight: 500; margin-bottom: 10px; color: #1A1A1A; }
-
-/* ── Separator ── */
-.sep { border: none; border-top: 0.5px solid #E0E0E0; margin: 14px 0; }
-
-/* ── Index grid ── */
-.idx-grid {
-    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px;
-}
-.idx-item {
-    display: flex; gap: 8px; padding: 8px 10px;
-    border-radius: 8px; background: #F8F9FA;
-}
+/* ── 인덱스 ── */
+.idx { padding-top: 14px; border-top: 0.5px solid #E0E0E0; margin-top: 14px; }
+.idx-hdr { font-size: 14px; font-weight: 500; margin-bottom: 10px; color: #1A1A1A; }
+.idx-sub { font-size: 12px; font-weight: 500; color: #888; margin: 10px 0 6px; }
+.idx-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.idx-item { display: flex; gap: 8px; padding: 8px 10px; border-radius: 8px; background: #F8F9FA; align-items: flex-start; }
 .idx-name { font-size: 11px; font-weight: 500; color: #1A1A1A; }
-.idx-desc { font-size: 10px; color: #888780; line-height: 1.4; margin-top: 1px; }
+.idx-desc { font-size: 10px; color: #888; line-height: 1.4; margin-top: 1px; }
+
+/* ── 마스터 스위치 상태 카드 행 ── */
+.sw-row { display: flex; gap: 6px; margin-bottom: 8px; }
+.sw-card { flex: 1; padding: 6px 8px; border-radius: 8px; text-align: center; }
+.sw-gg { background: #EAF3DE; } .sw-yy { background: #FAEEDA; } .sw-rr { background: #FCEBEB; }
+.sw-card .sl { font-size: 10px; font-weight: 500; }
+.sw-gg .sl { color: #27500A; } .sw-yy .sl { color: #633806; } .sw-rr .sl { color: #791F1F; }
+.sw-card .sd { font-size: 9px; }
+.sw-gg .sd { color: #3B6D11; } .sw-yy .sd { color: #854F0B; } .sw-rr .sd { color: #A32D2D; }
+
+/* ── 확신도 바 ── */
+.rate-label { font-size: 10px; color: #888; display: flex; align-items: center; gap: 5px; margin: 3px 0; }
 </style>
 """
 
 
-def inject_css():
-    """모든 페이지 상단에서 호출"""
-    st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
+def inject_css() -> str:
+    return CUSTOM_CSS

@@ -124,7 +124,13 @@ def check_price_inside_bb_from_upper(ind: TickerIndicators) -> bool:
 
 def check_macd_hist_rising(ind: TickerIndicators, days: int = 2) -> bool:
     """MACD 히스토그램 N일 연속 상승"""
-    return f"rising_{days}d" in ind.macd_hist_trend or f"rising" in ind.macd_hist_trend
+    trend = ind.macd_hist_trend
+    if days >= 3:
+        return "rising_3d" in trend
+    elif days == 2:
+        return "rising_2d" in trend or "rising_3d" in trend
+    else:  # days == 1
+        return "rising" in trend
 
 
 def check_macd_hist_declining(ind: TickerIndicators, days: int = 2) -> bool:
@@ -235,21 +241,19 @@ def check_vix_panic(vix: Optional[float]) -> bool:
 
 def evaluate_exit(ind: TickerIndicators, ctx: MarketContext) -> tuple[Optional[int], list[str], list[str]]:
     """
-    Exit v2.5 평가
+    Exit v2.5 평가 (수정: 단일 스냅샷 기반 — L3 비활성화)
     Returns: (exit_level, conditions_met, conditions_not_met)
-    exit_level: None | 1 | 2 | 3 | 99(TOP)
-    """
-    met: list[str] = []
-    not_met: list[str] = []
+    exit_level: None | 1 | 2 | 99(TOP)
 
-    # TOP 시그널 (즉시)
+    L3는 히스토리 없이 단일 시점 데이터만으로 판정 불가 → HOLD 처리.
+    L2: macd_hist_declining_3d 필수 + price_below_ma20 충족 시 발동.
+    L1: macd_hist_declining_2d 필수 + RSI > 35(과매도 아님) + 추가 조건 1개 이상.
+    """
+    # TOP 시그널 (단일 스냅샷으로 확인 가능한 조건만)
     top_conds = {
         "rsi >= 75": check_rsi_ge(ind, 75),
         "price_above_bb_upper": check_price_above_bb_upper(ind),
-        "gain_10pct_in_3d": ind.pnl_pct is not None and ind.pnl_pct >= 10,
     }
-    for name, result in top_conds.items():
-        (met if result else not_met).append(name)
     if any(top_conds.values()):
         return 99, [k for k, v in top_conds.items() if v], [k for k, v in top_conds.items() if not v]
 
@@ -257,44 +261,34 @@ def evaluate_exit(ind: TickerIndicators, ctx: MarketContext) -> tuple[Optional[i
     if check_vix_panic(ctx.vix):
         return 1, ["vix_panic >= 35"], []
 
-    # L3 붕괴 (1개만)
-    l3_conds = {
-        "price_below_ma20_2d": check_price_below_ma20(ind),   # 근사
-        "higher_low_broken": not check_higher_low(ind),
-        "macd_death_cross": (ind.macd is not None and ind.macd_signal is not None
-                             and ind.macd < ind.macd_signal and ind.macd < 0),
-        "drawdown_8pct": check_drawdown_from_peak(ind, 0.08),
-    }
-    l3_met = [k for k, v in l3_conds.items() if v]
-    l3_not = [k for k, v in l3_conds.items() if not v]
-    if l3_met:
-        return 3, l3_met, l3_not
+    # L2 약화: macd_hist_declining_3d 필수 + 의미 있는 손실(-15%~-30%)
+    # (단일 스냅샷으로 추세 붕괴를 확인하려면 명확한 손실 동반 필요)
+    l2_required = check_macd_hist_declining(ind, 3)
+    l2_drawdown_band = (ind.pnl_pct is not None and -30.0 <= ind.pnl_pct <= -15.0)
+    l2_rsi_divergence = check_rsi_lower_high_divergence(ind)
+    if l2_required and (l2_drawdown_band or l2_rsi_divergence):
+        l2_met = ["macd_hist_declining_3d"]
+        if l2_drawdown_band:
+            l2_met.append("drawdown_15_30pct")
+        if l2_rsi_divergence:
+            l2_met.append("rsi_lower_high_divergence")
+        return 2, l2_met, []
 
-    # L2 약화 (2개 이상)
-    l2_conds = {
-        "macd_hist_declining_3d": check_macd_hist_declining(ind, 3),
-        "rsi_lower_high_divergence": check_rsi_lower_high_divergence(ind),
-        "price_below_ma20": check_price_below_ma20(ind),
-        "double_top_or_head_shoulder": check_rsi_ge(ind, 65) and check_macd_hist_declining(ind, 2),
-    }
-    l2_met = [k for k, v in l2_conds.items() if v]
-    l2_not = [k for k, v in l2_conds.items() if not v]
-    if len(l2_met) >= 2:
-        return 2, l2_met, l2_not
-
-    # L1 조기 경고 (2개 이상)
-    l1_conds = {
-        "macd_hist_declining_1_2d": check_macd_hist_declining(ind, 2),
+    # L1 조기 경고: macd_hist_declining_2d 필수 + RSI > 35 + 거래량 감소
+    # (RSI ≤ 35 이미 과매도 → exit 경고 불필요)
+    l1_required = (check_macd_hist_declining(ind, 2)
+                   and ind.rsi is not None and ind.rsi > 35)
+    l1_optional = {
         "rsi_65_turning_down": check_rsi_65_turning_down(ind),
-        "price_inside_bb_from_upper": check_price_inside_bb_from_upper(ind),
-        "volume_divergence_negative": check_volume_divergence_negative(ind),
+        "volume_divergence_negative": (ind.volume_ratio is not None
+                                       and ind.volume_ratio < 0.88),
     }
-    l1_met = [k for k, v in l1_conds.items() if v]
-    l1_not = [k for k, v in l1_conds.items() if not v]
-    if len(l1_met) >= 2:
-        return 1, l1_met, l1_not
+    l1_opt_met = [k for k, v in l1_optional.items() if v]
+    l1_opt_not = [k for k, v in l1_optional.items() if not v]
+    if l1_required and len(l1_opt_met) >= 1:
+        return 1, ["macd_hist_declining_1_2d"] + l1_opt_met, l1_opt_not
 
-    return None, [], list(l3_conds.keys()) + list(l2_conds.keys()) + list(l1_conds.keys())
+    return None, [], []
 
 
 # ─────────────────────────────────────────────
@@ -373,14 +367,14 @@ def evaluate_growth_v22(ind: TickerIndicators, ctx: MarketContext) -> RuleResult
         return result
 
     # WATCH — 조건 일부 충족
-    if required_t1 or len(t1_met) >= 2:
+    if required_t1 and len(t1_met) >= 2:
         result.action = "WATCH"
-        result.conditions_met = (["macd_histogram_rising_2d"] if required_t1 else []) + t1_met
+        result.conditions_met = ["macd_histogram_rising_2d"] + t1_met
         result.conditions_not_met = t1_not
         result.notes.append(f"T1 조건 {len(t1_met)}/3 충족 ({', '.join(t1_met)})")
     else:
         result.action = "HOLD"
-        result.conditions_not_met = ["macd_histogram_rising_2d"] + t1_not
+        result.conditions_not_met = (["macd_histogram_rising_2d"] if not required_t1 else []) + t1_not
 
     return result
 
@@ -520,13 +514,13 @@ def evaluate_energy_v23(ind: TickerIndicators, ctx: MarketContext) -> RuleResult
         result.conditions_met = t3_met
         return result
 
-    if len(t1_met) >= 2:
+    if required_t1 and len(t1_met) >= 2:
         result.action = "WATCH"
-        result.conditions_met = t1_met
+        result.conditions_met = ["macd_histogram_rising_2d"] + t1_met
         result.conditions_not_met = t1_not
     else:
         result.action = "HOLD"
-        result.conditions_not_met = t1_not
+        result.conditions_not_met = (["macd_histogram_rising_2d"] if not required_t1 else []) + t1_not
 
     return result
 
@@ -534,11 +528,29 @@ def evaluate_energy_v23(ind: TickerIndicators, ctx: MarketContext) -> RuleResult
 def evaluate_bond_v26(ind: TickerIndicators, ctx: MarketContext) -> RuleResult:
     """Bond v2.6 — TLT (마스터 스위치 무시)"""
     result = RuleResult(ticker=ind.ticker, classification="bond_gold_v26")
-    treasury = ctx.treasury_30y or 0.0
+    treasury = ctx.treasury_30y  # technical_only 모드에서는 None
+
+    # technical_only 모드 (treasury=None): 순수 기술지표로 BUY 판단
+    if treasury is None:
+        tech_t1 = {
+            "tlt_rsi <= 35": check_rsi_le(ind, 35),
+            "price_near_bb_lower": check_price_near_bb_lower(ind, 0.05),
+        }
+        tech_met = [k for k, v in tech_t1.items() if v]
+        if check_rsi_le(ind, 35):  # RSI ≤ 35는 필수
+            result.action = "BUY_T1"
+            result.tranche = 1
+            result.conditions_met = tech_met
+            return result
+        result.action = "WATCH"
+        result.conditions_met = tech_met
+        return result
+
+    treasury_val = treasury or 0.0
 
     # T1
     t1_conds = {
-        "treasury_30y >= 5.0": treasury >= 5.0,
+        "treasury_30y >= 5.0": treasury_val >= 5.0,
         "tlt_rsi <= 35": check_rsi_le(ind, 35),
     }
     t1_met = [k for k, v in t1_conds.items() if v]
@@ -576,13 +588,13 @@ def evaluate_bond_v26(ind: TickerIndicators, ctx: MarketContext) -> RuleResult:
         result.conditions_met = t3_met
         return result
 
-    # WATCH — 금리 4.8% 이상이면 주시
-    if treasury >= 4.8:
-        result.action = "WATCH"
+    # BOND_WATCH — 금리 4.8% 이상이면 주시
+    if treasury_val >= 4.8:
+        result.action = "BOND_WATCH"
         result.conditions_met = t1_met
         result.conditions_not_met = t1_not
-        result.notes.append(f"30Y 금리 {treasury:.3f}% — 5.0% 트리거 임박" if treasury < 5.0
-                            else f"30Y 금리 {treasury:.3f}% — RSI {ind.rsi:.1f} (35 이하 필요)")
+        result.notes.append(f"30Y 금리 {treasury_val:.3f}% — 5.0% 트리거 임박" if treasury_val < 5.0
+                            else f"30Y 금리 {treasury_val:.3f}% — RSI {ind.rsi:.1f} (35 이하 필요)")
     else:
         result.action = "HOLD"
         result.conditions_not_met = t1_not
@@ -591,8 +603,17 @@ def evaluate_bond_v26(ind: TickerIndicators, ctx: MarketContext) -> RuleResult:
 
 
 def evaluate_gold_v26(ind: TickerIndicators, ctx: MarketContext) -> RuleResult:
-    """Gold/Silver v2.6 — SLV (마스터 스위치 무시)"""
+    """Gold/Silver v2.6 — SLV
+    full 모드에서 master=RED면 진입 없음.
+    technical_only 모드(master=GREEN 강제)에서는 기술지표로 판단.
+    """
     result = RuleResult(ticker=ind.ticker, classification="bond_gold_v26")
+
+    # full 모드에서 master=RED면 HOLD
+    if ctx.master_switch == "RED":
+        result.action = "HOLD"
+        result.notes.append("마스터 스위치 RED — SLV 신규 진입 없음")
+        return result
 
     # T1
     t1_pool = {
@@ -649,18 +670,12 @@ def evaluate_gold_v26(ind: TickerIndicators, ctx: MarketContext) -> RuleResult:
 
 
 def evaluate_speculative(ind: TickerIndicators, ctx: MarketContext) -> RuleResult:
-    """투기 종목 — TQQQ, SOXL, ETHU, CRCL, BTDR"""
+    """투기 종목 — TQQQ, SOXL, ETHU, CRCL, BTDR
+    신규 매수 없음. Exit는 evaluate_exit에서 처리.
+    """
     result = RuleResult(ticker=ind.ticker, classification="speculative")
     result.action = "HOLD"
-    result.notes.append("투기 종목 — 신규 매수 없음. 손절 기준: -20%")
-
-    # 20% 손절 체크
-    if check_drawdown_from_peak(ind, 0.20):
-        result.action = "L3_BREAKDOWN"
-        result.exit_level = 3
-        result.conditions_met = ["drawdown_20pct_from_entry"]
-        result.notes.append(f"손절 기준 도달: {ind.pnl_pct:.1f}%")
-
+    result.notes.append("투기 종목 — 신규 매수 없음.")
     return result
 
 
@@ -703,14 +718,21 @@ def evaluate_ticker(ind: TickerIndicators, ctx: MarketContext) -> RuleResult:
     """
     classification = get_classification(ind.ticker)
 
-    # BIL은 HOLD (현금성 자산)
+    # BIL은 CASH (현금성 자산)
     if ind.ticker == "BIL":
         result = RuleResult(ticker=ind.ticker, classification="bond_gold_v26")
-        result.action = "HOLD"
+        result.action = "CASH"
         result.notes.append("단기채 현금성 자산 — 현재 포지션 유지")
         return result
 
-    # Exit 평가
+    # ETF는 exit 생략 (분산투자 특성상 개별 종목 exit 시그널 불필요)
+    if classification == "etf_v24":
+        evaluator = CLASSIFICATION_MAP.get(classification)
+        if evaluator:
+            return evaluator(ind, ctx)
+        return RuleResult(ticker=ind.ticker, classification=classification, action="HOLD")
+
+    # Exit 평가 (growth, energy, bond_gold, speculative)
     exit_level, exit_met, exit_not_met = evaluate_exit(ind, ctx)
 
     if exit_level is not None:
