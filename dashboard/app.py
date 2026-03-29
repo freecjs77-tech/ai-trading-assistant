@@ -98,6 +98,20 @@ macro = market.get("macro", {})
 ms_status = ms.get("status", "RED")
 usdkrw = macro.get("usdkrw") or 1400.0
 
+# FIX: 시장 데이터가 비어있으면 signals.json의 매크로 데이터로 폴백
+_tickers_empty = not market.get("tickers", {})
+if _tickers_empty and sig_full_doc:
+    # signals.json에 저장된 매크로 데이터 사용
+    if not macro.get("vix") and sig_full_doc.get("vix_tier"):
+        import re
+        vix_match = re.search(r"[\d.]+", str(sig_full_doc.get("vix_tier", "")))
+        if vix_match:
+            macro["vix"] = float(vix_match.group())
+    if not macro.get("treasury_30y") and sig_full_doc.get("treasury_30y"):
+        macro["treasury_30y"] = sig_full_doc["treasury_30y"]
+    if sig_full_doc.get("usdkrw"):
+        usdkrw = sig_full_doc["usdkrw"]
+
 sig_full_doc = load_signals_doc("full")
 sig_tech_doc = load_signals_doc("technical_only")
 if not sig_full_doc and market and portfolio:
@@ -156,6 +170,16 @@ if update_clicked:
         st.rerun()
 
 # ── 마스터 스위치 배너 ────────────────────────────────────
+
+# FIX: 데이터 없을 때 stale 경고 표시
+if _tickers_empty:
+    st.markdown(
+        '<div style="background:#FFF3CD;border-left:3px solid #BA7517;border-radius:0;'
+        'padding:10px 12px;margin-bottom:10px;font-size:12px;color:#856404">'
+        '⚠️ <b>시장 데이터 미수집</b>: yfinance 수집 실패. 시그널 파일의 이전 데이터를 표시합니다. '
+        'Overview에서 🔄 Update를 클릭하세요.</div>',
+        unsafe_allow_html=True,
+    )
 
 st.markdown(
     master_switch_banner(
