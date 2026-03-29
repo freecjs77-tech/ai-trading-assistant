@@ -183,10 +183,10 @@ class TestSignalsJson:
         tickers = [s["ticker"] for s in signals["signals"]]
         assert len(tickers) == len(set(tickers)), "중복 티커 발견"
 
-    def test_l3_signals_present(self, signals):
-        """현재 시장(RED+VIX 31)에서 L3 시그널 존재"""
+    def test_l3_signals_not_emitted(self, signals):
+        """L3는 단일 스냅샷으로 판정 불가 — 비활성화 상태"""
         l3 = [s for s in signals["signals"] if s["action"] == "L3_BREAKDOWN"]
-        assert len(l3) >= 1, "L3 시그널 없음"
+        assert len(l3) == 0, "L3 시그널이 발생했으나 비활성화 상태여야 함"
 
 
 # ── Phase 4.4: 파이프라인 실행 시간 검증 ────────────────────────────────

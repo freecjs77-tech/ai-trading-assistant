@@ -325,6 +325,7 @@ def _make_technical_context(ctx: MarketContext) -> MarketContext:
         vix_tier="normal",
         treasury_30y=None,
         usdkrw=None,
+        mode="technical_only",
     )
 
 

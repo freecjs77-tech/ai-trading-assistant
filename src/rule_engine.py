@@ -42,7 +42,15 @@ class TickerIndicators:
     volume: Optional[int] = None
     volume_avg20: Optional[int] = None
     volume_ratio: Optional[float] = None
-    pnl_pct: Optional[float] = None  # 보유 수익률 (portfolio.json)
+    pnl_pct: Optional[float] = None          # 보유 수익률 (portfolio.json)
+    # ── 히스토리 기반 지표 (market_data.py 수집 필요, 기본값=미수집) ──
+    ma20_slope: Optional[float] = None       # MA20 기울기 (양수=상승)
+    consecutive_above_ma20: int = 0          # MA20 위 연속일수
+    consecutive_above_bb_upper: int = 0      # BB상단 위 연속일수
+    day_change_pct: Optional[float] = None   # 당일 등락률(%)
+    gain_3day_pct: Optional[float] = None    # 최근 3거래일 누적 등락률(%)
+    price_crossed_below_ma20: bool = False   # 이번 캔들 MA20 아래로 이탈 (L2 ③)
+    price_was_above_bb_upper: bool = False   # 직전 캔들 BB상단 위에 있었음 (L1 ③)
 
 
 @dataclass
@@ -55,6 +63,7 @@ class MarketContext:
     vix_tier: str = "unknown"
     treasury_30y: Optional[float] = None
     usdkrw: Optional[float] = None
+    mode: str = "full"                 # "full" | "technical_only"
 
 
 @dataclass
@@ -214,6 +223,49 @@ def check_rsi_lower_high_divergence(ind: TickerIndicators) -> bool:
     return ind.rsi > 60 and check_macd_hist_declining(ind, 3)
 
 
+def check_ma20_slope_rising(ind: TickerIndicators) -> bool:
+    """MA20 기울기 상승 전환 (market_data에서 수집 필요, 기본=False)"""
+    return ind.ma20_slope is not None and ind.ma20_slope > 0
+
+
+def check_consecutive_above_ma20(ind: TickerIndicators, days: int = 2) -> bool:
+    """MA20 위 연속일수 (market_data에서 수집 필요, 기본=0)"""
+    return ind.consecutive_above_ma20 >= days
+
+
+def check_consecutive_above_bb_upper(ind: TickerIndicators, days: int = 2) -> bool:
+    """BB상단 위 연속일수 (market_data에서 수집 필요, 기본=0)"""
+    return ind.consecutive_above_bb_upper >= days
+
+
+def check_panic_drop(ind: TickerIndicators, pct: float = 5.0) -> bool:
+    """당일 -pct% 이상 급락 (패닉 바이 방지)"""
+    return ind.day_change_pct is not None and ind.day_change_pct <= -pct
+
+
+def check_gain_3day(ind: TickerIndicators, pct: float = 10.0) -> bool:
+    """최근 3거래일 누적 +pct% 이상 급등"""
+    return ind.gain_3day_pct is not None and ind.gain_3day_pct >= pct
+
+
+def check_bb_upper_pullback(ind: TickerIndicators) -> bool:
+    """BB상단 터치 후 밴드 안으로 밀림 (직전 캔들 BB상단 위 → 현재 안쪽)
+    market_data에서 price_was_above_bb_upper 수집 필요, 기본=False"""
+    if not ind.price_was_above_bb_upper:
+        return False
+    return check_price_inside_bb_from_upper(ind)
+
+
+def check_ma20_fresh_breakdown(ind: TickerIndicators) -> bool:
+    """이번 캔들 MA20 아래로 이탈 (market_data 수집 필요, 기본=False)"""
+    return ind.price_crossed_below_ma20
+
+
+def check_ma20_flat(ind: TickerIndicators) -> bool:
+    """MA20 평탄화: 기울기 절댓값이 임계치 이하 (market_data 수집 필요)"""
+    return ind.ma20_slope is not None and abs(ind.ma20_slope) <= 0.001
+
+
 # ─────────────────────────────────────────────
 # VIX 오버레이
 # ─────────────────────────────────────────────
@@ -253,6 +305,8 @@ def evaluate_exit(ind: TickerIndicators, ctx: MarketContext) -> tuple[Optional[i
     top_conds = {
         "rsi >= 75": check_rsi_ge(ind, 75),
         "price_above_bb_upper": check_price_above_bb_upper(ind),
+        "consecutive_above_bb_upper_2d": check_consecutive_above_bb_upper(ind, 2),
+        "gain_3day_10pct": check_gain_3day(ind, 10.0),
     }
     if any(top_conds.values()):
         return 99, [k for k, v in top_conds.items() if v], [k for k, v in top_conds.items() if not v]
@@ -261,20 +315,18 @@ def evaluate_exit(ind: TickerIndicators, ctx: MarketContext) -> tuple[Optional[i
     if check_vix_panic(ctx.vix):
         return 1, ["vix_panic >= 35"], []
 
-    # L2 약화: macd_hist_declining_3d 필수 + 의미 있는 손실(-15%~-30%)
-    # (단일 스냅샷으로 추세 붕괴를 확인하려면 명확한 손실 동반 필요)
+    # L2 약화: macd_hist_declining_3d 필수 + 의미 있는 손실(-15%~-30%) 또는 기타 조건 1개 이상
     l2_required = check_macd_hist_declining(ind, 3)
-    l2_drawdown_band = (ind.pnl_pct is not None and -30.0 <= ind.pnl_pct <= -15.0)
-    l2_rsi_divergence = check_rsi_lower_high_divergence(ind)
-    if l2_required and (l2_drawdown_band or l2_rsi_divergence):
-        l2_met = ["macd_hist_declining_3d"]
-        if l2_drawdown_band:
-            l2_met.append("drawdown_15_30pct")
-        if l2_rsi_divergence:
-            l2_met.append("rsi_lower_high_divergence")
-        return 2, l2_met, []
+    l2_optionals = {
+        "drawdown_15_30pct": (ind.pnl_pct is not None and -30.0 <= ind.pnl_pct <= -15.0),
+        "rsi_lower_high_divergence": check_rsi_lower_high_divergence(ind),
+        "ma20_fresh_breakdown": check_ma20_fresh_breakdown(ind),
+    }
+    l2_opt_met = [k for k, v in l2_optionals.items() if v]
+    if l2_required and len(l2_opt_met) >= 1:
+        return 2, ["macd_hist_declining_3d"] + l2_opt_met, [k for k, v in l2_optionals.items() if not v]
 
-    # L1 조기 경고: macd_hist_declining_2d 필수 + RSI > 35 + 거래량 감소
+    # L1 조기 경고: macd_hist_declining_2d 필수 + RSI > 35 + 추가 조건 1개 이상
     # (RSI ≤ 35 이미 과매도 → exit 경고 불필요)
     l1_required = (check_macd_hist_declining(ind, 2)
                    and ind.rsi is not None and ind.rsi > 35)
@@ -282,6 +334,7 @@ def evaluate_exit(ind: TickerIndicators, ctx: MarketContext) -> tuple[Optional[i
         "rsi_65_turning_down": check_rsi_65_turning_down(ind),
         "volume_divergence_negative": (ind.volume_ratio is not None
                                        and ind.volume_ratio < 0.88),
+        "bb_upper_pullback": check_bb_upper_pullback(ind),
     }
     l1_opt_met = [k for k, v in l1_optional.items() if v]
     l1_opt_not = [k for k, v in l1_optional.items() if not v]
@@ -305,7 +358,14 @@ def evaluate_growth_v22(ind: TickerIndicators, ctx: MarketContext) -> RuleResult
         result.notes.append("마스터 스위치 RED — 신규 진입 없음")
         return result
 
-    # Tranche 1 조건
+    # 당일 -5% 이상 급락 → 패닉 바이 방지
+    if check_panic_drop(ind):
+        result.action = "HOLD"
+        result.notes.append(f"패닉 바이 방지 — 당일 {ind.day_change_pct:.1f}% 급락")
+        return result
+
+    # Tranche 1 조건 (YELLOW: T1만 허용)
+    yellow_mode = (ctx.master_switch == "YELLOW")
     required_t1 = check_macd_hist_rising(ind, 2)
     pick_conditions = {
         "rsi <= 38": check_rsi_le(ind, 38),
@@ -332,6 +392,14 @@ def evaluate_growth_v22(ind: TickerIndicators, ctx: MarketContext) -> RuleResult
         }
         return result
 
+    # YELLOW 모드: T1만 허용, T2/T3 미진입
+    if yellow_mode:
+        result.action = "WATCH" if (required_t1 and len(t1_met) >= 2) else "HOLD"
+        result.notes.append("마스터 스위치 YELLOW — T1(20%)만 허용, T2/T3 진입 없음")
+        result.conditions_met = (["macd_histogram_rising_2d"] + t1_met) if required_t1 else t1_met
+        result.conditions_not_met = t1_not
+        return result
+
     # Tranche 2 조건
     t2_conds = {
         "double_bottom": check_double_bottom(ind),
@@ -356,11 +424,13 @@ def evaluate_growth_v22(ind: TickerIndicators, ctx: MarketContext) -> RuleResult
         "price_above_ma20": check_price_above_ma20(ind),
         "macd_above_zero": check_macd_above_zero(ind),
         "volume_ratio >= 1.3": check_volume_ratio_ge(ind, 1.3),
+        "ma20_slope_rising": check_ma20_slope_rising(ind),
+        "consecutive_above_ma20_2d": check_consecutive_above_ma20(ind, 2),
     }
     t3_met = [k for k, v in t3_conds.items() if v]
     t3_not = [k for k, v in t3_conds.items() if not v]
 
-    if len(t3_met) == len(t3_conds) and not veto_t3:
+    if len(t3_met) >= 3 and not veto_t3:
         result.action = "BUY_T3"
         result.tranche = 3
         result.conditions_met = t3_met
@@ -388,6 +458,13 @@ def evaluate_etf_v24(ind: TickerIndicators, ctx: MarketContext) -> RuleResult:
         result.notes.append("마스터 스위치 RED — 신규 진입 없음")
         return result
 
+    # 당일 -5% 이상 급락 → 패닉 바이 방지
+    if check_panic_drop(ind):
+        result.action = "HOLD"
+        result.notes.append(f"패닉 바이 방지 — 당일 {ind.day_change_pct:.1f}% 급락")
+        return result
+
+    yellow_mode = (ctx.master_switch == "YELLOW")
     veto = check_rsi_ge(ind, 70)
 
     # Tranche 1
@@ -404,6 +481,14 @@ def evaluate_etf_v24(ind: TickerIndicators, ctx: MarketContext) -> RuleResult:
     if len(t1_met) >= 3 and not veto:
         result.action = "BUY_T1"
         result.tranche = 1
+        result.conditions_met = t1_met
+        result.conditions_not_met = t1_not
+        return result
+
+    # YELLOW 모드: T1만 허용
+    if yellow_mode:
+        result.action = "WATCH" if len(t1_met) >= 2 else "HOLD"
+        result.notes.append("마스터 스위치 YELLOW — T1(20%)만 허용, T2/T3 진입 없음")
         result.conditions_met = t1_met
         result.conditions_not_met = t1_not
         return result
@@ -430,6 +515,7 @@ def evaluate_etf_v24(ind: TickerIndicators, ctx: MarketContext) -> RuleResult:
         "price_above_ma20": check_price_above_ma20(ind),
         "rsi > 48": check_rsi_ge(ind, 48),
         "macd_above_zero": check_macd_above_zero(ind),
+        "ma20_slope_rising": check_ma20_slope_rising(ind),
     }
     t3_met = [k for k, v in t3_pool.items() if v]
     t3_not = [k for k, v in t3_pool.items() if not v]
@@ -461,7 +547,15 @@ def evaluate_energy_v23(ind: TickerIndicators, ctx: MarketContext) -> RuleResult
         result.notes.append("마스터 스위치 RED — 신규 진입 없음")
         return result
 
-    # T1 (growth_v22와 동일)
+    # 당일 -5% 이상 급락 → 패닉 바이 방지
+    if check_panic_drop(ind):
+        result.action = "HOLD"
+        result.notes.append(f"패닉 바이 방지 — 당일 {ind.day_change_pct:.1f}% 급락")
+        return result
+
+    yellow_mode = (ctx.master_switch == "YELLOW")
+
+    # T1 (growth_v22와 동일, veto RSI>70으로 수정)
     required_t1 = check_macd_hist_rising(ind, 2)
     pick_conditions = {
         "rsi <= 38": check_rsi_le(ind, 38),
@@ -471,7 +565,7 @@ def evaluate_energy_v23(ind: TickerIndicators, ctx: MarketContext) -> RuleResult
         "3day_low_hold": check_rsi_le(ind, 42),
         "bounce_2pct": ind.price is not None and ind.ma20 is not None and ind.price >= ind.ma20 * 0.98,
     }
-    veto_t1 = check_rsi_ge(ind, 50)
+    veto_t1 = check_rsi_ge(ind, 70)  # spec: RSI>70 veto (v2.2와 다름)
     t1_met = [k for k, v in pick_conditions.items() if v]
     t1_not = [k for k, v in pick_conditions.items() if not v]
 
@@ -479,6 +573,14 @@ def evaluate_energy_v23(ind: TickerIndicators, ctx: MarketContext) -> RuleResult
         result.action = "BUY_T1"
         result.tranche = 1
         result.conditions_met = ["macd_histogram_rising_2d"] + t1_met
+        result.conditions_not_met = t1_not
+        return result
+
+    # YELLOW 모드: T1만 허용
+    if yellow_mode:
+        result.action = "WATCH" if (required_t1 and len(t1_met) >= 2) else "HOLD"
+        result.notes.append("마스터 스위치 YELLOW — T1(20%)만 허용, T2/T3 진입 없음")
+        result.conditions_met = (["macd_histogram_rising_2d"] + t1_met) if required_t1 else t1_met
         result.conditions_not_met = t1_not
         return result
 
@@ -505,6 +607,8 @@ def evaluate_energy_v23(ind: TickerIndicators, ctx: MarketContext) -> RuleResult
         "price_above_ma20": check_price_above_ma20(ind),
         "macd > macd_signal": check_macd_golden_cross(ind),
         "rsi > 45": check_rsi_ge(ind, 45),
+        "ma20_slope_rising": check_ma20_slope_rising(ind),
+        "consecutive_above_ma20_2d": check_consecutive_above_ma20(ind, 2),
     }
     t3_met = [k for k, v in t3_pool.items() if v]
 
@@ -615,6 +719,14 @@ def evaluate_gold_v26(ind: TickerIndicators, ctx: MarketContext) -> RuleResult:
         result.notes.append("마스터 스위치 RED — SLV 신규 진입 없음")
         return result
 
+    # RSI > 80 → TOP_SIGNAL (과매수 경고)
+    if check_rsi_ge(ind, 80):
+        result.action = "TOP_SIGNAL"
+        result.exit_level = 99
+        result.conditions_met = ["rsi >= 80"]
+        result.notes.append("SLV RSI 과매수(≥80) — TOP_SIGNAL")
+        return result
+
     # T1
     t1_pool = {
         "slv_rsi <= 40": check_rsi_le(ind, 40),
@@ -636,6 +748,7 @@ def evaluate_gold_v26(ind: TickerIndicators, ctx: MarketContext) -> RuleResult:
         "slv_macd > signal": check_macd_golden_cross(ind),
         "slv_rsi > 42": check_rsi_ge(ind, 42),
         "slv_higher_low": check_higher_low(ind),
+        "slv_ma20_flat": check_ma20_flat(ind),
     }
     t2_met = [k for k, v in t2_pool.items() if v]
 
@@ -732,6 +845,10 @@ def evaluate_ticker(ind: TickerIndicators, ctx: MarketContext) -> RuleResult:
             return evaluator(ind, ctx)
         return RuleResult(ticker=ind.ticker, classification=classification, action="HOLD")
 
+    # technical_only 모드에서는 투기 종목 exit 생략 (pnl_pct=None이므로 오탐 방지)
+    if classification == "speculative" and ctx.mode == "technical_only":
+        return evaluate_speculative(ind, ctx)
+
     # Exit 평가 (growth, energy, bond_gold, speculative)
     exit_level, exit_met, exit_not_met = evaluate_exit(ind, ctx)
 
@@ -815,6 +932,14 @@ def build_indicators(ticker: str, cache: dict, portfolio: dict) -> TickerIndicat
         volume_avg20=t_data.get("volume_avg20"),
         volume_ratio=t_data.get("volume_ratio"),
         pnl_pct=holding.get("pnl_pct"),
+        # 히스토리 기반 지표 (market_data.py 확장 시 수집, 기본=미수집)
+        ma20_slope=t_data.get("ma20_slope"),
+        consecutive_above_ma20=t_data.get("consecutive_above_ma20", 0),
+        consecutive_above_bb_upper=t_data.get("consecutive_above_bb_upper", 0),
+        day_change_pct=t_data.get("day_change_pct"),
+        gain_3day_pct=t_data.get("gain_3day_pct"),
+        price_crossed_below_ma20=t_data.get("price_crossed_below_ma20", False),
+        price_was_above_bb_upper=t_data.get("price_was_above_bb_upper", False),
     )
 
 
