@@ -285,8 +285,9 @@ with col_r:
         unsafe_allow_html=True,
     )
 
-curr_price = (market.get("tickers", {}).get(selected, {}).get("price", 0)
-              if market else 0)
+# FIX: market_cache 비어있으면 portfolio의 current_price를 폴백으로 사용
+curr_price = (market.get("tickers", {}).get(selected, {}).get("price")
+              if market else None) or h.get("current_price", 0)
 
 # 메트릭 카드 행
 st.markdown(metrics_row([
