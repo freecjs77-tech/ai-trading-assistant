@@ -1,168 +1,240 @@
 {
-  "updated_at": "2026-03-28T07:00:00+09:00",
-  "source": "initial_manual",
+  "updated_at": "2026-03-28T06:22:00+09:00",
+  "source": "toss_ocr_2026-03-28",
   "total_value_usd": 431847.0,
+  "total_cost_usd": 379296.0,
+  "total_pnl_usd": 52551.0,
+  "total_pnl_pct": 13.8,
   "holdings": [
     {
       "ticker": "VOO",
+      "name": "Vanguard S&P 500 ETF",
+      "shares": 175.16,
+      "avg_cost": 514.07,
+      "current_price": 582.85,
       "value_usd": 102110.0,
-      "pnl_usd": 12079.06,
-      "pnl_pct": 13.42,
-      "shares": 175.157486
+      "pnl_usd": 12066.0,
+      "pnl_pct": 13.4
     },
     {
       "ticker": "BIL",
+      "name": "SPDR 1-3 Month T-Bill",
+      "shares": 1000.00,
+      "avg_cost": 82.95,
+      "current_price": 91.63,
       "value_usd": 91630.0,
-      "pnl_usd": 430.50,
-      "pnl_pct": 0.47,
-      "shares": 1019.2
+      "pnl_usd": 8680.0,
+      "pnl_pct": 10.5
     },
     {
       "ticker": "QQQ",
+      "name": "Invesco QQQ Trust",
+      "shares": 135.64,
+      "avg_cost": 498.22,
+      "current_price": 562.59,
       "value_usd": 76310.0,
-      "pnl_usd": 8240.0,
-      "pnl_pct": 12.10,
-      "shares": 129.803
+      "pnl_usd": 8731.0,
+      "pnl_pct": 12.9
     },
     {
       "ticker": "SCHD",
+      "name": "Schwab US Dividend ETF",
+      "shares": 1512.01,
+      "avg_cost": 24.52,
+      "current_price": 30.44,
       "value_usd": 46025.0,
-      "pnl_usd": 3850.0,
-      "pnl_pct": 9.12,
-      "shares": 751.22
+      "pnl_usd": 8951.0,
+      "pnl_pct": 24.2
     },
     {
       "ticker": "AAPL",
+      "name": "Apple Inc.",
+      "shares": 79.35,
+      "avg_cost": 171.14,
+      "current_price": 248.80,
       "value_usd": 19742.0,
-      "pnl_usd": 2310.0,
-      "pnl_pct": 13.24,
-      "shares": 90.15
+      "pnl_usd": 6162.0,
+      "pnl_pct": 45.4
     },
     {
       "ticker": "O",
+      "name": "Realty Income Corp",
+      "shares": 281.03,
+      "avg_cost": 51.02,
+      "current_price": 60.68,
       "value_usd": 17056.0,
-      "pnl_usd": -892.0,
-      "pnl_pct": -4.97,
-      "shares": 295.8
+      "pnl_usd": 2718.0,
+      "pnl_pct": 18.9
     },
     {
       "ticker": "JEPI",
+      "name": "JPMorgan Equity Premium Income",
+      "shares": 254.07,
+      "avg_cost": 50.70,
+      "current_price": 55.56,
       "value_usd": 14113.0,
-      "pnl_usd": 680.0,
-      "pnl_pct": 5.07,
-      "shares": 216.82
+      "pnl_usd": 1232.0,
+      "pnl_pct": 9.6
     },
     {
       "ticker": "SOXX",
+      "name": "iShares Semiconductor ETF",
+      "shares": 30.89,
+      "avg_cost": 183.63,
+      "current_price": 323.50,
       "value_usd": 9992.0,
-      "pnl_usd": -1240.0,
-      "pnl_pct": -11.04,
-      "shares": 42.35
+      "pnl_usd": 4320.0,
+      "pnl_pct": 76.2
     },
     {
       "ticker": "TSLA",
+      "name": "Tesla Inc.",
+      "shares": 26.93,
+      "avg_cost": 389.90,
+      "current_price": 361.88,
       "value_usd": 9745.0,
-      "pnl_usd": -3280.0,
-      "pnl_pct": -25.19,
-      "shares": 26.93
+      "pnl_usd": -755.0,
+      "pnl_pct": -7.2
     },
     {
       "ticker": "TLT",
+      "name": "iShares 20+ Year Treasury Bond",
+      "shares": 100.00,
+      "avg_cost": 84.05,
+      "current_price": 85.64,
       "value_usd": 8564.0,
-      "pnl_usd": -1820.0,
-      "pnl_pct": -17.53,
-      "shares": 93.64
+      "pnl_usd": 159.0,
+      "pnl_pct": 1.9
     },
     {
       "ticker": "NVDA",
+      "name": "NVIDIA Corporation",
+      "shares": 48.70,
+      "avg_cost": 164.86,
+      "current_price": 167.55,
       "value_usd": 8158.0,
-      "pnl_usd": -2140.0,
-      "pnl_pct": -20.77,
-      "shares": 62.12
+      "pnl_usd": 129.0,
+      "pnl_pct": 1.6
     },
     {
       "ticker": "PLTR",
+      "name": "Palantir Technologies",
+      "shares": 56.83,
+      "avg_cost": 137.42,
+      "current_price": 143.05,
       "value_usd": 8130.0,
-      "pnl_usd": 3420.0,
-      "pnl_pct": 72.61,
-      "shares": 87.42
+      "pnl_usd": 320.0,
+      "pnl_pct": 4.0
     },
     {
       "ticker": "SPY",
+      "name": "SPDR S&P 500 ETF",
+      "shares": 8.89,
+      "avg_cost": 509.30,
+      "current_price": 645.09,
       "value_usd": 5635.0,
-      "pnl_usd": 420.0,
-      "pnl_pct": 8.05,
-      "shares": 8.73
+      "pnl_usd": 1107.0,
+      "pnl_pct": 24.6
     },
     {
       "ticker": "UNH",
+      "name": "UnitedHealth Group",
+      "shares": 18.00,
+      "avg_cost": 281.27,
+      "current_price": 259.02,
       "value_usd": 4662.0,
-      "pnl_usd": -890.0,
-      "pnl_pct": -16.02,
-      "shares": 9.82
+      "pnl_usd": -401.0,
+      "pnl_pct": -7.9
     },
     {
       "ticker": "MSFT",
+      "name": "Microsoft Corporation",
+      "shares": 12.00,
+      "avg_cost": 392.72,
+      "current_price": 356.80,
       "value_usd": 4281.0,
-      "pnl_usd": -540.0,
-      "pnl_pct": -11.20,
-      "shares": 10.25
+      "pnl_usd": -432.0,
+      "pnl_pct": -9.2
     },
     {
       "ticker": "GOOGL",
+      "name": "Alphabet Inc. Class A",
+      "shares": 10.68,
+      "avg_cost": 297.39,
+      "current_price": 274.30,
       "value_usd": 2929.0,
-      "pnl_usd": -310.0,
-      "pnl_pct": -9.57,
-      "shares": 18.34
+      "pnl_usd": -247.0,
+      "pnl_pct": -7.8
     },
     {
       "ticker": "AMZN",
+      "name": "Amazon.com Inc.",
+      "shares": 5.85,
+      "avg_cost": 208.55,
+      "current_price": 199.30,
       "value_usd": 1166.0,
-      "pnl_usd": -180.0,
-      "pnl_pct": -13.38,
-      "shares": 6.12
+      "pnl_usd": -54.0,
+      "pnl_pct": -4.4
     },
     {
       "ticker": "SLV",
+      "name": "iShares Silver Trust",
+      "shares": 12.00,
+      "avg_cost": 64.29,
+      "current_price": 63.44,
       "value_usd": 761.0,
-      "pnl_usd": 85.0,
-      "pnl_pct": 12.57,
-      "shares": 26.43
+      "pnl_usd": -10.0,
+      "pnl_pct": -1.3
     },
     {
       "ticker": "TQQQ",
+      "name": "ProShares UltraPro QQQ",
+      "shares": 5.00,
+      "avg_cost": 63.23,
+      "current_price": 58.05,
       "value_usd": 290.0,
-      "pnl_usd": -420.0,
-      "pnl_pct": -59.15,
-      "shares": 14.82
+      "pnl_usd": -26.0,
+      "pnl_pct": -8.2
     },
     {
       "ticker": "SOXL",
+      "name": "Direxion Daily Semi 3X Bull",
+      "shares": 5.00,
+      "avg_cost": 53.62,
+      "current_price": 46.61,
       "value_usd": 233.0,
-      "pnl_usd": -380.0,
-      "pnl_pct": -62.03,
-      "shares": 41.25
+      "pnl_usd": -35.0,
+      "pnl_pct": -13.1
     },
     {
       "ticker": "ETHU",
+      "name": "ProShares Ultra Ether ETF",
+      "shares": 10.00,
+      "avg_cost": 25.96,
+      "current_price": 20.16,
       "value_usd": 202.0,
-      "pnl_usd": -280.0,
-      "pnl_pct": -58.10,
-      "shares": 12.64
+      "pnl_usd": -58.0,
+      "pnl_pct": -22.3
     },
     {
       "ticker": "CRCL",
+      "name": "Circle Internet Group",
+      "shares": 1.00,
+      "avg_cost": 123.81,
+      "current_price": 93.66,
       "value_usd": 94.0,
-      "pnl_usd": -18.0,
-      "pnl_pct": -16.07,
-      "shares": 1.65
+      "pnl_usd": -30.0,
+      "pnl_pct": -24.4
     },
     {
       "ticker": "BTDR",
+      "name": "Bitdeer Technologies",
+      "shares": 1.00,
+      "avg_cost": 29.79,
+      "current_price": 18.39,
       "value_usd": 18.0,
-      "pnl_usd": -32.0,
-      "pnl_pct": -64.0,
-      "shares": 2.1
+      "pnl_usd": -12.0,
+      "pnl_pct": -38.3
     }
   ]
 }
