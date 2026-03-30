@@ -14,7 +14,7 @@ ROOT_DIR = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT_DIR / "src"))
 sys.path.insert(0, str(ROOT_DIR))  # dashboard.style / dashboard.components 임포트용
 
-from dashboard.style import inject_css
+from dashboard.style import inject_css, inject_sidebar_css
 from dashboard.components import (
     metric_card, metrics_row,
     macro_card, macro_row,
@@ -30,6 +30,7 @@ st.set_page_config(
     layout="wide",
 )
 st.markdown(inject_css(), unsafe_allow_html=True)
+st.markdown(inject_sidebar_css(), unsafe_allow_html=True)
 
 KST = timezone(timedelta(hours=9))
 DATA_DIR = ROOT_DIR / "data"
