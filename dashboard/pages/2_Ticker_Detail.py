@@ -29,10 +29,11 @@ st.set_page_config(
     layout="wide",
 )
 
-from dashboard.style import inject_css
+from dashboard.style import inject_css, inject_sidebar_css
 from dashboard.components import strategy_progress, signal_card, metric_card, metrics_row
 
 st.markdown(inject_css(), unsafe_allow_html=True)
+st.markdown(inject_sidebar_css(), unsafe_allow_html=True)
 
 
 # ── 데이터 로드 ───────────────────────────────────────────
