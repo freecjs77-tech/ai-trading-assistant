@@ -1,6 +1,7 @@
 """dashboard/style.py — shared CSS for the AI Trading Assistant dashboard."""
 
-CUSTOM_CSS = """<style>
+CUSTOM_CSS = """
+<style>
 /* ── Streamlit 기본 오버라이드 ── */
 .main .block-container { max-width: 900px; padding: 1rem 1rem 2rem 1rem; }
 header[data-testid="stHeader"] { display: none; }
@@ -125,7 +126,8 @@ footer { display: none; }
 [data-testid="stSidebarNavItems"] li:first-child span {font-size:0}
 [data-testid="stSidebarNavItems"] li:first-child span::after {content:"Overview";font-size:14px}
 </style>
-""""""
+"""
+
 
 SIDEBAR_CSS = """<style>
 [data-testid="stSidebarNav"] ul { padding-top: 0.5rem; }
