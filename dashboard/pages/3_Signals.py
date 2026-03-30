@@ -86,7 +86,7 @@ for _alert in _macro_alerts:
     _lvl = _alert.get("level", "info")
     _bg = {"danger": "#FDECEA", "warning": "#FFF3CD", "caution": "#FFF8E1", "info": "#E8F4FD"}.get(_lvl, "#F5F5F5")
     _color = {"danger": "#C62828", "warning": "#856404", "caution": "#6D4C00", "info": "#1565C0"}.get(_lvl, "#333")
-    _icon = {"danger": "\ud83d\udea8", "warning": "\u26a0\ufe0f", "caution": "\u26a1", "info": "\u2139\ufe0f"}.get(_lvl, "")
+    _icon = {"danger": "🚨", "warning": "⚠️", "caution": "⚡", "info": "ℹ️"}.get(_lvl, "")
     st.markdown(
         f'<div style="background:{_bg};border-radius:6px;padding:8px 12px;margin-bottom:6px;'
         f'color:{_color};font-size:12px">{_icon} {_alert.get("message","")}'
