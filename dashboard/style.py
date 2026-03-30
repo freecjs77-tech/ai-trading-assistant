@@ -1,9 +1,6 @@
-"""
-dashboard/style.py — 공통 CSS (overview_target.html 기준)
-"""
+"""dashboard/style.py — shared CSS for the AI Trading Assistant dashboard."""
 
-CUSTOM_CSS = """
-<style>
+CUSTOM_CSS = """<style>
 /* ── Streamlit 기본 오버라이드 ── */
 .main .block-container { max-width: 900px; padding: 1rem 1rem 2rem 1rem; }
 header[data-testid="stHeader"] { display: none; }
@@ -128,12 +125,7 @@ footer { display: none; }
 [data-testid="stSidebarNavItems"] li:first-child span {font-size:0}
 [data-testid="stSidebarNavItems"] li:first-child span::after {content:"Overview";font-size:14px}
 </style>
-"""
-
-
-def inject_css() -> str:
-    return CUSTOM_CSS
-
+""""""
 
 SIDEBAR_CSS = """<style>
 [data-testid="stSidebarNav"] ul { padding-top: 0.5rem; }
@@ -142,5 +134,11 @@ SIDEBAR_CSS = """<style>
 </style>"""
 
 
+def inject_css() -> str:
+    """Return the main dashboard CSS as a string."""
+    return CUSTOM_CSS
+
+
 def inject_sidebar_css() -> str:
+    """Return the sidebar navigation CSS as a string."""
     return SIDEBAR_CSS
