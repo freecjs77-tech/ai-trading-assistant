@@ -106,14 +106,14 @@ def master_switch_banner(
 
 def holdings_table_html(
     holdings: list[dict],
-    signals_market: dict,
-    signals_tech: dict,
+    signals: dict,
     currency: str = "USD",
     usdkrw: float = 1400.0,
     max_value: float = 1.0,
     total_value: float = 0.0,
 ) -> str:
-    """보유 테이블 HTML (Market + Technical 듀얼 시그널 컬럼)"""
+    """보유 테이블 HTML (단일 Signal 컬럼 — v4.0)"""
+
     _total = total_value if total_value > 0 else max_value
     rows = []
     for h in holdings:
@@ -135,8 +135,8 @@ def holdings_table_html(
         bar_color = "#0F6E56" if pnl_pct >= 0 else "#A32D2D"
         bar_w = min(100, weight * 4)  # 25% = 100%로 스케일 (최대 보유 기준)
 
-        m_action = signals_market.get(ticker, "HOLD")
-        t_action = signals_tech.get(ticker, "HOLD")
+        action = signals.get(ticker, "HOLD")
+
 
         rows.append(f"""<tr>
   <td><span class="tk">{ticker}</span><br><span class="nm">{name}</span></td>
@@ -145,9 +145,9 @@ def holdings_table_html(
     <span class="bar-bg"><span class="bar-f" style="width:{bar_w:.0f}%;background:{bar_color}"></span></span>
   </td>
   <td style="text-align:right" class="{pnl_cls}">{pnl_str}</td>
-  <td style="text-align:center">{pill_html(m_action)}</td>
-  <td style="text-align:center">{pill_html(t_action)}</td>
+  <td style="text-align:center">{pill_html(action)}</td>
 </tr>""")
+
 
     rows_html = "\n".join(rows)
     n = len(holdings)
@@ -158,9 +158,9 @@ def holdings_table_html(
   <th style="text-align:right">Value</th>
   <th style="text-align:right">Weight</th>
   <th style="text-align:right">Return</th>
-  <th style="text-align:center">Market</th>
-  <th style="text-align:center">Technical</th>
+  <th style="text-align:center">Signal</th>
 </tr></thead>
+
 <tbody>{rows_html}</tbody>
 </table>"""
 
