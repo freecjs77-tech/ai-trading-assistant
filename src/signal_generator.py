@@ -29,11 +29,8 @@ DATA_DIR = ROOT_DIR / "data"
 
 def calc_confidence(result: RuleResult, ctx: MarketContext) -> int:
     """
-    확신도 점수 0~100 계산
+    확신도 점수 0~100 계산 (v4.0: 마스터/VIX 가중치 제거)
     base = (충족 조건 / 전체 조건) * 100
-    가중치:
-      마스터 스위치 GREEN +20 / YELLOW +0 / RED -20
-      VIX < 20 +10 / VIX 25-30 +0 / VIX > 30 -10
     """
     total_conditions = len(result.conditions_met) + len(result.conditions_not_met)
     if total_conditions == 0:
@@ -41,20 +38,7 @@ def calc_confidence(result: RuleResult, ctx: MarketContext) -> int:
     else:
         base = int(len(result.conditions_met) / total_conditions * 100)
 
-    # 마스터 스위치 가중치
-    if ctx.master_switch == "GREEN":
-        base += 20
-    elif ctx.master_switch == "RED":
-        base -= 20
-
-    # VIX 가중치
-    vix = ctx.vix or 0
-    if vix < 20:
-        base += 10
-    elif vix > 30:
-        base -= 10
-
-    # Exit 시그널은 확신도 높게 (위험 상황이므로)
+    # Exit 시그널은 확신도 최솟값 70
     if result.action in ("L2_WEAKENING", "L3_BREAKDOWN", "TOP_SIGNAL"):
         base = max(base, 70)
 
@@ -174,6 +158,7 @@ def format_conditions_text(conditions: list[str]) -> str:
         "higher_low_broken": "상승 저점 붕괴",
         "macd_death_cross": "MACD 데스 크로스",
         "gain_10pct_in_3d": "3일 10% 급등",
+        "ma20_fresh_breakdown": "MA20 신규 이탈",
     }
     parts = [ko_map.get(c, c) for c in conditions[:4]]  # 최대 4개
     return " + ".join(parts)
@@ -313,24 +298,7 @@ def sort_signals(signals: list[dict]) -> list[dict]:
 # 메인 생성 함수
 # ─────────────────────────────────────────────
 
-def _make_technical_context(ctx: MarketContext) -> MarketContext:
-    """technical_only 모드: 마스터 스위치/VIX/매크로 무시한 중립 컨텍스트"""
-    from dataclasses import replace
-    return replace(
-        ctx,
-        master_switch="GREEN",
-        qqq_above_ma200=True,
-        spy_above_ma200=True,
-        vix=15.0,
-        vix_tier="normal",
-        treasury_30y=None,
-        usdkrw=None,
-        mode="technical_only",
-    )
-
-
 def generate_signals(
-    mode: str = "full",
     portfolio_data: Optional[dict] = None,
     market_data: Optional[dict] = None,
 ) -> dict:
@@ -338,9 +306,6 @@ def generate_signals(
 
     Parameters
     ----------
-    mode : "full" | "technical_only"
-        full: 마스터 스위치 + 매크로 + 기술지표 모두 반영
-        technical_only: 기술지표만 반영, 마스터 스위치/매크로 무시
     portfolio_data : 직접 전달할 포트폴리오 데이터 (None이면 파일 로드)
     market_data : 직접 전달할 시장 데이터 (None이면 파일 로드)
     """
@@ -352,8 +317,6 @@ def generate_signals(
         return {}
 
     ctx = build_context(cache)
-    if mode == "technical_only":
-        ctx = _make_technical_context(ctx)
 
     today = datetime.now(KST).strftime("%Y-%m-%d")
 
@@ -361,10 +324,6 @@ def generate_signals(
     for holding in portfolio.get("holdings", []):
         ticker = holding["ticker"]
         ind = build_indicators(ticker, cache, portfolio)
-        # technical_only 모드: 포트폴리오 손익 (pnl_pct)은 기술지표가 아니므로 무시
-        if mode == "technical_only":
-            from dataclasses import replace as dc_replace
-            ind = dc_replace(ind, pnl_pct=None)
         result = evaluate_ticker(ind, ctx)
         confidence = calc_confidence(result, ctx)
         ind_data = cache.get("tickers", {}).get(ticker, {})
@@ -415,17 +374,13 @@ def generate_signals(
         }
     }
 
-    # 모드 기록
-    result_doc["mode"] = mode
-
-    # 저장 (technical_only는 별도 파일)
+    # 저장
     DATA_DIR.mkdir(exist_ok=True)
-    filename = "signals_technical.json" if mode == "technical_only" else "signals.json"
-    signals_path = DATA_DIR / filename
+    signals_path = DATA_DIR / "signals.json"
     with open(signals_path, "w", encoding="utf-8") as f:
         json.dump(result_doc, f, ensure_ascii=False, indent=2)
 
-    logger.info(f"✅ 시그널 생성 완료 [{mode}]: {signals_path}")
+    logger.info(f"시그널 생성 완료: {signals_path}")
     s = result_doc["summary"]
     logger.info(
         f"   L3:{s['l3_breakdown']} L2:{s['l2_weakening']} L1:{s['l1_warning']} "
@@ -443,26 +398,11 @@ def load_signals() -> Optional[dict]:
         return json.load(f)
 
 
-def load_signals_technical() -> Optional[dict]:
-    """signals_technical.json 로드"""
-    path = DATA_DIR / "signals_technical.json"
-    if not path.exists():
-        return None
-    with open(path, encoding="utf-8") as f:
-        return json.load(f)
-
-
 if __name__ == "__main__":
     import argparse
     logging.basicConfig(level=logging.INFO)
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--mode", choices=["full", "technical_only", "both"], default="full")
-    args = parser.parse_args()
-
-    modes = ["full", "technical_only"] if args.mode == "both" else [args.mode]
-    for m in modes:
-        result = generate_signals(mode=m)
-        if result:
-            print(f"\n[{m}] 마스터 스위치: {result['master_switch']}")
-            for sig in result["signals"][:5]:
-                print(f"  {sig['ticker']:6s} → {sig['action']:15s} ({sig['confidence']}%) {sig['rationale'][:60]}")
+    result = generate_signals()
+    if result:
+        print(f"\n마스터 스위치: {result['master_switch']}")
+        for sig in result["signals"][:5]:
+            print(f"  {sig['ticker']:6s} → {sig['action']:15s} ({sig['confidence']}%) {sig['rationale'][:60]}")
