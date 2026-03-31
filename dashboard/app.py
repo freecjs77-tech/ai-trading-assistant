@@ -67,8 +67,11 @@ def load_signals_doc() -> dict:
 
 def gen_signals(market: dict, portfolio: dict) -> dict:
     try:
+        from market_data import collect_all
         from signal_generator import generate_signals
-        return generate_signals(portfolio_data=portfolio, market_data=market)
+        # 최신 시장 데이터 수집 (yfinance) — 실패 시 기존 캐시 사용
+        fresh = collect_all()
+        return generate_signals(portfolio_data=portfolio, market_data=fresh or market)
     except Exception as e:
         st.error(f"시그널 생성 실패: {e}")
         return {}
@@ -116,7 +119,7 @@ with col_title:
     )
 with col_upd:
     if st.button("🔄 Update", use_container_width=True):
-        with st.spinner("시그널 업데이트 중..."):
+        with st.spinner("📡 시장 데이터 수집 중 (yfinance)... 30~60초 소요"):
             new_doc = gen_signals(market, portfolio)
         if new_doc:
             st.session_state.sig_doc = new_doc
