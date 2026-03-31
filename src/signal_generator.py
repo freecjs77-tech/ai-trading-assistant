@@ -374,13 +374,15 @@ def generate_signals(
         }
     }
 
-    # 저장
-    DATA_DIR.mkdir(exist_ok=True)
-    signals_path = DATA_DIR / "signals.json"
-    with open(signals_path, "w", encoding="utf-8") as f:
-        json.dump(result_doc, f, ensure_ascii=False, indent=2)
-
-    logger.info(f"시그널 생성 완료: {signals_path}")
+    # 저장 (클라우드 파일시스템이 읽기 전용이어도 result_doc 반환)
+    try:
+        DATA_DIR.mkdir(exist_ok=True)
+        signals_path = DATA_DIR / "signals.json"
+        with open(signals_path, "w", encoding="utf-8") as f:
+            json.dump(result_doc, f, ensure_ascii=False, indent=2)
+        logger.info(f"시그널 생성 완료: {signals_path}")
+    except Exception as write_err:
+        logger.warning(f"signals.json 저장 실패 (무시): {write_err}")
     s = result_doc["summary"]
     logger.info(
         f"   L3:{s['l3_breakdown']} L2:{s['l2_weakening']} L1:{s['l1_warning']} "
