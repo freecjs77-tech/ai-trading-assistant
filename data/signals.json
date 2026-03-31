@@ -1,5 +1,5 @@
 {
-  "date": "2026-03-30",
+  "date": "2026-04-01",
   "master_switch": "RED",
   "vix_tier": "extreme (31.1)",
   "treasury_30y": 4.982,
@@ -8,49 +8,49 @@
   "allocation_note": "VIX 31.1 — 모든 진입 규모 x0.5 적용",
   "signals": [
     {
-      "ticker": "ETHU",
-      "classification": "speculative",
-      "action": "L2_WEAKENING",
+      "ticker": "PLTR",
+      "classification": "growth_v22",
+      "action": "L1_WARNING",
       "tranche": null,
-      "confidence": 70,
-      "rationale": "추세 약화 신호 2개 발동. MACD 히스토그램 3일 하락 + drawdown_15_30pct. 보유 30% 익절 권장.",
+      "confidence": 50,
+      "rationale": "MACD 히스토그램 하락 전환 감지. MACD 히스토그램 하락 전환 + 거래량 감소 다이버전스. 신규 매수 중단, L2 발동 시 30% 트림 준비.",
       "conditions_met": [
-        "macd_hist_declining_3d",
-        "drawdown_15_30pct"
+        "macd_hist_declining_1_2d",
+        "volume_divergence_negative"
       ],
       "conditions_not_met": [
-        "rsi_lower_high_divergence",
-        "ma20_fresh_breakdown"
+        "rsi_65_turning_down",
+        "bb_upper_pullback"
       ],
-      "exit_level": 2,
+      "exit_level": 1,
+      "notes": [],
+      "strategy_stage": {}
+    },
+    {
+      "ticker": "ETHU",
+      "classification": "speculative",
+      "action": "L1_WARNING",
+      "tranche": null,
+      "confidence": 50,
+      "rationale": "MACD 히스토그램 하락 전환 감지. MACD 히스토그램 하락 전환 + 거래량 감소 다이버전스. 신규 매수 중단, L2 발동 시 30% 트림 준비.",
+      "conditions_met": [
+        "macd_hist_declining_1_2d",
+        "volume_divergence_negative"
+      ],
+      "conditions_not_met": [
+        "rsi_65_turning_down",
+        "bb_upper_pullback"
+      ],
+      "exit_level": 1,
       "notes": [],
       "strategy_stage": {}
     },
     {
       "ticker": "CRCL",
       "classification": "speculative",
-      "action": "L2_WEAKENING",
-      "tranche": null,
-      "confidence": 70,
-      "rationale": "추세 약화 신호 2개 발동. MACD 히스토그램 3일 하락 + drawdown_15_30pct. 보유 30% 익절 권장.",
-      "conditions_met": [
-        "macd_hist_declining_3d",
-        "drawdown_15_30pct"
-      ],
-      "conditions_not_met": [
-        "rsi_lower_high_divergence",
-        "ma20_fresh_breakdown"
-      ],
-      "exit_level": 2,
-      "notes": [],
-      "strategy_stage": {}
-    },
-    {
-      "ticker": "PLTR",
-      "classification": "growth_v22",
       "action": "L1_WARNING",
       "tranche": null,
-      "confidence": 20,
+      "confidence": 50,
       "rationale": "MACD 히스토그램 하락 전환 감지. MACD 히스토그램 하락 전환 + 거래량 감소 다이버전스. 신규 매수 중단, L2 발동 시 30% 트림 준비.",
       "conditions_met": [
         "macd_hist_declining_1_2d",
@@ -69,7 +69,7 @@
       "classification": "speculative",
       "action": "L1_WARNING",
       "tranche": null,
-      "confidence": 20,
+      "confidence": 50,
       "rationale": "MACD 히스토그램 하락 전환 감지. MACD 히스토그램 하락 전환 + 거래량 감소 다이버전스. 신규 매수 중단, L2 발동 시 30% 트림 준비.",
       "conditions_met": [
         "macd_hist_declining_1_2d",
@@ -80,6 +80,168 @@
         "bb_upper_pullback"
       ],
       "exit_level": 1,
+      "notes": [],
+      "strategy_stage": {}
+    },
+    {
+      "ticker": "VOO",
+      "classification": "etf_v24",
+      "action": "BUY_T1",
+      "tranche": 1,
+      "confidence": 80,
+      "rationale": "ETF(v2.4) 1차 매수(20%) 조건 충족. RSI 과매도(40↓) + 가격 MA20 하향 + BB 하단 근접 + 5% 풀백.",
+      "conditions_met": [
+        "rsi <= 40",
+        "price_below_ma20",
+        "price_near_bb_lower",
+        "pullback_5pct"
+      ],
+      "conditions_not_met": [
+        "momentum_declining_slowing"
+      ],
+      "exit_level": null,
+      "notes": [],
+      "strategy_stage": {}
+    },
+    {
+      "ticker": "QQQ",
+      "classification": "etf_v24",
+      "action": "BUY_T1",
+      "tranche": 1,
+      "confidence": 80,
+      "rationale": "ETF(v2.4) 1차 매수(20%) 조건 충족. RSI 과매도(40↓) + 가격 MA20 하향 + BB 하단 근접 + 5% 풀백.",
+      "conditions_met": [
+        "rsi <= 40",
+        "price_below_ma20",
+        "price_near_bb_lower",
+        "pullback_5pct"
+      ],
+      "conditions_not_met": [
+        "momentum_declining_slowing"
+      ],
+      "exit_level": null,
+      "notes": [],
+      "strategy_stage": {}
+    },
+    {
+      "ticker": "SCHD",
+      "classification": "etf_v24",
+      "action": "BUY_T1",
+      "tranche": 1,
+      "confidence": 60,
+      "rationale": "ETF(v2.4) 1차 매수(20%) 조건 충족. 가격 MA20 하향 + BB 하단 근접 + 모멘텀 둔화.",
+      "conditions_met": [
+        "price_below_ma20",
+        "price_near_bb_lower",
+        "momentum_declining_slowing"
+      ],
+      "conditions_not_met": [
+        "rsi <= 40",
+        "pullback_5pct"
+      ],
+      "exit_level": null,
+      "notes": [],
+      "strategy_stage": {}
+    },
+    {
+      "ticker": "O",
+      "classification": "energy_v23",
+      "action": "BUY_T1",
+      "tranche": 1,
+      "confidence": 57,
+      "rationale": "에너지/가치(v2.3) 1차 매수(20%) 조건 충족. MACD 히스토그램 2일 상승 + RSI 과매도(38↓) + 가격 MA20 하향 + 3일 저점 유지.",
+      "conditions_met": [
+        "macd_histogram_rising_2d",
+        "rsi <= 38",
+        "price_below_ma20",
+        "3day_low_hold"
+      ],
+      "conditions_not_met": [
+        "adx <= 25",
+        "price_near_bb_lower",
+        "bounce_2pct"
+      ],
+      "exit_level": null,
+      "notes": [],
+      "strategy_stage": {}
+    },
+    {
+      "ticker": "JEPI",
+      "classification": "etf_v24",
+      "action": "BUY_T1",
+      "tranche": 1,
+      "confidence": 60,
+      "rationale": "ETF(v2.4) 1차 매수(20%) 조건 충족. RSI 과매도(40↓) + 가격 MA20 하향 + BB 하단 근접.",
+      "conditions_met": [
+        "rsi <= 40",
+        "price_below_ma20",
+        "price_near_bb_lower"
+      ],
+      "conditions_not_met": [
+        "momentum_declining_slowing",
+        "pullback_5pct"
+      ],
+      "exit_level": null,
+      "notes": [],
+      "strategy_stage": {}
+    },
+    {
+      "ticker": "SOXX",
+      "classification": "etf_v24",
+      "action": "BUY_T1",
+      "tranche": 1,
+      "confidence": 60,
+      "rationale": "ETF(v2.4) 1차 매수(20%) 조건 충족. 가격 MA20 하향 + BB 하단 근접 + 5% 풀백.",
+      "conditions_met": [
+        "price_below_ma20",
+        "price_near_bb_lower",
+        "pullback_5pct"
+      ],
+      "conditions_not_met": [
+        "rsi <= 40",
+        "momentum_declining_slowing"
+      ],
+      "exit_level": null,
+      "notes": [],
+      "strategy_stage": {}
+    },
+    {
+      "ticker": "SPY",
+      "classification": "etf_v24",
+      "action": "BUY_T1",
+      "tranche": 1,
+      "confidence": 80,
+      "rationale": "ETF(v2.4) 1차 매수(20%) 조건 충족. RSI 과매도(40↓) + 가격 MA20 하향 + BB 하단 근접 + 5% 풀백.",
+      "conditions_met": [
+        "rsi <= 40",
+        "price_below_ma20",
+        "price_near_bb_lower",
+        "pullback_5pct"
+      ],
+      "conditions_not_met": [
+        "momentum_declining_slowing"
+      ],
+      "exit_level": null,
+      "notes": [],
+      "strategy_stage": {}
+    },
+    {
+      "ticker": "SLV",
+      "classification": "etf_v24",
+      "action": "BUY_T1",
+      "tranche": 1,
+      "confidence": 60,
+      "rationale": "ETF(v2.4) 1차 매수(20%) 조건 충족. RSI 과매도(40↓) + 가격 MA20 하향 + 5% 풀백.",
+      "conditions_met": [
+        "rsi <= 40",
+        "price_below_ma20",
+        "pullback_5pct"
+      ],
+      "conditions_not_met": [
+        "price_near_bb_lower",
+        "momentum_declining_slowing"
+      ],
+      "exit_level": null,
       "notes": [],
       "strategy_stage": {}
     },
@@ -106,58 +268,13 @@
       "classification": "bond_gold_v26",
       "action": "CASH",
       "tranche": null,
-      "confidence": 20,
+      "confidence": 50,
       "rationale": "단기채 현금성 자산. RSI 95.7. 현재 포지션 유지.",
       "conditions_met": [],
       "conditions_not_met": [],
       "exit_level": null,
       "notes": [
-        "단기채 현금성 자산 — 현재 포지션 유지"
-      ],
-      "strategy_stage": {}
-    },
-    {
-      "ticker": "VOO",
-      "classification": "etf_v24",
-      "action": "HOLD",
-      "tranche": null,
-      "confidence": 20,
-      "rationale": "특이 신호 없음. RSI 27.9. MACD 하락. 현재 포지션 유지.",
-      "conditions_met": [],
-      "conditions_not_met": [],
-      "exit_level": null,
-      "notes": [
-        "마스터 스위치 RED — 신규 진입 없음"
-      ],
-      "strategy_stage": {}
-    },
-    {
-      "ticker": "QQQ",
-      "classification": "etf_v24",
-      "action": "HOLD",
-      "tranche": null,
-      "confidence": 20,
-      "rationale": "특이 신호 없음. RSI 29.9. MACD 하락. 현재 포지션 유지.",
-      "conditions_met": [],
-      "conditions_not_met": [],
-      "exit_level": null,
-      "notes": [
-        "마스터 스위치 RED — 신규 진입 없음"
-      ],
-      "strategy_stage": {}
-    },
-    {
-      "ticker": "SCHD",
-      "classification": "etf_v24",
-      "action": "HOLD",
-      "tranche": null,
-      "confidence": 20,
-      "rationale": "특이 신호 없음. RSI 41.1. MACD 하락. 현재 포지션 유지.",
-      "conditions_met": [],
-      "conditions_not_met": [],
-      "exit_level": null,
-      "notes": [
-        "마스터 스위치 RED — 신규 진입 없음"
+        "단기체 현금성 자산 — 현재 포지션 유지"
       ],
       "strategy_stage": {}
     },
@@ -166,59 +283,15 @@
       "classification": "growth_v22",
       "action": "HOLD",
       "tranche": null,
-      "confidence": 20,
+      "confidence": 0,
       "rationale": "특이 신호 없음. RSI 38.0. MACD 하락. 현재 포지션 유지.",
       "conditions_met": [],
-      "conditions_not_met": [],
-      "exit_level": null,
-      "notes": [
-        "마스터 스위치 RED — 신규 진입 없음"
+      "conditions_not_met": [
+        "macd_histogram_rising_2d",
+        "bounce_2pct"
       ],
-      "strategy_stage": {}
-    },
-    {
-      "ticker": "O",
-      "classification": "energy_v23",
-      "action": "HOLD",
-      "tranche": null,
-      "confidence": 20,
-      "rationale": "특이 신호 없음. RSI 34.1. MACD 하락. 현재 포지션 유지.",
-      "conditions_met": [],
-      "conditions_not_met": [],
       "exit_level": null,
-      "notes": [
-        "마스터 스위치 RED — 신규 진입 없음"
-      ],
-      "strategy_stage": {}
-    },
-    {
-      "ticker": "JEPI",
-      "classification": "etf_v24",
-      "action": "HOLD",
-      "tranche": null,
-      "confidence": 20,
-      "rationale": "특이 신호 없음. RSI 29.7. MACD 하락. 현재 포지션 유지.",
-      "conditions_met": [],
-      "conditions_not_met": [],
-      "exit_level": null,
-      "notes": [
-        "마스터 스위치 RED — 신규 진입 없음"
-      ],
-      "strategy_stage": {}
-    },
-    {
-      "ticker": "SOXX",
-      "classification": "etf_v24",
-      "action": "HOLD",
-      "tranche": null,
-      "confidence": 20,
-      "rationale": "특이 신호 없음. RSI 40.4. MACD 하락. 현재 포지션 유지.",
-      "conditions_met": [],
-      "conditions_not_met": [],
-      "exit_level": null,
-      "notes": [
-        "마스터 스위치 RED — 신규 진입 없음"
-      ],
+      "notes": [],
       "strategy_stage": {}
     },
     {
@@ -226,14 +299,17 @@
       "classification": "growth_v22",
       "action": "HOLD",
       "tranche": null,
-      "confidence": 20,
+      "confidence": 0,
       "rationale": "특이 신호 없음. RSI 33.9. MACD 하락. 현재 포지션 유지.",
       "conditions_met": [],
-      "conditions_not_met": [],
-      "exit_level": null,
-      "notes": [
-        "마스터 스위치 RED — 신규 진입 없음"
+      "conditions_not_met": [
+        "macd_histogram_rising_2d",
+        "adx <= 25",
+        "bounce_2pct",
+        "3day_low_hold"
       ],
+      "exit_level": null,
+      "notes": [],
       "strategy_stage": {}
     },
     {
@@ -241,29 +317,16 @@
       "classification": "growth_v22",
       "action": "HOLD",
       "tranche": null,
-      "confidence": 20,
+      "confidence": 0,
       "rationale": "특이 신호 없음. RSI 35.8. MACD 하락. 현재 포지션 유지.",
       "conditions_met": [],
-      "conditions_not_met": [],
-      "exit_level": null,
-      "notes": [
-        "마스터 스위치 RED — 신규 진입 없음"
+      "conditions_not_met": [
+        "macd_histogram_rising_2d",
+        "bounce_2pct",
+        "3day_low_hold"
       ],
-      "strategy_stage": {}
-    },
-    {
-      "ticker": "SPY",
-      "classification": "etf_v24",
-      "action": "HOLD",
-      "tranche": null,
-      "confidence": 20,
-      "rationale": "특이 신호 없음. RSI 28.5. MACD 하락. 현재 포지션 유지.",
-      "conditions_met": [],
-      "conditions_not_met": [],
       "exit_level": null,
-      "notes": [
-        "마스터 스위치 RED — 신규 진입 없음"
-      ],
+      "notes": [],
       "strategy_stage": {}
     },
     {
@@ -271,14 +334,16 @@
       "classification": "energy_v23",
       "action": "HOLD",
       "tranche": null,
-      "confidence": 20,
+      "confidence": 0,
       "rationale": "특이 신호 없음. RSI 31.3. MACD 하락. 현재 포지션 유지.",
       "conditions_met": [],
-      "conditions_not_met": [],
-      "exit_level": null,
-      "notes": [
-        "마스터 스위치 RED — 신규 진입 없음"
+      "conditions_not_met": [
+        "macd_histogram_rising_2d",
+        "adx <= 25",
+        "bounce_2pct"
       ],
+      "exit_level": null,
+      "notes": [],
       "strategy_stage": {}
     },
     {
@@ -286,14 +351,17 @@
       "classification": "growth_v22",
       "action": "HOLD",
       "tranche": null,
-      "confidence": 20,
+      "confidence": 0,
       "rationale": "특이 신호 없음. RSI 22.3. MACD 하락. 현재 포지션 유지.",
       "conditions_met": [],
-      "conditions_not_met": [],
-      "exit_level": null,
-      "notes": [
-        "마스터 스위치 RED — 신규 진입 없음"
+      "conditions_not_met": [
+        "macd_histogram_rising_2d",
+        "adx <= 25",
+        "bounce_2pct",
+        "3day_low_hold"
       ],
+      "exit_level": null,
+      "notes": [],
       "strategy_stage": {}
     },
     {
@@ -301,14 +369,18 @@
       "classification": "growth_v22",
       "action": "HOLD",
       "tranche": null,
-      "confidence": 20,
+      "confidence": 0,
       "rationale": "특이 신호 없음. RSI 25.2. MACD 하락. 현재 포지션 유지.",
       "conditions_met": [],
-      "conditions_not_met": [],
-      "exit_level": null,
-      "notes": [
-        "마스터 스위치 RED — 신규 진입 없음"
+      "conditions_not_met": [
+        "macd_histogram_rising_2d",
+        "adx <= 25",
+        "price_near_bb_lower",
+        "bounce_2pct",
+        "3day_low_hold"
       ],
+      "exit_level": null,
+      "notes": [],
       "strategy_stage": {}
     },
     {
@@ -316,59 +388,50 @@
       "classification": "growth_v22",
       "action": "HOLD",
       "tranche": null,
-      "confidence": 20,
+      "confidence": 0,
       "rationale": "특이 신호 없음. RSI 37.8. MACD 하락. 현재 포지션 유지.",
       "conditions_met": [],
-      "conditions_not_met": [],
-      "exit_level": null,
-      "notes": [
-        "마스터 스위치 RED — 신규 진입 없음"
+      "conditions_not_met": [
+        "macd_histogram_rising_2d",
+        "bounce_2pct",
+        "3day_low_hold"
       ],
-      "strategy_stage": {}
-    },
-    {
-      "ticker": "SLV",
-      "classification": "bond_gold_v26",
-      "action": "HOLD",
-      "tranche": null,
-      "confidence": 20,
-      "rationale": "특이 신호 없음. RSI 39.9. MACD 하락. 현재 포지션 유지.",
-      "conditions_met": [],
-      "conditions_not_met": [],
       "exit_level": null,
-      "notes": [
-        "마스터 스위치 RED — SLV 신규 진입 없음"
-      ],
+      "notes": [],
       "strategy_stage": {}
     },
     {
       "ticker": "TQQQ",
-      "classification": "speculative",
+      "classification": "growth_v22",
       "action": "HOLD",
       "tranche": null,
-      "confidence": 20,
+      "confidence": 50,
       "rationale": "특이 신호 없음. RSI 29.7. MACD 하락. 현재 포지션 유지.",
       "conditions_met": [],
       "conditions_not_met": [],
       "exit_level": null,
       "notes": [
-        "투기 종목 — 신규 매수 없음."
+        "패닉 바이 방지 — 당일 -5.9% 급낙"
       ],
       "strategy_stage": {}
     },
     {
       "ticker": "SOXL",
-      "classification": "speculative",
+      "classification": "growth_v22",
       "action": "HOLD",
       "tranche": null,
-      "confidence": 20,
+      "confidence": 0,
       "rationale": "특이 신호 없음. RSI 39.0. MACD 하락. 현재 포지션 유지.",
       "conditions_met": [],
-      "conditions_not_met": [],
-      "exit_level": null,
-      "notes": [
-        "투기 종목 — 신규 매수 없음."
+      "conditions_not_met": [
+        "macd_histogram_rising_2d",
+        "rsi <= 38",
+        "adx <= 25",
+        "bounce_2pct",
+        "3day_low_hold"
       ],
+      "exit_level": null,
+      "notes": [],
       "strategy_stage": {}
     }
   ],
@@ -396,14 +459,13 @@
   ],
   "summary": {
     "l3_breakdown": 0,
-    "l2_weakening": 2,
-    "l1_warning": 2,
+    "l2_weakening": 0,
+    "l1_warning": 4,
     "top_signal": 0,
-    "buy": 0,
+    "buy": 8,
     "watch": 0,
-    "hold": 17
+    "hold": 9
   },
-  "mode": "full",
   "rebalance_alerts": [
     {
       "trigger": "single_position_overweight",
