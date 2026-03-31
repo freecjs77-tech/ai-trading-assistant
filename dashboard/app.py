@@ -1,7 +1,6 @@
 """
 dashboard/app.py — Overview 페이지 (v4.0: 단일 시그널 + 매크로 경고 배너)
 """
-
 import json
 import os
 import sys
@@ -16,8 +15,10 @@ sys.path.insert(0, str(ROOT_DIR))
 
 from dashboard.style import inject_css, inject_sidebar_css
 from dashboard.components import (
-    metric_card, metrics_row,
-    macro_card, macro_row,
+    metric_card,
+    metrics_row,
+    macro_card,
+    macro_row,
     master_switch_banner,
     holdings_table_html,
     signal_card,
@@ -29,6 +30,7 @@ st.set_page_config(
     page_title="Overview | AI Trading Assistant",
     layout="wide",
 )
+
 st.markdown(inject_css(), unsafe_allow_html=True)
 st.markdown(inject_sidebar_css(), unsafe_allow_html=True)
 
@@ -36,16 +38,13 @@ KST = timezone(timedelta(hours=9))
 DATA_DIR = ROOT_DIR / "data"
 USE_MOCK = os.getenv("USE_MOCK_DATA", "false").lower() == "true"
 
-
-# ── 데이터 로드 ──────────────────────────────────────────
-
+# ── 데이터 로드 ────────────────────────────────────────
 def load_portfolio() -> dict:
     path = DATA_DIR / "portfolio.json"
     if not path.exists():
         return {}
     with open(path, encoding="utf-8") as f:
         return json.load(f)
-
 
 def load_market() -> dict:
     if USE_MOCK:
@@ -59,7 +58,6 @@ def load_market() -> dict:
     with open(path, encoding="utf-8") as f:
         return json.load(f)
 
-
 def load_signals_doc() -> dict:
     path = DATA_DIR / "signals.json"
     if not path.exists():
@@ -67,14 +65,13 @@ def load_signals_doc() -> dict:
     with open(path, encoding="utf-8") as f:
         return json.load(f)
 
-
 def gen_signals(market: dict, portfolio: dict) -> dict:
     try:
         from signal_generator import generate_signals
         return generate_signals(portfolio_data=portfolio, market_data=market)
-    except Exception:
+    except Exception as e:
+        st.error(f"시그널 생성 실패: {e}")
         return {}
-
 
 def fmt_date(iso_str: str) -> str:
     try:
@@ -83,13 +80,10 @@ def fmt_date(iso_str: str) -> str:
     except Exception:
         return iso_str
 
-
 def signals_dict(doc: dict) -> dict:
     return {s["ticker"]: s["action"] for s in doc.get("signals", [])}
 
-
-# ── 시작 ────────────────────────────────────────────────────────
-
+# ── 시작 ────────────────────────────────────────────────
 portfolio = load_portfolio()
 market = load_market()
 holdings = portfolio.get("holdings", [])
@@ -98,14 +92,18 @@ macro = market.get("macro", {})
 ms_status = ms.get("status", "RED")
 usdkrw = macro.get("usdkrw") or 1400.0
 
-sig_doc = load_signals_doc()
-if not sig_doc and market and portfolio:
-    sig_doc = gen_signals(market, portfolio)
+_sig_doc = load_signals_doc()
+if not _sig_doc and market and portfolio:
+    _sig_doc = gen_signals(market, portfolio)
 
+# session_state로 sig_doc 관리 (Update 버튼 결과 유지)
+if "sig_doc" not in st.session_state or not st.session_state.sig_doc:
+    st.session_state.sig_doc = _sig_doc
+
+sig_doc = st.session_state.sig_doc
 sig = signals_dict(sig_doc)
 
-# ── 헤더 ────────────────────────────────────────────────────────
-
+# ── 헤더 ────────────────────────────────────────────────────
 generated_at = sig_doc.get("generated_at", "")
 date_str = fmt_date(generated_at) if generated_at else sig_doc.get("date", "N/A")
 
@@ -118,13 +116,15 @@ with col_title:
     )
 with col_upd:
     if st.button("🔄 Update", use_container_width=True):
-        new_doc = gen_signals(market, portfolio)
+        with st.spinner("시그널 업데이트 중..."):
+            new_doc = gen_signals(market, portfolio)
         if new_doc:
-            sig_doc = new_doc
-            sig = signals_dict(sig_doc)
+            st.session_state.sig_doc = new_doc
+            st.rerun()
+        else:
+            st.warning("업데이트 결과가 없습니다. 로그를 확인하세요.")
 
-# ── 매크로 경고 배너 (표시 전용) ────────────────────────────
-
+# ── 매크로 경고 배너 (표시 전용) ──────────────────────────────────
 _macro_alerts = sig_doc.get("macro_alerts", [])
 for _alert in _macro_alerts:
     _lvl = _alert.get("level", "info")
@@ -138,8 +138,7 @@ for _alert in _macro_alerts:
         unsafe_allow_html=True,
     )
 
-# ── 마스터 스위치 배너 ──────────────────────────────────────────
-
+# ── 마스터 스위치 배너 ──────────────────────────────────────────────
 st.markdown(
     master_switch_banner(
         status=ms_status,
@@ -152,17 +151,15 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-
-# ── 메트릭 카드 ────────────────────────────────────────────────────
-
+# ── 메트릭 카드 ────────────────────────────────────────────────
 total_value = sum(h.get("value_usd", 0) for h in holdings)
 total_cost = sum(h.get("cost_usd", 0) for h in holdings)
 curr = st.session_state.get("currency", "USD")
-
 pnl_usd = total_value - total_cost
 pnl_pct = (pnl_usd / total_cost * 100) if total_cost > 0 else 0
 pnl_cls = "up" if pnl_usd >= 0 else "dn"
 pnl_sign = "+" if pnl_usd >= 0 else ""
+
 est_annual_div = 0
 _div_yields = {
     "VOO": 1.25, "QQQ": 0.55, "SPY": 1.20, "SCHD": 3.40, "AAPL": 0.44,
@@ -186,10 +183,8 @@ with _c3:
         st.session_state["currency"] = "KRW"
         st.rerun()
 
-
 def fmt_val(v: float) -> str:
     return format_krw(v, usdkrw) if curr == "KRW" else f"${v:,.0f}"
-
 
 st.markdown(
     metrics_row([
@@ -201,8 +196,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# ── 매크로 지표 카드 ────────────────────────────────────────────
-
+# ── 매크로 지표 카드 ──────────────────────────────────────────────
 treasury = macro.get("treasury_30y") or 0
 vix = macro.get("vix") or 0
 qqq_price = ms.get("qqq_price") or 0
@@ -221,10 +215,8 @@ st.markdown(macro_row([
     macro_card("VIX", f"{vix:.1f}", vix_label, vix_cls),
 ]), unsafe_allow_html=True)
 
-# ── 보유 테이블 ────────────────────────────────────────────────
-
+# ── 보유 테이블 ──────────────────────────────────────────────
 max_value = max((h.get("value_usd", 0) for h in holdings), default=1)
-
 st.markdown(
     holdings_table_html(
         holdings=holdings,
@@ -239,11 +231,8 @@ st.markdown(
 
 st.markdown('<hr class="sep">', unsafe_allow_html=True)
 
-
 # ── 시그널 섹션 ─────────────────────────────────────────────────────
-
 HOLD_ACTIONS = {"HOLD", "CASH"}
-
 
 def count_summary(sig_dict: dict) -> dict:
     c = {"warn": 0, "watch": 0, "buy": 0, "hold": 0}
@@ -260,7 +249,6 @@ def count_summary(sig_dict: dict) -> dict:
             c["hold"] += 1
     return c
 
-
 def render_signal_col(sig_list: list) -> str:
     active = [s for s in sig_list if s.get("action") not in HOLD_ACTIONS]
     hold_n = sum(1 for s in sig_list if s.get("action") in HOLD_ACTIONS)
@@ -273,28 +261,25 @@ def render_signal_col(sig_list: list) -> str:
         note = f'<div style="font-size:10px;color:#888;padding:4px 0">{hold_n}개 종목 HOLD/CASH</div>'
     return cards + note
 
-
 c_s = count_summary(sig)
 sw_b = f'<span class="sw sw-{ms_status[0].lower()}" style="font-size:11px;vertical-align:middle">{ms_status}</span>'
-
 sig_list = sig_doc.get("signals", [])
 
 st.markdown(
     f"""<div class="sig-row" style="display:flex;gap:16px">
-<div class="sig-col" style="flex:1">
-  <h3 style="font-size:14px;font-weight:600;margin:0 0 8px">{sw_b} Signals</h3>
-  <div class="sig-sm">
-    <span class="cnt">{c_s['warn']} warnings</span>
-    <span class="cnt">{c_s['watch']} watch</span>
-    <span class="cnt">{c_s['buy']} buy</span>
-    <span class="cnt">{c_s['hold']} hold</span>
+  <div class="sig-col" style="flex:1">
+    <h3 style="font-size:14px;font-weight:600;margin:0 0 8px">{sw_b} Signals</h3>
+    <div class="sig-sm">
+      <span class="cnt">{c_s['warn']} warnings</span>
+      <span class="cnt">{c_s['watch']} watch</span>
+      <span class="cnt">{c_s['buy']} buy</span>
+      <span class="cnt">{c_s['hold']} hold</span>
+    </div>
+    {render_signal_col(sig_list)}
   </div>
-  {render_signal_col(sig_list)}
-</div>
 </div>""",
     unsafe_allow_html=True,
 )
 
-# ── Signal reference 인덱스 ───────────────────────────────────
-
+# ── Signal reference 인덱스 ────────────────────────────────────────
 st.markdown(signal_index_html(), unsafe_allow_html=True)
