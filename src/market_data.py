@@ -459,13 +459,16 @@ def collect_all(use_cache_on_fail: bool = True) -> dict:
         logger.warning("❌ 수집 데이터 없음 — 기존 캐시 유지, 덮어쓰기 안 함")
         return old_cache
 
-    # 저장
-    DATA_DIR.mkdir(exist_ok=True)
-    cache_path = DATA_DIR / "market_cache.json"
-    with open(cache_path, "w", encoding="utf-8") as f:
-        json.dump(result, f, ensure_ascii=False, indent=2)
+    # 저장 (클라우드 파일시스템이 읽기 전용이어도 result 반환)
+    try:
+        DATA_DIR.mkdir(exist_ok=True)
+        cache_path = DATA_DIR / "market_cache.json"
+        with open(cache_path, "w", encoding="utf-8") as f:
+            json.dump(result, f, ensure_ascii=False, indent=2)
+        logger.info(f"\n✅ 시장 데이터 저장 완료: {cache_path}")
+    except Exception as write_err:
+        logger.warning(f"market_cache.json 저장 실패 (무시): {write_err}")
 
-    logger.info(f"\n✅ 시장 데이터 저장 완료: {cache_path}")
     logger.info(f"   종목: {len(ticker_data)}/{len(tickers)}개 성공")
     logger.info(f"   마스터 스위치: {master_switch['status']}")
     logger.info("=" * 50)
