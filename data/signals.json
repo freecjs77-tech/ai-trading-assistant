@@ -1,9 +1,9 @@
 {
-  "date": "2026-04-11",
+  "date": "2026-04-12",
   "master_switch": "GREEN",
   "vix_tier": "normal (19.2)",
   "treasury_30y": 4.914,
-  "usdkrw": 1485.41,
+  "usdkrw": 1482.7,
   "allocation_modifier": 1.0,
   "allocation_note": "",
   "signals": [
@@ -446,7 +446,7 @@
     {
       "type": "exchange_rate",
       "level": "caution",
-      "message": "원달러 1485원 — 환율 고점. 미국 주식 신규 매수 지연 권장."
+      "message": "원달러 1483원 — 환율 고점. 미국 주식 신규 매수 지연 권장."
     }
   ],
   "summary": {
