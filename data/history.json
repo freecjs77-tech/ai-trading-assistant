@@ -542,6 +542,13 @@
       "total_cost_usd": 379332.0,
       "total_pnl_usd": 52515.0,
       "holdings_count": 23
+    },
+    {
+      "date": "2026-04-20",
+      "total_value_usd": 431847.0,
+      "total_cost_usd": 379332.0,
+      "total_pnl_usd": 52515.0,
+      "holdings_count": 23
     }
   ]
 }
