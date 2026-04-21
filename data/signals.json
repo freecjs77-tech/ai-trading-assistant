@@ -1,72 +1,15 @@
 {
-  "date": "2026-04-21",
+  "date": "2026-04-22",
   "master_switch": "GREEN",
-  "vix_tier": "normal (17.5)",
-  "treasury_30y": 4.885,
-  "usdkrw": 1465.68,
+  "vix_tier": "normal (19.5)",
+  "treasury_30y": 4.898,
+  "usdkrw": 1486.73,
   "allocation_modifier": 1.0,
   "allocation_note": "",
   "signals": [
     {
-      "ticker": "AAPL",
-      "classification": "growth_v22",
-      "action": "TOP_SIGNAL",
-      "tranche": null,
-      "confidence": 70,
-      "rationale": "과매수 신호. BB 상단 돌파. 일부 강제 익절 권장.",
-      "conditions_met": [
-        "price_above_bb_upper"
-      ],
-      "conditions_not_met": [
-        "rsi >= 75",
-        "consecutive_above_bb_upper_2d",
-        "gain_3day_10pct"
-      ],
-      "exit_level": 99,
-      "notes": [],
-      "strategy_stage": {}
-    },
-    {
-      "ticker": "TSLA",
-      "classification": "growth_v22",
-      "action": "TOP_SIGNAL",
-      "tranche": null,
-      "confidence": 70,
-      "rationale": "과매수 신호. gain_3day_10pct. 일부 강제 익절 권장.",
-      "conditions_met": [
-        "gain_3day_10pct"
-      ],
-      "conditions_not_met": [
-        "rsi >= 75",
-        "price_above_bb_upper",
-        "consecutive_above_bb_upper_2d"
-      ],
-      "exit_level": 99,
-      "notes": [],
-      "strategy_stage": {}
-    },
-    {
-      "ticker": "MSFT",
-      "classification": "growth_v22",
-      "action": "TOP_SIGNAL",
-      "tranche": null,
-      "confidence": 70,
-      "rationale": "과매수 신호. BB 상단 돌파 + consecutive_above_bb_upper_2d. 일부 강제 익절 권장.",
-      "conditions_met": [
-        "price_above_bb_upper",
-        "consecutive_above_bb_upper_2d"
-      ],
-      "conditions_not_met": [
-        "rsi >= 75",
-        "gain_3day_10pct"
-      ],
-      "exit_level": 99,
-      "notes": [],
-      "strategy_stage": {}
-    },
-    {
-      "ticker": "AMZN",
-      "classification": "growth_v22",
+      "ticker": "UNH",
+      "classification": "energy_v23",
       "action": "TOP_SIGNAL",
       "tranche": null,
       "confidence": 70,
@@ -77,25 +20,6 @@
       "conditions_not_met": [
         "price_above_bb_upper",
         "consecutive_above_bb_upper_2d",
-        "gain_3day_10pct"
-      ],
-      "exit_level": 99,
-      "notes": [],
-      "strategy_stage": {}
-    },
-    {
-      "ticker": "TQQQ",
-      "classification": "speculative",
-      "action": "TOP_SIGNAL",
-      "tranche": null,
-      "confidence": 70,
-      "rationale": "과매수 신호. BB 상단 돌파 + consecutive_above_bb_upper_2d. 일부 강제 익절 권장.",
-      "conditions_met": [
-        "price_above_bb_upper",
-        "consecutive_above_bb_upper_2d"
-      ],
-      "conditions_not_met": [
-        "rsi >= 75",
         "gain_3day_10pct"
       ],
       "exit_level": 99,
@@ -122,21 +46,92 @@
       "strategy_stage": {}
     },
     {
-      "ticker": "ETHU",
-      "classification": "speculative",
-      "action": "TOP_SIGNAL",
+      "ticker": "NVDA",
+      "classification": "growth_v22",
+      "action": "L2_WEAKENING",
       "tranche": null,
       "confidence": 70,
-      "rationale": "과매수 신호. BB 상단 돌파 + gain_3day_10pct. 일부 강제 익절 권장.",
+      "rationale": "추세 약화 신호 2개 발동. MACD 히스토그램 3일 하락 + RSI 하락 다이버전스. 보유 30% 익절 권장.",
       "conditions_met": [
-        "price_above_bb_upper",
-        "gain_3day_10pct"
+        "macd_hist_declining_3d",
+        "rsi_lower_high_divergence"
       ],
       "conditions_not_met": [
-        "rsi >= 75",
-        "consecutive_above_bb_upper_2d"
+        "ma20_fresh_breakdown"
       ],
-      "exit_level": 99,
+      "exit_level": 2,
+      "notes": [],
+      "strategy_stage": {}
+    },
+    {
+      "ticker": "MSFT",
+      "classification": "growth_v22",
+      "action": "L2_WEAKENING",
+      "tranche": null,
+      "confidence": 70,
+      "rationale": "추세 약화 신호 2개 발동. MACD 히스토그램 3일 하락 + RSI 하락 다이버전스. 보유 30% 익절 권장.",
+      "conditions_met": [
+        "macd_hist_declining_3d",
+        "rsi_lower_high_divergence"
+      ],
+      "conditions_not_met": [
+        "ma20_fresh_breakdown"
+      ],
+      "exit_level": 2,
+      "notes": [],
+      "strategy_stage": {}
+    },
+    {
+      "ticker": "GOOGL",
+      "classification": "growth_v22",
+      "action": "L2_WEAKENING",
+      "tranche": null,
+      "confidence": 70,
+      "rationale": "추세 약화 신호 2개 발동. MACD 히스토그램 3일 하락 + RSI 하락 다이버전스. 보유 30% 익절 권장.",
+      "conditions_met": [
+        "macd_hist_declining_3d",
+        "rsi_lower_high_divergence"
+      ],
+      "conditions_not_met": [
+        "ma20_fresh_breakdown"
+      ],
+      "exit_level": 2,
+      "notes": [],
+      "strategy_stage": {}
+    },
+    {
+      "ticker": "AMZN",
+      "classification": "growth_v22",
+      "action": "L2_WEAKENING",
+      "tranche": null,
+      "confidence": 70,
+      "rationale": "추세 약화 신호 2개 발동. MACD 히스토그램 3일 하락 + RSI 하락 다이버전스. 보유 30% 익절 권장.",
+      "conditions_met": [
+        "macd_hist_declining_3d",
+        "rsi_lower_high_divergence"
+      ],
+      "conditions_not_met": [
+        "ma20_fresh_breakdown"
+      ],
+      "exit_level": 2,
+      "notes": [],
+      "strategy_stage": {}
+    },
+    {
+      "ticker": "TQQQ",
+      "classification": "speculative",
+      "action": "L2_WEAKENING",
+      "tranche": null,
+      "confidence": 70,
+      "rationale": "추세 약화 신호 2개 발동. MACD 히스토그램 3일 하락 + RSI 하락 다이버전스. 보유 30% 익절 권장.",
+      "conditions_met": [
+        "macd_hist_declining_3d",
+        "rsi_lower_high_divergence"
+      ],
+      "conditions_not_met": [
+        "ma20_fresh_breakdown"
+      ],
+      "exit_level": 2,
       "notes": [],
       "strategy_stage": {}
     },
@@ -159,7 +154,45 @@
       "strategy_stage": {}
     },
     {
-      "ticker": "NVDA",
+      "ticker": "O",
+      "classification": "energy_v23",
+      "action": "L1_WARNING",
+      "tranche": null,
+      "confidence": 50,
+      "rationale": "MACD 히스토그램 하락 전환 감지. MACD 히스토그램 하락 전환 + RSI 65에서 하락 전환. 신규 매수 중단, L2 발동 시 30% 트림 준비.",
+      "conditions_met": [
+        "macd_hist_declining_1_2d",
+        "rsi_65_turning_down"
+      ],
+      "conditions_not_met": [
+        "volume_divergence_negative",
+        "bb_upper_pullback"
+      ],
+      "exit_level": 1,
+      "notes": [],
+      "strategy_stage": {}
+    },
+    {
+      "ticker": "ETHU",
+      "classification": "speculative",
+      "action": "L1_WARNING",
+      "tranche": null,
+      "confidence": 50,
+      "rationale": "MACD 히스토그램 하락 전환 감지. MACD 히스토그램 하락 전환 + 거래량 감소 다이버전스. 신규 매수 중단, L2 발동 시 30% 트림 준비.",
+      "conditions_met": [
+        "macd_hist_declining_1_2d",
+        "volume_divergence_negative"
+      ],
+      "conditions_not_met": [
+        "rsi_65_turning_down",
+        "bb_upper_pullback"
+      ],
+      "exit_level": 1,
+      "notes": [],
+      "strategy_stage": {}
+    },
+    {
+      "ticker": "AAPL",
       "classification": "growth_v22",
       "action": "BUY_T3",
       "tranche": 3,
@@ -177,15 +210,14 @@
       "strategy_stage": {}
     },
     {
-      "ticker": "GOOGL",
+      "ticker": "TSLA",
       "classification": "growth_v22",
       "action": "BUY_T3",
       "tranche": 3,
       "confidence": 100,
-      "rationale": "성장주(v2.2) 3차 풀포지션(50%) 조건 충족. 가격 MA20 상향 + MACD 제로선 상향 + ma20_slope_rising + consecutive_above_ma20_2d.",
+      "rationale": "성장주(v2.2) 3차 풀포지션(50%) 조건 충족. 가격 MA20 상향 + ma20_slope_rising + consecutive_above_ma20_2d.",
       "conditions_met": [
         "price_above_ma20",
-        "macd_above_zero",
         "ma20_slope_rising",
         "consecutive_above_ma20_2d"
       ],
@@ -195,16 +227,17 @@
       "strategy_stage": {}
     },
     {
-      "ticker": "CRCL",
-      "classification": "growth_v22",
-      "action": "BUY_T3",
-      "tranche": 3,
+      "ticker": "VOO",
+      "classification": "etf_v24",
+      "action": "BUY_T2",
+      "tranche": 2,
       "confidence": 100,
-      "rationale": "성장주(v2.2) 3차 풀포지션(50%) 조건 충족. 가격 MA20 상향 + MACD 제로선 상향 + consecutive_above_ma20_2d.",
+      "rationale": "ETF(v2.4) 2차 추가매수(30%) 조건 충족. RSI 회복(42↑) + MACD > Signal + 가격 MA20 상향 + 상승 저점.",
       "conditions_met": [
+        "rsi > 42",
+        "macd > macd_signal",
         "price_above_ma20",
-        "macd_above_zero",
-        "consecutive_above_ma20_2d"
+        "higher_low"
       ],
       "conditions_not_met": [],
       "exit_level": null,
@@ -223,23 +256,6 @@
         "macd > macd_signal",
         "price_above_ma20",
         "higher_low"
-      ],
-      "conditions_not_met": [],
-      "exit_level": null,
-      "notes": [],
-      "strategy_stage": {}
-    },
-    {
-      "ticker": "O",
-      "classification": "energy_v23",
-      "action": "BUY_T2",
-      "tranche": 2,
-      "confidence": 100,
-      "rationale": "에너지/가치(v2.3) 2차 추가매수(30%) 조건 충족. rsi > 40 + MACD > Signal + 가격 MA20 상향.",
-      "conditions_met": [
-        "rsi > 40",
-        "macd > macd_signal",
-        "price_above_ma20"
       ],
       "conditions_not_met": [],
       "exit_level": null,
@@ -280,7 +296,7 @@
       "strategy_stage": {}
     },
     {
-      "ticker": "SLV",
+      "ticker": "SPY",
       "classification": "etf_v24",
       "action": "BUY_T2",
       "tranche": 2,
@@ -303,7 +319,7 @@
       "action": "CASH",
       "tranche": null,
       "confidence": 50,
-      "rationale": "단기채 현금성 자산. RSI 98.4. 현재 포지션 유지.",
+      "rationale": "단기채 현금성 자산. RSI 98.6. 현재 포지션 유지.",
       "conditions_met": [],
       "conditions_not_met": [],
       "exit_level": null,
@@ -313,31 +329,12 @@
       "strategy_stage": {}
     },
     {
-      "ticker": "VOO",
-      "classification": "etf_v24",
-      "action": "HOLD",
-      "tranche": null,
-      "confidence": 0,
-      "rationale": "특이 신호 없음. RSI 73.6. MACD 상승. 현재 포지션 유지.",
-      "conditions_met": [],
-      "conditions_not_met": [
-        "rsi <= 40",
-        "price_below_ma20",
-        "price_near_bb_lower",
-        "momentum_declining_slowing",
-        "pullback_5pct"
-      ],
-      "exit_level": null,
-      "notes": [],
-      "strategy_stage": {}
-    },
-    {
       "ticker": "QQQ",
       "classification": "etf_v24",
       "action": "HOLD",
       "tranche": null,
       "confidence": 0,
-      "rationale": "특이 신호 없음. RSI 74.5. MACD 상승. 현재 포지션 유지.",
+      "rationale": "특이 신호 없음. RSI 70.6. MACD 상승. 현재 포지션 유지.",
       "conditions_met": [],
       "conditions_not_met": [
         "rsi <= 40",
@@ -356,7 +353,7 @@
       "action": "HOLD",
       "tranche": null,
       "confidence": 0,
-      "rationale": "특이 신호 없음. RSI 77.1. MACD 상승. 현재 포지션 유지.",
+      "rationale": "특이 신호 없음. RSI 78.3. MACD 상승. 현재 포지션 유지.",
       "conditions_met": [],
       "conditions_not_met": [
         "rsi <= 40",
@@ -375,7 +372,7 @@
       "action": "HOLD",
       "tranche": null,
       "confidence": 0,
-      "rationale": "특이 신호 없음. RSI 52.2. MACD 상승. 현재 포지션 유지.",
+      "rationale": "특이 신호 없음. RSI 51.8. MACD 상승. 현재 포지션 유지.",
       "conditions_met": [],
       "conditions_not_met": [
         "rsi <= 38",
@@ -389,42 +386,33 @@
       "strategy_stage": {}
     },
     {
-      "ticker": "SPY",
+      "ticker": "SLV",
       "classification": "etf_v24",
       "action": "HOLD",
       "tranche": null,
-      "confidence": 0,
-      "rationale": "특이 신호 없음. RSI 73.6. MACD 상승. 현재 포지션 유지.",
+      "confidence": 50,
+      "rationale": "특이 신호 없음. RSI 47.4. MACD 상승. 현재 포지션 유지.",
       "conditions_met": [],
-      "conditions_not_met": [
-        "rsi <= 40",
-        "price_below_ma20",
-        "price_near_bb_lower",
-        "momentum_declining_slowing",
-        "pullback_5pct"
-      ],
+      "conditions_not_met": [],
       "exit_level": null,
-      "notes": [],
+      "notes": [
+        "패닉 바이 방지 — 당일 -5.1% 급낙"
+      ],
       "strategy_stage": {}
     },
     {
-      "ticker": "UNH",
-      "classification": "energy_v23",
+      "ticker": "CRCL",
+      "classification": "growth_v22",
       "action": "HOLD",
       "tranche": null,
-      "confidence": 0,
-      "rationale": "특이 신호 없음. RSI 73.4. MACD 상승. 현재 포지션 유지.",
+      "confidence": 50,
+      "rationale": "특이 신호 없음. RSI 46.9. MACD 상승. 현재 포지션 유지.",
       "conditions_met": [],
-      "conditions_not_met": [
-        "macd_histogram_rising_2d",
-        "rsi <= 38",
-        "adx <= 25",
-        "price_near_bb_lower",
-        "price_below_ma20",
-        "3day_low_hold"
-      ],
+      "conditions_not_met": [],
       "exit_level": null,
-      "notes": [],
+      "notes": [
+        "패닉 바이 방지 — 당일 -9.7% 급낙"
+      ],
       "strategy_stage": {}
     }
   ],
@@ -432,22 +420,22 @@
     {
       "type": "treasury_yield",
       "level": "info",
-      "message": "30Y 금리 4.885% — 5.0% 진입 트리거 임박."
+      "message": "30Y 금리 4.898% — 5.0% 진입 트리거 임박."
     },
     {
       "type": "exchange_rate",
       "level": "caution",
-      "message": "원달러 1466원 — 환율 고점. 미국 주식 신규 매수 지연 권장."
+      "message": "원달러 1487원 — 환율 고점. 미국 주식 신규 매수 지연 권장."
     }
   ],
   "summary": {
     "l3_breakdown": 0,
-    "l2_weakening": 1,
-    "l1_warning": 0,
-    "top_signal": 7,
-    "buy": 8,
+    "l2_weakening": 6,
+    "l1_warning": 2,
+    "top_signal": 2,
+    "buy": 7,
     "watch": 0,
-    "hold": 6
+    "hold": 5
   },
   "rebalance_alerts": [
     {
