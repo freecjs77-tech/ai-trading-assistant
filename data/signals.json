@@ -1,9 +1,9 @@
 {
-  "date": "2026-08-01",
+  "date": "2026-08-02",
   "master_switch": "GREEN",
   "vix_tier": "normal (16.0)",
   "treasury_30y": 5.275,
-  "usdkrw": 1442.07,
+  "usdkrw": 1436.6,
   "allocation_modifier": 1.0,
   "allocation_note": "",
   "signals": [
@@ -318,7 +318,7 @@
       "action": "HOLD",
       "tranche": null,
       "confidence": 0,
-      "rationale": "특이 신호 없음. RSI 48.9. MACD 하락. 현재 포지션 유지.",
+      "rationale": "특이 신호 없음. RSI 50.7. MACD 하락. 현재 포지션 유지.",
       "conditions_met": [],
       "conditions_not_met": [
         "macd_histogram_rising_2d",
