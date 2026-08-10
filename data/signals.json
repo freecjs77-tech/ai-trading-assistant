@@ -1,9 +1,9 @@
 {
-  "date": "2026-08-10",
+  "date": "2026-08-11",
   "master_switch": "GREEN",
-  "vix_tier": "normal (14.9)",
-  "treasury_30y": 5.211,
-  "usdkrw": 1407.45,
+  "vix_tier": "normal (15.5)",
+  "treasury_30y": 5.243,
+  "usdkrw": 1417.69,
   "allocation_modifier": 1.0,
   "allocation_note": "",
   "signals": [
@@ -12,15 +12,15 @@
       "classification": "growth_v22",
       "action": "TOP_SIGNAL",
       "tranche": null,
-      "confidence": 70,
-      "rationale": "과매수 신호. BB 상단 돌파. 일부 강제 익절 권장.",
+      "confidence": 75,
+      "rationale": "과매수 신호. BB 상단 돌파 + consecutive_above_bb_upper_2d + gain_3day_10pct. 일부 강제 익절 권장.",
       "conditions_met": [
-        "price_above_bb_upper"
-      ],
-      "conditions_not_met": [
-        "rsi >= 75",
+        "price_above_bb_upper",
         "consecutive_above_bb_upper_2d",
         "gain_3day_10pct"
+      ],
+      "conditions_not_met": [
+        "rsi >= 75"
       ],
       "exit_level": 99,
       "notes": [],
@@ -120,15 +120,14 @@
       "strategy_stage": {}
     },
     {
-      "ticker": "ETHU",
+      "ticker": "CRCL",
       "classification": "growth_v22",
       "action": "BUY_T3",
       "tranche": 3,
       "confidence": 100,
-      "rationale": "성장주(v2.2) 3차 풀포지션(50%) 조건 충족. 가격 MA20 상향 + MACD 제로선 상향 + ma20_slope_rising + consecutive_above_ma20_2d.",
+      "rationale": "성장주(v2.2) 3차 풀포지션(50%) 조건 충족. 가격 MA20 상향 + ma20_slope_rising + consecutive_above_ma20_2d.",
       "conditions_met": [
         "price_above_ma20",
-        "macd_above_zero",
         "ma20_slope_rising",
         "consecutive_above_ma20_2d"
       ],
@@ -233,10 +232,9 @@
       "action": "BUY_T2",
       "tranche": 2,
       "confidence": 100,
-      "rationale": "채권/금(v2.6) 2차 추가매수(30%) 조건 충족. 30Y 금리 5.2% 돌파 + TLT MACD 골든크로스.",
+      "rationale": "채권/금(v2.6) 2차 추가매수(30%) 조건 충족. 30Y 금리 5.2% 돌파.",
       "conditions_met": [
-        "treasury_30y >= 5.2",
-        "tlt_macd_golden_cross"
+        "treasury_30y >= 5.2"
       ],
       "conditions_not_met": [],
       "exit_level": null,
@@ -262,51 +260,25 @@
       "strategy_stage": {}
     },
     {
-      "ticker": "AAPL",
-      "classification": "growth_v22",
+      "ticker": "UNH",
+      "classification": "energy_v23",
       "action": "WATCH",
       "tranche": null,
       "confidence": 42,
-      "rationale": "진입 조건 접근 중. MACD 히스토그램 2일 상승 + ADX 약세(25↓) + 가격 MA20 하향. 나머지 조건 확인 후 진입 결정.",
+      "rationale": "진입 조건 접근 중. MACD 히스토그램 2일 상승 + BB 하단 근접 + 가격 MA20 하향. 나머지 조건 확인 후 진입 결정.",
       "conditions_met": [
         "macd_histogram_rising_2d",
-        "adx <= 25",
+        "price_near_bb_lower",
         "price_below_ma20"
       ],
       "conditions_not_met": [
         "rsi <= 38",
-        "price_near_bb_lower",
-        "bounce_2pct",
-        "3day_low_hold"
-      ],
-      "exit_level": null,
-      "notes": [
-        "T1 조건 2/3 충족 (adx <= 25, price_below_ma20)"
-      ],
-      "strategy_stage": {}
-    },
-    {
-      "ticker": "TSLA",
-      "classification": "growth_v22",
-      "action": "WATCH",
-      "tranche": null,
-      "confidence": 42,
-      "rationale": "진입 조건 접근 중. MACD 히스토그램 2일 상승 + 가격 MA20 하향 + 3일 저점 유지. 나머지 조건 확인 후 진입 결정.",
-      "conditions_met": [
-        "macd_histogram_rising_2d",
-        "price_below_ma20",
-        "3day_low_hold"
-      ],
-      "conditions_not_met": [
-        "rsi <= 38",
         "adx <= 25",
-        "price_near_bb_lower",
+        "3day_low_hold",
         "bounce_2pct"
       ],
       "exit_level": null,
-      "notes": [
-        "T1 조건 2/3 충족 (price_below_ma20, 3day_low_hold)"
-      ],
+      "notes": [],
       "strategy_stage": {}
     },
     {
@@ -325,26 +297,8 @@
       "strategy_stage": {}
     },
     {
-      "ticker": "O",
-      "classification": "energy_v23",
-      "action": "HOLD",
-      "tranche": null,
-      "confidence": 0,
-      "rationale": "특이 신호 없음. RSI 42.2. MACD 하락. 현재 포지션 유지.",
-      "conditions_met": [],
-      "conditions_not_met": [
-        "macd_histogram_rising_2d",
-        "rsi <= 38",
-        "3day_low_hold",
-        "bounce_2pct"
-      ],
-      "exit_level": null,
-      "notes": [],
-      "strategy_stage": {}
-    },
-    {
-      "ticker": "UNH",
-      "classification": "energy_v23",
+      "ticker": "AAPL",
+      "classification": "growth_v22",
       "action": "HOLD",
       "tranche": null,
       "confidence": 0,
@@ -353,9 +307,45 @@
       "conditions_not_met": [
         "macd_histogram_rising_2d",
         "rsi <= 38",
-        "adx <= 25",
-        "3day_low_hold",
+        "price_near_bb_lower",
+        "bounce_2pct",
+        "3day_low_hold"
+      ],
+      "exit_level": null,
+      "notes": [],
+      "strategy_stage": {}
+    },
+    {
+      "ticker": "O",
+      "classification": "energy_v23",
+      "action": "HOLD",
+      "tranche": null,
+      "confidence": 0,
+      "rationale": "특이 신호 없음. RSI 38.3. MACD 하락. 현재 포지션 유지.",
+      "conditions_met": [],
+      "conditions_not_met": [
+        "macd_histogram_rising_2d",
+        "rsi <= 38",
         "bounce_2pct"
+      ],
+      "exit_level": null,
+      "notes": [],
+      "strategy_stage": {}
+    },
+    {
+      "ticker": "TSLA",
+      "classification": "growth_v22",
+      "action": "HOLD",
+      "tranche": null,
+      "confidence": 0,
+      "rationale": "특이 신호 없음. RSI 42.5. MACD 상승. 현재 포지션 유지.",
+      "conditions_met": [],
+      "conditions_not_met": [
+        "rsi <= 38",
+        "adx <= 25",
+        "price_near_bb_lower",
+        "bounce_2pct",
+        "3day_low_hold"
       ],
       "exit_level": null,
       "notes": [],
@@ -367,7 +357,7 @@
       "action": "HOLD",
       "tranche": null,
       "confidence": 0,
-      "rationale": "특이 신호 없음. RSI 55.6. MACD 상승. 현재 포지션 유지.",
+      "rationale": "특이 신호 없음. RSI 54.6. MACD 상승. 현재 포지션 유지.",
       "conditions_met": [],
       "conditions_not_met": [
         "rsi <= 38",
@@ -385,33 +375,28 @@
       "classification": "growth_v22",
       "action": "HOLD",
       "tranche": null,
-      "confidence": 0,
-      "rationale": "특이 신호 없음. RSI 47.1. MACD 상승. 현재 포지션 유지.",
+      "confidence": 50,
+      "rationale": "특이 신호 없음. RSI 44.5. MACD 상승. 현재 포지션 유지.",
       "conditions_met": [],
-      "conditions_not_met": [
-        "rsi <= 38",
-        "adx <= 25",
-        "price_near_bb_lower",
-        "price_below_ma20",
-        "bounce_2pct",
-        "3day_low_hold"
-      ],
+      "conditions_not_met": [],
       "exit_level": null,
-      "notes": [],
+      "notes": [
+        "패닉 바이 방지 — 당일 -7.3% 급낙"
+      ],
       "strategy_stage": {}
     },
     {
-      "ticker": "CRCL",
+      "ticker": "ETHU",
       "classification": "growth_v22",
       "action": "HOLD",
       "tranche": null,
       "confidence": 0,
-      "rationale": "특이 신호 없음. RSI 50.1. MACD 상승. 현재 포지션 유지.",
+      "rationale": "특이 신호 없음. RSI 49.3. MACD 하락. 현재 포지션 유지.",
       "conditions_met": [],
       "conditions_not_met": [
+        "macd_histogram_rising_2d",
         "rsi <= 38",
         "price_near_bb_lower",
-        "price_below_ma20",
         "bounce_2pct",
         "3day_low_hold"
       ],
@@ -424,18 +409,14 @@
       "classification": "growth_v22",
       "action": "HOLD",
       "tranche": null,
-      "confidence": 0,
-      "rationale": "특이 신호 없음. RSI 43.2. MACD 상승. 현재 포지션 유지.",
+      "confidence": 50,
+      "rationale": "특이 신호 없음. RSI 34.8. MACD 상승. 현재 포지션 유지.",
       "conditions_met": [],
-      "conditions_not_met": [
-        "macd_histogram_rising_2d",
-        "rsi <= 38",
-        "price_near_bb_lower",
-        "bounce_2pct",
-        "3day_low_hold"
-      ],
+      "conditions_not_met": [],
       "exit_level": null,
-      "notes": [],
+      "notes": [
+        "패닉 바이 방지 — 당일 -20.1% 급낙"
+      ],
       "strategy_stage": {}
     }
   ],
@@ -443,7 +424,7 @@
     {
       "type": "treasury_yield",
       "level": "warning",
-      "message": "30Y 금리 5.211% — 주식 진입 urgency 하향. TLT 2차 트리거 임박."
+      "message": "30Y 금리 5.243% — 주식 진입 urgency 하향. TLT 2차 트리거 임박."
     }
   ],
   "summary": {
@@ -452,8 +433,8 @@
     "l1_warning": 1,
     "top_signal": 3,
     "buy": 9,
-    "watch": 2,
-    "hold": 6
+    "watch": 1,
+    "hold": 7
   },
   "rebalance_alerts": [
     {
