@@ -1,9 +1,9 @@
 {
-  "date": "2026-10-02",
+  "date": "2026-10-03",
   "master_switch": "RED",
-  "vix_tier": "normal (16.3)",
-  "treasury_30y": 5.638,
-  "usdkrw": 1361.18,
+  "vix_tier": "normal (15.3)",
+  "treasury_30y": 5.63,
+  "usdkrw": 1342.51,
   "allocation_modifier": 1.0,
   "allocation_note": "",
   "signals": [
@@ -26,59 +26,38 @@
       "strategy_stage": {}
     },
     {
-      "ticker": "NVDA",
-      "classification": "growth_v22",
-      "action": "L1_WARNING",
-      "tranche": null,
-      "confidence": 50,
-      "rationale": "MACD 히스토그램 하락 전환 감지. MACD 히스토그램 하락 전환 + RSI 65에서 하락 전환. 신규 매수 중단, L2 발동 시 30% 트림 준비.",
-      "conditions_met": [
-        "macd_hist_declining_1_2d",
-        "rsi_65_turning_down"
-      ],
-      "conditions_not_met": [
-        "volume_divergence_negative",
-        "bb_upper_pullback"
-      ],
-      "exit_level": 1,
-      "notes": [],
-      "strategy_stage": {}
-    },
-    {
       "ticker": "TQQQ",
       "classification": "speculative",
-      "action": "L1_WARNING",
+      "action": "L2_WEAKENING",
       "tranche": null,
-      "confidence": 50,
-      "rationale": "MACD 히스토그램 하락 전환 감지. MACD 히스토그램 하락 전환 + RSI 65에서 하락 전환. 신규 매수 중단, L2 발동 시 30% 트림 준비.",
+      "confidence": 70,
+      "rationale": "추세 약화 신호 2개 발동. MACD 히스토그램 3일 하락 + RSI 하락 다이버전스. 보유 30% 익절 권장.",
       "conditions_met": [
-        "macd_hist_declining_1_2d",
-        "rsi_65_turning_down"
+        "macd_hist_declining_3d",
+        "rsi_lower_high_divergence"
       ],
       "conditions_not_met": [
-        "volume_divergence_negative",
-        "bb_upper_pullback"
+        "ma20_fresh_breakdown"
       ],
-      "exit_level": 1,
+      "exit_level": 2,
       "notes": [],
       "strategy_stage": {}
     },
     {
       "ticker": "SOXL",
       "classification": "speculative",
-      "action": "L1_WARNING",
+      "action": "L2_WEAKENING",
       "tranche": null,
-      "confidence": 75,
-      "rationale": "MACD 히스토그램 하락 전환 감지. MACD 히스토그램 하락 전환 + RSI 65에서 하락 전환 + 거래량 감소 다이버전스. 신규 매수 중단, L2 발동 시 30% 트림 준비.",
+      "confidence": 70,
+      "rationale": "추세 약화 신호 2개 발동. MACD 히스토그램 3일 하락 + RSI 하락 다이버전스. 보유 30% 익절 권장.",
       "conditions_met": [
-        "macd_hist_declining_1_2d",
-        "rsi_65_turning_down",
-        "volume_divergence_negative"
+        "macd_hist_declining_3d",
+        "rsi_lower_high_divergence"
       ],
       "conditions_not_met": [
-        "bb_upper_pullback"
+        "ma20_fresh_breakdown"
       ],
-      "exit_level": 1,
+      "exit_level": 2,
       "notes": [],
       "strategy_stage": {}
     },
@@ -134,6 +113,23 @@
       "strategy_stage": {}
     },
     {
+      "ticker": "TSLA",
+      "classification": "growth_v22",
+      "action": "BUY_T3",
+      "tranche": 3,
+      "confidence": 100,
+      "rationale": "성장주(v2.2) 3차 풀포지션(50%) 조건 충족. MACD 제로선 상향 + 거래량 30% 증가 + ma20_slope_rising.",
+      "conditions_met": [
+        "macd_above_zero",
+        "volume_ratio >= 1.3",
+        "ma20_slope_rising"
+      ],
+      "conditions_not_met": [],
+      "exit_level": null,
+      "notes": [],
+      "strategy_stage": {}
+    },
+    {
       "ticker": "SPY",
       "classification": "etf_v24",
       "action": "BUY_T3",
@@ -167,25 +163,25 @@
       "strategy_stage": {}
     },
     {
-      "ticker": "O",
-      "classification": "energy_v23",
+      "ticker": "SCHD",
+      "classification": "etf_v24",
       "action": "WATCH",
       "tranche": null,
-      "confidence": 42,
-      "rationale": "진입 조건 접근 중. MACD 히스토그램 2일 상승 + RSI 과매도(38↓) + 3일 저점 유지. 나머지 조건 확인 후 진입 결정.",
+      "confidence": 40,
+      "rationale": "진입 조건 접근 중. RSI 과매도(40↓) + 모멘텀 둔화. 나머지 조건 확인 후 진입 결정.",
       "conditions_met": [
-        "macd_histogram_rising_2d",
-        "rsi <= 38",
-        "3day_low_hold"
+        "rsi <= 40",
+        "momentum_declining_slowing"
       ],
       "conditions_not_met": [
-        "adx <= 25",
-        "price_near_bb_lower",
         "price_below_ma20",
-        "bounce_2pct"
+        "price_near_bb_lower",
+        "pullback_5pct"
       ],
       "exit_level": null,
-      "notes": [],
+      "notes": [
+        "T1 조건 2/3 충족"
+      ],
       "strategy_stage": {}
     },
     {
@@ -194,7 +190,7 @@
       "action": "CASH",
       "tranche": null,
       "confidence": 50,
-      "rationale": "단기채 현금성 자산. RSI 96.0. 현재 포지션 유지.",
+      "rationale": "단기채 현금성 자산. RSI 92.6. 현재 포지션 유지.",
       "conditions_met": [],
       "conditions_not_met": [],
       "exit_level": null,
@@ -204,30 +200,12 @@
       "strategy_stage": {}
     },
     {
-      "ticker": "SCHD",
-      "classification": "etf_v24",
-      "action": "HOLD",
-      "tranche": null,
-      "confidence": 0,
-      "rationale": "특이 신호 없음. RSI 31.4. MACD 하락. 현재 포지션 유지.",
-      "conditions_met": [],
-      "conditions_not_met": [
-        "price_below_ma20",
-        "price_near_bb_lower",
-        "momentum_declining_slowing",
-        "pullback_5pct"
-      ],
-      "exit_level": null,
-      "notes": [],
-      "strategy_stage": {}
-    },
-    {
       "ticker": "AAPL",
       "classification": "growth_v22",
       "action": "HOLD",
       "tranche": null,
       "confidence": 0,
-      "rationale": "특이 신호 없음. RSI 50.9. MACD 하락. 현재 포지션 유지.",
+      "rationale": "특이 신호 없음. RSI 51.5. MACD 하락. 현재 포지션 유지.",
       "conditions_met": [],
       "conditions_not_met": [
         "macd_histogram_rising_2d",
@@ -242,12 +220,31 @@
       "strategy_stage": {}
     },
     {
+      "ticker": "O",
+      "classification": "energy_v23",
+      "action": "HOLD",
+      "tranche": null,
+      "confidence": 0,
+      "rationale": "특이 신호 없음. RSI 12.6. MACD 하락. 현재 포지션 유지.",
+      "conditions_met": [],
+      "conditions_not_met": [
+        "macd_histogram_rising_2d",
+        "adx <= 25",
+        "price_near_bb_lower",
+        "price_below_ma20",
+        "bounce_2pct"
+      ],
+      "exit_level": null,
+      "notes": [],
+      "strategy_stage": {}
+    },
+    {
       "ticker": "JEPI",
       "classification": "etf_v24",
       "action": "HOLD",
       "tranche": null,
       "confidence": 0,
-      "rationale": "특이 신호 없음. RSI 45.9. MACD 상승. 현재 포지션 유지.",
+      "rationale": "특이 신호 없음. RSI 42.6. MACD 하락. 현재 포지션 유지.",
       "conditions_met": [],
       "conditions_not_met": [
         "rsi <= 40",
@@ -261,12 +258,12 @@
       "strategy_stage": {}
     },
     {
-      "ticker": "TSLA",
+      "ticker": "NVDA",
       "classification": "growth_v22",
       "action": "HOLD",
       "tranche": null,
       "confidence": 0,
-      "rationale": "특이 신호 없음. RSI 44.8. MACD 하락. 현재 포지션 유지.",
+      "rationale": "특이 신호 없음. RSI 60.2. MACD 상승. 현재 포지션 유지.",
       "conditions_met": [],
       "conditions_not_met": [
         "macd_histogram_rising_2d",
@@ -286,11 +283,10 @@
       "action": "HOLD",
       "tranche": null,
       "confidence": 0,
-      "rationale": "특이 신호 없음. RSI 40.3. MACD 상승. 현재 포지션 유지.",
+      "rationale": "특이 신호 없음. RSI 33.2. MACD 하락. 현재 포지션 유지.",
       "conditions_met": [],
       "conditions_not_met": [
         "macd_histogram_rising_2d",
-        "rsi <= 38",
         "adx <= 25",
         "price_near_bb_lower",
         "price_below_ma20",
@@ -306,9 +302,10 @@
       "action": "HOLD",
       "tranche": null,
       "confidence": 0,
-      "rationale": "특이 신호 없음. RSI 58.5. MACD 하락. 현재 포지션 유지.",
+      "rationale": "특이 신호 없음. RSI 60.3. MACD 상승. 현재 포지션 유지.",
       "conditions_met": [],
       "conditions_not_met": [
+        "macd_histogram_rising_2d",
         "rsi <= 38",
         "adx <= 25",
         "price_near_bb_lower",
@@ -326,7 +323,7 @@
       "action": "HOLD",
       "tranche": null,
       "confidence": 0,
-      "rationale": "특이 신호 없음. RSI 47.4. MACD 상승. 현재 포지션 유지.",
+      "rationale": "특이 신호 없음. RSI 45.4. MACD 하락. 현재 포지션 유지.",
       "conditions_met": [],
       "conditions_not_met": [
         "macd_histogram_rising_2d",
@@ -346,14 +343,14 @@
       "action": "HOLD",
       "tranche": null,
       "confidence": 0,
-      "rationale": "특이 신호 없음. RSI 41.9. MACD 하락. 현재 포지션 유지.",
+      "rationale": "특이 신호 없음. RSI 44.2. MACD 하락. 현재 포지션 유지.",
       "conditions_met": [],
       "conditions_not_met": [
-        "macd_histogram_rising_2d",
         "rsi <= 38",
         "price_near_bb_lower",
         "price_below_ma20",
-        "bounce_2pct"
+        "bounce_2pct",
+        "3day_low_hold"
       ],
       "exit_level": null,
       "notes": [],
@@ -365,13 +362,12 @@
       "action": "HOLD",
       "tranche": null,
       "confidence": 0,
-      "rationale": "특이 신호 없음. RSI 41.4. MACD 하락. 현재 포지션 유지.",
+      "rationale": "특이 신호 없음. RSI 41.0. MACD 하락. 현재 포지션 유지.",
       "conditions_met": [],
       "conditions_not_met": [
         "rsi <= 40",
         "price_below_ma20",
         "price_near_bb_lower",
-        "momentum_declining_slowing",
         "pullback_5pct"
       ],
       "exit_level": null,
@@ -384,7 +380,7 @@
       "action": "HOLD",
       "tranche": null,
       "confidence": 0,
-      "rationale": "특이 신호 없음. RSI 63.5. MACD 하락. 현재 포지션 유지.",
+      "rationale": "특이 신호 없음. RSI 63.3. MACD 하락. 현재 포지션 유지.",
       "conditions_met": [],
       "conditions_not_met": [
         "macd_histogram_rising_2d",
@@ -405,7 +401,7 @@
       "action": "HOLD",
       "tranche": null,
       "confidence": 0,
-      "rationale": "특이 신호 없음. RSI 45.9. MACD 하락. 현재 포지션 유지.",
+      "rationale": "특이 신호 없음. RSI 45.4. MACD 하락. 현재 포지션 유지.",
       "conditions_met": [],
       "conditions_not_met": [
         "macd_histogram_rising_2d",
@@ -425,7 +421,7 @@
       "action": "HOLD",
       "tranche": null,
       "confidence": 0,
-      "rationale": "특이 신호 없음. RSI 44.8. MACD 하락. 현재 포지션 유지.",
+      "rationale": "특이 신호 없음. RSI 43.5. MACD 하락. 현재 포지션 유지.",
       "conditions_met": [],
       "conditions_not_met": [
         "macd_histogram_rising_2d",
@@ -449,15 +445,15 @@
     {
       "type": "treasury_yield",
       "level": "warning",
-      "message": "30Y 금리 5.638% — 주식 진입 urgency 하향. TLT 2차 트리거 임박."
+      "message": "30Y 금리 5.630% — 주식 진입 urgency 하향. TLT 2차 트리거 임박."
     }
   ],
   "summary": {
     "l3_breakdown": 0,
-    "l2_weakening": 1,
-    "l1_warning": 3,
+    "l2_weakening": 3,
+    "l1_warning": 0,
     "top_signal": 0,
-    "buy": 5,
+    "buy": 6,
     "watch": 1,
     "hold": 12
   },
